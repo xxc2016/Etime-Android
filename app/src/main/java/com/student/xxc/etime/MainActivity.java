@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity
     private List<Trace>traceList=new ArrayList<>();
     private TimeLineAdapter adapter;
     private String nowDate;  //用来限定今天时间
+    private LinearLayoutManager manager=new LinearLayoutManager(this);
 
 
     @Override
@@ -126,7 +127,7 @@ public class MainActivity extends AppCompatActivity
 //        traceList.add(new Trace("07:59", "洗漱"));
 //        traceList.add(new Trace("07:35", "起床"));
         adapter=new TimeLineAdapter(this,traceList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(manager);
         recyclerView.setItemAnimator(new SlideInLeftAnimator());
 
         final AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(adapter);
@@ -171,7 +172,8 @@ public class MainActivity extends AppCompatActivity
             Log.i("hour",time);
             int traceId = TraceManager.getTraceId();
             adapter.addData(new Trace(time, date,"健身"+traceId,traceId,false),0);//1->0
-            return true;
+            adapter.MoveToPosition(manager,0);
+            //return true;
         }
 
         return super.onOptionsItemSelected(item);

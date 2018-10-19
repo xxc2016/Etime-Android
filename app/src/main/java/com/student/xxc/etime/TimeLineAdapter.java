@@ -3,6 +3,7 @@ package com.student.xxc.etime;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,7 +66,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
 
         viewHolder.time.setText(traces.get(position).getTime());
         viewHolder.event.setText(traces.get(position).getEvent());
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+        viewHolder.itemView.findViewById(R.id.card).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 //                Toast.makeText(context,viewHolder.getAdapterPosition()+"",Toast.LENGTH_SHORT).show();//切入Activity
@@ -77,7 +78,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 context.startActivity(intent);
             }
         });
-        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        viewHolder.itemView.findViewById(R.id.card).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {//长按事件
                 DragItemTouchHelper.getHelper().startDrag(viewHolder);
@@ -105,5 +106,10 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
           TraceManager.addTrace(one); //输入数据库
           notifyItemInserted(position);
      }
-
+    public void MoveToPosition(LinearLayoutManager manager, int n) {
+        int m=manager.findFirstVisibleItemPosition();
+        if(n<=m)
+            manager.scrollToPositionWithOffset(n, 0);
+            manager.setStackFromEnd(true);
+    }
 }

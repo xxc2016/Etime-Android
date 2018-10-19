@@ -17,6 +17,7 @@ import java.util.List;
 public class DragItemTouchHelper {
 
     private static ItemTouchHelper helper;
+    private static int pos;
 
     public static void setItemTouchHelper(final RecyclerView.Adapter alphaAdapter, final List<Trace> traceList) {
         helper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
@@ -29,6 +30,7 @@ public class DragItemTouchHelper {
 
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolderto) {
+                pos=viewHolder.getAdapterPosition();
                 int fromPos = viewHolder.getAdapterPosition();
                 int toPos = viewHolderto.getAdapterPosition();
                 if(fromPos<toPos){
@@ -51,30 +53,29 @@ public class DragItemTouchHelper {
                         TraceManager.updateTrace(traceList.get(i-1)); //交换跟新数据库内容
                     }
                 }
-                alphaAdapter.notifyDataSetChanged();
-                alphaAdapter.notifyItemMoved(fromPos, toPos);     //对函数进行了改造   会导致动画闪烁
 
+                alphaAdapter.notifyItemMoved(fromPos, toPos);     //对函数进行了改造   会导致动画闪烁
                 Log.i("pos","-----------------------"+"form"+fromPos+"  toPos"+toPos);
 
                 return true;
             }
 
             @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {//拖拽后
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {//左右滑动
 
             }
 
+
             @Override
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {//选中时特效
-//                if(actionState!=ItemTouchHelper.ACTION_STATE_IDLE)
-//                    viewHolder.itemView.findViewById(R.id.card).setBackgroundColor(Color.GRAY);
                 super.onSelectedChanged(viewHolder, actionState);
 
             }
 
             @Override
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {//松手时特效
-//                viewHolder.itemView.findViewById(R.id.card);
+                if(viewHolder.getAdapterPosition()!=pos)
+                    alphaAdapter.notifyDataSetChanged();
                 super.clearView(recyclerView, viewHolder);
             }
         });
