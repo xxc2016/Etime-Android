@@ -1,15 +1,17 @@
 package com.student.xxc.etime;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.impl.SetTraceActivity;
+import com.student.xxc.etime.impl.TraceManager;
 
 import java.util.List;
 
@@ -65,8 +67,14 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
         viewHolder.event.setText(traces.get(position).getEvent());
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {//点击事件
-                Toast.makeText(context,viewHolder.getAdapterPosition()+"",Toast.LENGTH_SHORT).show();
+            public void onClick(View view) {
+//                Toast.makeText(context,viewHolder.getAdapterPosition()+"",Toast.LENGTH_SHORT).show();//切入Activity
+                Intent intent =new Intent();
+                intent.putExtra("traceId",traces.get(viewHolder.getAdapterPosition()).getTraceId());
+                intent.putExtra("time",traces.get(viewHolder.getAdapterPosition()).getTime());
+                intent.putExtra("event",traces.get(viewHolder.getAdapterPosition()).getEvent());
+                intent.setClass(context, SetTraceActivity.class);
+                context.startActivity(intent);
             }
         });
         viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -94,6 +102,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
     public void addData(Trace one, int position)
     {
           traces.add(position, one);
+          TraceManager.addTrace(one); //输入数据库
           notifyItemInserted(position);
      }
 

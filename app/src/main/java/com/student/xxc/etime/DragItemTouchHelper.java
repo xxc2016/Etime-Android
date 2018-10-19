@@ -4,8 +4,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.impl.TraceManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,20 +28,34 @@ public class DragItemTouchHelper {
             }
 
             @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolderto) {//拖拽过程中
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolderto) {
                 int fromPos = viewHolder.getAdapterPosition();
                 int toPos = viewHolderto.getAdapterPosition();
                 if(fromPos<toPos){
                     for(int i=fromPos;i<toPos;i++){
                         Collections.swap(traceList,i,i+1);
+                        String tempTime = traceList.get(i).getTime();
+                        traceList.get(i).setTime(traceList.get(i+1).getTime());
+                        traceList.get(i+1).setTime(tempTime);
+                        TraceManager.updateTrace(traceList.get(i));
+                        TraceManager.updateTrace(traceList.get(i+1)); //交换跟新数据库内容
                     }
                 }
                 if(fromPos>toPos){
                     for(int i=fromPos;i>toPos;i--){
                         Collections.swap(traceList,i,i-1);
+                        String tempTime = traceList.get(i).getTime();
+                        traceList.get(i).setTime(traceList.get(i-1).getTime());
+                        traceList.get(i-1).setTime(tempTime);
+                        TraceManager.updateTrace(traceList.get(i));
+                        TraceManager.updateTrace(traceList.get(i-1)); //交换跟新数据库内容
                     }
                 }
-                alphaAdapter.notifyItemMoved(fromPos, toPos);
+                alphaAdapter.notifyDataSetChanged();
+                alphaAdapter.notifyItemMoved(fromPos, toPos);     //对函数进行了改造   会导致动画闪烁
+
+                Log.i("pos","-----------------------"+"form"+fromPos+"  toPos"+toPos);
+
                 return true;
             }
 

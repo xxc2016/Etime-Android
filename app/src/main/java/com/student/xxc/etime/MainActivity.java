@@ -1,5 +1,6 @@
 package com.student.xxc.etime;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -11,13 +12,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.impl.TraceManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
@@ -28,6 +34,8 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private List<Trace>traceList=new ArrayList<>();
     private TimeLineAdapter adapter;
+    private String nowDate;  //用来限定今天时间
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,13 +66,59 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
+    }
+
+    private void getSetTrace()
+    {
+        Intent intent = this.getIntent();
+        //setResult(0x000011,intent);
+        Bundle bundle = intent.getExtras();
+        if(bundle!=null) {
+            String time = bundle.getString("time");
+            String event = bundle.getString("event");
+            boolean finish = bundle.getBoolean("finish");
+            int traceId = bundle.getInt("traceId");
+            boolean isdelete = bundle.getBoolean("isdel");
+            Log.i("set", "---------" + time + "  " + event + "  " + finish + "  " + traceId+" "+isdelete);
+            Trace one =new  Trace(time,nowDate,event,traceId,finish);
+            if(isdelete)
+            {
+                TraceManager.deleteTrace(one);
+            }
+            else {
+                TraceManager.updateTrace(one);
+            }
+        }
+    }
+
+    private  void initDataBase()
+    {
+        TraceManager.setContext(this);
+       // TraceManager.setTraceList(traceList);
+         TraceManager.getDatabase();
+        // TraceManager.setShowFinished(true);  //设置显示完成可见
+      //  TraceManager.saveTraces();
+//        TraceManager.getTraces();   //其实是删库哒
+        getSetTrace(); //获得从设定来的数据
+        traceList =TraceManager.initialTraces();
     }
 
     private void initData() {
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        Date tempDate = Calendar.getInstance().getTime();
+        String date = df.format(tempDate);  //新加时间
+        nowDate = date;
 
-        traceList.add(new Trace("20:48", "健身"));
-        traceList.add(new Trace("18:13", "晚饭"));
-        traceList.add(new Trace("13:31", "自习"));
+
+      //  Toast.makeText(this,date,Toast.LENGTH_SHORT).show();
+//        traceList.add(new Trace("20:48",date,"健身"));
+//        traceList.add(new Trace("18:13",date, "晚饭"));
+//        traceList.add(new Trace("13:31",date, "自习"));
+
+         initDataBase();//初始化数据库
+
+
 //        traceList.add(new Trace("12:19", "午睡"));
 //        traceList.add(new Trace("11:12", "午饭"));
 //        traceList.add(new Trace("10:12", "上课"));
@@ -109,7 +163,14 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
-            adapter.addData(new Trace("20:48", "健身"),1);
+            SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
+            Date tempDate = Calendar.getInstance().getTime();
+            String date = df_date.format(tempDate);  //新加时间
+            SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
+            String time = df_hour.format(tempDate);
+            Log.i("hour",time);
+            int traceId = TraceManager.getTraceId();
+            adapter.addData(new Trace(time, date,"健身"+traceId,traceId,false),0);//1->0
             return true;
         }
 
@@ -140,4 +201,5 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
