@@ -16,6 +16,8 @@ import com.student.xxc.etime.impl.TraceManager;
 
 import java.util.List;
 
+import static android.support.v4.app.ActivityCompat.startActivityForResult;
+
 public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHolder> {
 
     private Context context;
@@ -75,7 +77,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 intent.putExtra("time",traces.get(viewHolder.getAdapterPosition()).getTime());
                 intent.putExtra("event",traces.get(viewHolder.getAdapterPosition()).getEvent());
                 intent.setClass(context, SetTraceActivity.class);
-                context.startActivity(intent);
+                startActivityForResult((MainActivity)context,intent,2,null);
             }
         });
         viewHolder.itemView.findViewById(R.id.card).setOnLongClickListener(new View.OnLongClickListener() {
@@ -108,8 +110,9 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
      }
     public void MoveToPosition(LinearLayoutManager manager, int n) {
         int m=manager.findFirstVisibleItemPosition();
-        if(n<=m)
+        if(n<=m) {
             manager.scrollToPositionWithOffset(n, 0);
-            manager.setStackFromEnd(true);
+//            manager.setStackFromEnd(true);
+        }
     }
 }

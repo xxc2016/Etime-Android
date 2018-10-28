@@ -44,7 +44,8 @@ public class SetTraceActivity extends Activity {
                 Intent intent = new Intent();
                 intent.putExtras(bundle);
                 intent.setClass(SetTraceActivity.this, MainActivity.class);
-                SetTraceActivity.this.startActivity(intent);
+                SetTraceActivity.this.setResult(1,intent);
+                finish();
             }
         });
     }

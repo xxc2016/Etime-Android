@@ -17,7 +17,7 @@ import java.util.List;
 public class DragItemTouchHelper {
 
     private static ItemTouchHelper helper;
-    private static int pos;
+    private static boolean ifmoved=false;
 
     public static void setItemTouchHelper(final RecyclerView.Adapter alphaAdapter, final List<Trace> traceList) {
         helper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
@@ -30,9 +30,9 @@ public class DragItemTouchHelper {
 
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolderto) {
-                pos=viewHolder.getAdapterPosition();
                 int fromPos = viewHolder.getAdapterPosition();
                 int toPos = viewHolderto.getAdapterPosition();
+                ifmoved=true;
                 if(fromPos<toPos){
                     for(int i=fromPos;i<toPos;i++){
                         Collections.swap(traceList,i,i+1);
@@ -74,8 +74,12 @@ public class DragItemTouchHelper {
 
             @Override
             public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {//松手时特效
-                if(viewHolder.getAdapterPosition()!=pos)
+//                Log.i("pos",pos+"");
+//                Log.i("now",viewHolder.getAdapterPosition()+"");
+                if(ifmoved) {
                     alphaAdapter.notifyDataSetChanged();
+                    ifmoved = false;
+                }
                 super.clearView(recyclerView, viewHolder);
             }
         });

@@ -2,6 +2,7 @@ package com.student.xxc.etime;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -18,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.impl.SetTraceActivity;
 import com.student.xxc.etime.impl.TraceManager;
 
 import java.text.SimpleDateFormat;
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
-        initData();
+        initData(null);
 
 
         setSupportActionBar(toolbar);
@@ -70,9 +72,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void getSetTrace()
+    private void getSetTrace(Intent intent)
     {
-        Intent intent = this.getIntent();
+//        Intent intent = this.getIntent();
         //setResult(0x000011,intent);
         Bundle bundle = intent.getExtras();
         if(bundle!=null) {
@@ -93,7 +95,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private  void initDataBase()
+    private  void initDataBase(Intent data)
     {
         TraceManager.setContext(this);
        // TraceManager.setTraceList(traceList);
@@ -101,11 +103,12 @@ public class MainActivity extends AppCompatActivity
         // TraceManager.setShowFinished(true);  //设置显示完成可见
       //  TraceManager.saveTraces();
 //        TraceManager.getTraces();   //其实是删库哒
-        getSetTrace(); //获得从设定来的数据
+        if(data!=null)
+            getSetTrace(data); //获得从设定来的数据
         traceList =TraceManager.initialTraces();
     }
 
-    private void initData() {
+    private void initData(Intent data) {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Date tempDate = Calendar.getInstance().getTime();
         String date = df.format(tempDate);  //新加时间
@@ -117,7 +120,7 @@ public class MainActivity extends AppCompatActivity
 //        traceList.add(new Trace("18:13",date, "晚饭"));
 //        traceList.add(new Trace("13:31",date, "自习"));
 
-         initDataBase();//初始化数据库
+         initDataBase(data);//初始化数据库
 
 
 //        traceList.add(new Trace("12:19", "午睡"));
@@ -136,6 +139,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(alphaAdapter);
         DragItemTouchHelper.setItemTouchHelper(alphaAdapter,traceList);
         DragItemTouchHelper.getHelper().attachToRecyclerView(recyclerView);
+//        Log.i("MainActivity","--------------------OnCreate");
     }
 
     @Override
@@ -155,6 +159,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -164,19 +169,46 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
-            SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
             Date tempDate = Calendar.getInstance().getTime();
-            String date = df_date.format(tempDate);  //新加时间
             SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
             String time = df_hour.format(tempDate);
             Log.i("hour",time);
             int traceId = TraceManager.getTraceId();
-            adapter.addData(new Trace(time, date,"健身"+traceId,traceId,false),0);//1->0
-            adapter.MoveToPosition(manager,0);
+            Intent intent =new Intent();
+            intent.putExtra("traceId",traceId);
+            intent.putExtra("time",time);
+            intent.setClass(this, SetTraceActivity.class);
+            this.startActivityForResult(intent,1);
+
+
             //return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == 1 && resultCode == 1){
+            if(data!=null){
+                String event=(String)data.getSerializableExtra("event");
+                String time=(String) data.getSerializableExtra("time");
+                int traceId=data.getIntExtra("traceId",-1);
+                SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
+                Date tempDate = Calendar.getInstance().getTime();
+                String date = df_date.format(tempDate);  //新加时间
+                Trace trace=new Trace(time, date,event,traceId,false);
+                adapter.addData(trace,0);//1->0
+                adapter.MoveToPosition(manager,0);
+            }
+        }
+        if(requestCode == 2 && resultCode == 1){
+            if(data!=null){
+                initData(data);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
