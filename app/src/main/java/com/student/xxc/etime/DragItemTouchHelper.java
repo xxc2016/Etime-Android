@@ -1,10 +1,12 @@
 package com.student.xxc.etime;
 
+import android.graphics.Canvas;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.impl.TraceManager;
@@ -24,7 +26,7 @@ public class DragItemTouchHelper {
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {//设置滑动时间方向
                 final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-                final int swipeFlags = 0;
+                final int swipeFlags = ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT;
                 return makeMovementFlags(dragFlags, swipeFlags);
             }
 
@@ -65,6 +67,17 @@ public class DragItemTouchHelper {
 
             }
 
+            @Override
+            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                //仅对侧滑状态下的效果做出改变
+                if (actionState ==ItemTouchHelper.ACTION_STATE_SWIPE){
+                    //如果dX小于等于删除方块的宽度，那么我们把该方块滑出来
+                        viewHolder.itemView.scrollTo(-(int) dX,0);
+                }else {
+                    //拖拽状态下不做改变，需要调用父类的方法
+                    super.onChildDraw(c,recyclerView,viewHolder,dX,dY,actionState,isCurrentlyActive);
+                }
+            }
 
             @Override
             public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {//选中时特效
@@ -88,4 +101,14 @@ public class DragItemTouchHelper {
     public static ItemTouchHelper getHelper() {
         return helper;
     }
+
+
+    /**
+     * 获取删除方块的宽度
+     */
+    public static int getSlideLimitation(RecyclerView.ViewHolder viewHolder){
+        ViewGroup viewGroup = (ViewGroup) viewHolder.itemView;
+        return viewGroup.getChildAt(1).getLayoutParams().width;
+    }
+
 }

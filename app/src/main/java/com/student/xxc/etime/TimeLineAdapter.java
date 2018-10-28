@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.student.xxc.etime.entity.Trace;
@@ -28,11 +29,15 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
     static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView time, event;//时间、事件
         private TextView tvDot;//图标
+        private LinearLayout del;//删除按钮
+        private LinearLayout activity;//活动部分
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             time=(TextView)itemView.findViewById(R.id.tvAcceptTime);
             event=(TextView)itemView.findViewById(R.id.tvAcceptStation);
             tvDot=(TextView)itemView.findViewById(R.id.tvDot);
+            del = (LinearLayout)itemView.findViewById(R.id.del);
+            activity=(LinearLayout)itemView.findViewById(R.id.activity);
         }
     }
 
@@ -87,6 +92,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 return true;
             }
         });
+
     }
 
     @Override
@@ -108,6 +114,12 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
           TraceManager.addTrace(one); //输入数据库
           notifyItemInserted(position);
      }
+
+    public void removeData(int position) {
+        traces.remove(position);
+        notifyItemRemoved(position);
+
+    }
     public void MoveToPosition(LinearLayoutManager manager, int n) {
         int m=manager.findFirstVisibleItemPosition();
         if(n<=m) {
