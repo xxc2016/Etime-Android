@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.helper;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +11,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.student.xxc.etime.MainActivity;
+import com.student.xxc.etime.R;
+import com.student.xxc.etime.SetTraceActivity;
 import com.student.xxc.etime.entity.Trace;
-import com.student.xxc.etime.impl.SetTraceActivity;
 import com.student.xxc.etime.impl.TraceManager;
 
 import java.util.List;
@@ -46,7 +48,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
         }
     }
 
-    TimeLineAdapter(Context text,List<Trace> races) {
+    public TimeLineAdapter(Context text,List<Trace> races) {
         traces=races;
         context=text;
     }

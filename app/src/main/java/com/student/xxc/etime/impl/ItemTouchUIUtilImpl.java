@@ -29,8 +29,8 @@ import com.student.xxc.etime.R;
  * Package private class to keep implementations. Putting them inside ItemTouchUIUtil makes them
  * public API, which is not desired in this case.
  */
-class ItemTouchUIUtilImpl {
-    static class Lollipop extends Honeycomb {
+public class ItemTouchUIUtilImpl {
+    static public class Lollipop extends Honeycomb {
         @Override
         public void onDraw(Canvas c, RecyclerView recyclerView, View view,
                            float dX, float dY, int actionState, boolean isCurrentlyActive) {
@@ -73,7 +73,7 @@ class ItemTouchUIUtilImpl {
         }
     }
 
-    static class Honeycomb implements ItemTouchUIUtil {
+    static public class Honeycomb implements ItemTouchUIUtil {
 
         @Override
         public void clearView(View view) {
@@ -100,7 +100,7 @@ class ItemTouchUIUtilImpl {
         }
     }
 
-    static class Gingerbread implements ItemTouchUIUtil {
+    static public class Gingerbread implements ItemTouchUIUtil {
 
         private void draw(Canvas c, RecyclerView parent, View view,
                           float dX, float dY) {

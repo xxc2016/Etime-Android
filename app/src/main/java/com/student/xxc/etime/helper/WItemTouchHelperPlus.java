@@ -1,4 +1,4 @@
-package com.student.xxc.etime.impl;
+package com.student.xxc.etime.helper;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -25,6 +25,9 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Interpolator;
+
+import com.student.xxc.etime.impl.Extension;
+import com.student.xxc.etime.impl.ItemTouchUIUtilImpl;
 
 import java.util.ArrayList;
 import java.util.List;

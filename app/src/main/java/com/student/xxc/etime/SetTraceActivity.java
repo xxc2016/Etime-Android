@@ -1,4 +1,4 @@
-package com.student.xxc.etime.impl;
+package com.student.xxc.etime;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,9 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
-
-import com.student.xxc.etime.MainActivity;
-import com.student.xxc.etime.R;
 
 public class SetTraceActivity extends Activity {
 

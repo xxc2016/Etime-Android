@@ -19,7 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".impl.SetTraceActivity"/>
+        <activity android:name=".SetTraceActivity"/>
     </application>
 
 </manifest>

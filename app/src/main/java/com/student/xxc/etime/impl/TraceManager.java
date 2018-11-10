@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.helper.TraceSQLiteOpenHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

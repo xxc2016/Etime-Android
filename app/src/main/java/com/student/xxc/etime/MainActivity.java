@@ -19,7 +19,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.student.xxc.etime.entity.Trace;
-import com.student.xxc.etime.impl.SetTraceActivity;
+import com.student.xxc.etime.helper.DragItemTouchHelper;
+import com.student.xxc.etime.helper.TimeLineAdapter;
 import com.student.xxc.etime.impl.TraceManager;
 
 import java.text.SimpleDateFormat;
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity
 
         final AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(adapter);
         alphaAdapter.setDuration(1000);
-        alphaAdapter.setFirstOnly(false);
+        alphaAdapter.setFirstOnly(true);
         recyclerView.setAdapter(alphaAdapter);
         DragItemTouchHelper.setItemTouchHelper(alphaAdapter,traceList);
         DragItemTouchHelper.getHelper().attachToRecyclerView(recyclerView);

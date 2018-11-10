@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.helper;
 
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
@@ -8,9 +8,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.impl.TraceManager;
-import com.student.xxc.etime.impl.WItemTouchHelperPlus;
 
 import java.util.Collections;
 import java.util.List;
