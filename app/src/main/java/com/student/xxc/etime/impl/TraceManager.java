@@ -189,6 +189,10 @@ public class TraceManager {//用于管理trace的工具类
         db.execSQL("delete from userAction where traceId="+e.getTraceId());
     }
 
+    static public void finishTrace(Trace e){
+        e.setFinish(true);
+        updateTrace(e);
+    }
     static  public void setShowFinished(boolean show)
     {
         TraceManager.showFinished = show;

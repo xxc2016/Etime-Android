@@ -100,9 +100,10 @@ public class MainActivity extends AppCompatActivity
         TraceManager.setContext(this);
        // TraceManager.setTraceList(traceList);
          TraceManager.getDatabase();
-        // TraceManager.setShowFinished(true);  //设置显示完成可见
+//         TraceManager.setShowFinished(true);  //设置显示完成可见
       //  TraceManager.saveTraces();
 //        TraceManager.getTraces();   //其实是删库哒
+
         if(data!=null)
             getSetTrace(data); //获得从设定来的数据
         traceList =TraceManager.initialTraces();

@@ -23,14 +23,15 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
 
     private Context context;
     private List<Trace>traces;
-    private static final int TYPE_TOP = 0x0000;
-    private static final int TYPE_NORMAL= 0x0001;
+    private int downX;
+    private int upX;
 
     static class ViewHolder extends RecyclerView.ViewHolder{
         private TextView time, event;//时间、事件
         private TextView tvDot;//图标
-        private LinearLayout del;//删除按钮
-        private LinearLayout activity;//活动部分
+        public LinearLayout del;//删除按钮
+        public LinearLayout activity;//活动部分
+        public LinearLayout finish;//完成按钮
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             time=(TextView)itemView.findViewById(R.id.tvAcceptTime);
@@ -38,6 +39,10 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
             tvDot=(TextView)itemView.findViewById(R.id.tvDot);
             del = (LinearLayout)itemView.findViewById(R.id.del);
             activity=(LinearLayout)itemView.findViewById(R.id.activity);
+            finish=(LinearLayout)itemView.findViewById(R.id.finish);
+        }
+        public float getActionWidth(){
+            return del.getWidth();
         }
     }
 
@@ -92,21 +97,31 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 return true;
             }
         });
-
+        viewHolder.itemView.findViewById(R.id.del).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                removeData(viewHolder.getAdapterPosition());
+                DragItemTouchHelper.ifdel=true;
+            }
+        });
+        viewHolder.itemView.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finishData(viewHolder.getAdapterPosition());
+                DragItemTouchHelper.ifdel=true;
+            }
+        });
     }
-
     @Override
     public int getItemCount() {
         return traces.size();
     }
 
-//    @Override
-//    public int getItemViewType(int position) {
-//        if(position==0){
-//            return TYPE_TOP;
-//        }
-//        return TYPE_NORMAL;
-//    }
+    private void finishData(int position) {
+        TraceManager.finishTrace(traces.get(position));
+        traces.remove(position);
+        notifyItemRemoved(position);
+    }
 
     public void addData(Trace one, int position)
     {
@@ -116,6 +131,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
      }
 
     public void removeData(int position) {
+        TraceManager.deleteTrace(traces.get(position));
         traces.remove(position);
         notifyItemRemoved(position);
 
