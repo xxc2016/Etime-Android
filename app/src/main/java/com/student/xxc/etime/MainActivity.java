@@ -1,11 +1,15 @@
 package com.student.xxc.etime;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -17,9 +21,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.helper.DragItemTouchHelper;
+import com.student.xxc.etime.helper.PermissionHelper;
+import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.helper.TimeLineAdapter;
 import com.student.xxc.etime.impl.TraceManager;
 
@@ -39,8 +47,9 @@ public class MainActivity extends AppCompatActivity
     private TimeLineAdapter adapter;
     private String nowDate;  //用来限定今天时间
     private LinearLayoutManager manager=new LinearLayoutManager(this);
-
-
+    private static final int REQUEST_CODE_SELECT_PIC = 120;
+    private ImageView imageView = null;
+    ////////////////////////////////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,8 +65,7 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                actionAdd();
             }
         });
 
@@ -69,10 +77,40 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        /////////////////////////////////////////////////////////////
+        SharedPreferences sharedPreferences=getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+        String imagePath = sharedPreferences.getString("selectedImagePath", "");
+        String user_name=sharedPreferences.getString("user_name","用户");
 
-
+        imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);
+        final TextView username=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
+        username.setText(user_name);
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SelectIconHelper.showInputDialog(username,MainActivity.this);
+            }
+        });
+        if(!imagePath.isEmpty()) {
+            SelectIconHelper.setIcon(imageView, imagePath);
+        }
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PermissionHelper.checkPermission(MainActivity.this);
+                selectPicture();
+            }
+        });
     }
 
+    private void selectPicture() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
+    }
+
+/////////////////////////////////////////////////////////////////
     private void getSetTrace(Intent intent)
     {
 //        Intent intent = this.getIntent();
@@ -116,21 +154,8 @@ public class MainActivity extends AppCompatActivity
         String date = df.format(tempDate);  //新加时间
         nowDate = date;
 
-
-      //  Toast.makeText(this,date,Toast.LENGTH_SHORT).show();
-//        traceList.add(new Trace("20:48",date,"健身"));
-//        traceList.add(new Trace("18:13",date, "晚饭"));
-//        traceList.add(new Trace("13:31",date, "自习"));
-
          initDataBase(data);//初始化数据库
 
-
-//        traceList.add(new Trace("12:19", "午睡"));
-//        traceList.add(new Trace("11:12", "午饭"));
-//        traceList.add(new Trace("10:12", "上课"));
-//        traceList.add(new Trace("08:06", "上课"));
-//        traceList.add(new Trace("07:59", "洗漱"));
-//        traceList.add(new Trace("07:35", "起床"));
         adapter=new TimeLineAdapter(this,traceList);
         recyclerView.setLayoutManager(manager);
         recyclerView.setItemAnimator(new SlideInLeftAnimator());
@@ -171,24 +196,23 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_add) {
-            Date tempDate = Calendar.getInstance().getTime();
-            SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
-            String time = df_hour.format(tempDate);
-            Log.i("hour",time);
-            int traceId = TraceManager.getTraceId();
-            Intent intent =new Intent();
-            intent.putExtra("traceId",traceId);
-            intent.putExtra("time",time);
-            intent.setClass(this, SetTraceActivity.class);
-            this.startActivityForResult(intent,1);
-
-
-            //return true;
+            actionAdd();
         }
 
         return super.onOptionsItemSelected(item);
     }
-
+    public void actionAdd(){
+        Date tempDate = Calendar.getInstance().getTime();
+        SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
+        String time = df_hour.format(tempDate);
+        Log.i("hour",time);
+        int traceId = TraceManager.getTraceId();
+        Intent intent =new Intent();
+        intent.putExtra("traceId",traceId);
+        intent.putExtra("time",time);
+        intent.setClass(this, SetTraceActivity.class);
+        this.startActivityForResult(intent,1);
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -210,6 +234,24 @@ public class MainActivity extends AppCompatActivity
                 initData(data);
             }
         }
+        if (requestCode == REQUEST_CODE_SELECT_PIC)
+        {
+            // 获取选择的图片
+            if(data!=null) {
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getContentResolver().query(selectedImage, null, null, null, null);
+                cursor.moveToFirst();
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                // 获取到图片的路径
+                String selectedImagePath = cursor.getString(columnIndex);
+                SelectIconHelper.setIcon(imageView,selectedImagePath);
+                SharedPreferences sharedPreferences = getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString("selectedImagePath", selectedImagePath);
+                editor.apply();
+            }
+        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -227,15 +269,14 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+//////////////////////////////////////////////////////////////
+
+
 
 }
