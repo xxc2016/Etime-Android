@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_add"
+        android:id="@+id/action_lock"
         android:orderInCategory="100"
-        android:icon="@drawable/add"
-        android:title="add"
+        android:icon="@mipmap/lock"
+        android:title="查看全部"
         app:showAsAction="always" />
 </menu>
