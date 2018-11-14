@@ -25,9 +25,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".impl.SetTraceActivity" />
+        <activity android:name=".SetTraceActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity android:name=".SetDateActivity"
-            android:parentActivityName=".MainActivity"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:label="@string/app_name"
+            android:parentActivityName=".MainActivity"/>
     </application>
 
 </manifest>

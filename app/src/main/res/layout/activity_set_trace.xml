@@ -92,7 +92,7 @@
             <Button
                 android:id="@+id/button_confirm"
                 android:layout_width="186dp"
-                android:layout_height="64dp"
+                android:layout_height="77dp"
                 android:layout_gravity="center"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
