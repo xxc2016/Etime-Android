@@ -21,13 +21,34 @@ public class DragItemTouchHelper{
 
     private static WItemTouchHelperPlus helper;
     private static boolean ifmoved=false;
-    public static boolean ifdel=false;
+    private static boolean ifdel=false;
+    private static boolean isEnableDrag=true;
+
+    public static boolean isEnableDrag() {
+        return isEnableDrag;
+    }
+
+    public static void setEnableDrag(boolean enableDrag) {
+        isEnableDrag = enableDrag;
+    }
+
+    public static void setIfdel(boolean ifdel) {
+
+        DragItemTouchHelper.ifdel = ifdel;
+    }
 
     public static void setItemTouchHelper(final RecyclerView.Adapter alphaAdapter, final List<Trace> traceList) {
+
         helper = new WItemTouchHelperPlus(new WItemTouchHelperPlus.Callback() {
             @Override
             public int getSlideViewWidth() {
                 return 0;
+            }
+
+            @Override
+            public boolean isLongPressDragEnabled() {
+                //是否可拖拽
+                return isEnableDrag;
             }
 
             @Override

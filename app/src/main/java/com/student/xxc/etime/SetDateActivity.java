@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
@@ -22,6 +23,7 @@ public class SetDateActivity extends AppCompatActivity {
     private Button seek;
 
     private Calendar calendar;
+    private String nowDate="";//魔改增加时间变量
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,22 @@ public class SetDateActivity extends AppCompatActivity {
         Button showdailog = (Button) findViewById(R.id.showdailog);
         Button time = (Button) findViewById(R.id.time);
 
+        Button seek = (Button)this.findViewById(R.id.seek);//测试使用  可删
+        seek.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!nowDate.equals("")) {
+                    Intent intent = new Intent();
+                    intent.putExtra("Date", SetDateActivity.this.nowDate);
+                    intent.setClass(SetDateActivity.this, MainActivity.class);
+                    SetDateActivity.this.setResult(1, intent);//11.14 测试使用  新建主界面
+                    SetDateActivity.this.finish();//还是用到回到老界面  使用新界面没有太好的方法
+                }
+                else{
+                    Toast.makeText(SetDateActivity.this,"查询日期为空",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
 
         showdailog.setOnClickListener(new View.OnClickListener() {
@@ -74,10 +92,23 @@ public class SetDateActivity extends AppCompatActivity {
         DatePickerDialog datePickerDialog = new DatePickerDialog(
                 this, new DatePickerDialog.OnDateSetListener() {
             public void onDateSet(DatePicker view, int year, int monthofYear, int dayofMonth) {
-                String time = String.valueOf(year) + "-" + String.valueOf(monthofYear + 1) + "-" + Integer.toString(dayofMonth);
+                String time = String.valueOf(year)+ "-" ;
+                if(monthofYear<10)
+                {
+                    time+="0";
+                }
+                time+=(monthofYear + 1) + "-" ;
+                if(dayofMonth<10)
+                {
+                    time+="0";
+                }
+                time+= dayofMonth;
+                SetDateActivity.this.nowDate = time;
+                //坤坤时间不和规矩  需要YYYY-HH-DD
                 TextView day = (TextView) findViewById(R.id.day);
                 //显示到文本框里
                 day.setText(time);
+                //Log.i("SatDateActivity","----------------------"+SetDateActivity.this.nowDate);
             }
         },
                 calendar.get(Calendar.YEAR),

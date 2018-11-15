@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.InputType;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -33,6 +34,16 @@ public class SetTraceActivity extends Activity {
         time=(EditText)this.findViewById(R.id.editText_time);
         time.setInputType(InputType.TYPE_NULL);
         event=(EditText)this.findViewById(R.id.editText_activity);
+        boolean important = intent.getBooleanExtra("isimportant",false);//初始化三个选项开关
+        boolean  urgent = intent.getBooleanExtra("isurgent",false);
+        boolean  finish = intent.getBooleanExtra("isfinish",false);
+        Switch switch_import = (Switch) this.findViewById(R.id.switch_isimportant);
+        switch_import.setChecked(important);
+        Switch switch_urgent = (Switch) this.findViewById(R.id.switch_isurgent);
+        switch_urgent.setChecked(urgent);
+        Switch switch_finish = (Switch) this.findViewById(R.id.switch_isfinish);
+        switch_finish.setChecked(finish);
+
         initial();
     }
 
@@ -58,6 +69,10 @@ public class SetTraceActivity extends Activity {
                 bundle.putString("event",((EditText)SetTraceActivity.this.findViewById(R.id.editText_activity)).getText().toString());
                 bundle.putBoolean("finish",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isfinish)).isChecked());
                 bundle.putBoolean("isdel",((Switch)SetTraceActivity.this.findViewById(R.id.switch_delete)).isChecked());
+                bundle.putBoolean("isimportant",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isimportant)).isChecked());
+                bundle.putBoolean("isurgent",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isurgent)).isChecked());
+                Log.i("SetTraceActivity","-----------------------"
+                        +((Switch)SetTraceActivity.this.findViewById(R.id.switch_isimportant)).isChecked());
                 bundle.putInt("traceId",traceId);
                 Intent intent = new Intent();
                 intent.putExtras(bundle);

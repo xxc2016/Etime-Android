@@ -10,10 +10,7 @@ import android.util.Log;
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.helper.TraceSQLiteOpenHelper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 
@@ -23,12 +20,13 @@ public class TraceManager {//用于管理trace的工具类
     static Context context;
     static int traceId;
     static boolean showFinished=false;
+    static boolean useIntellectSort = false;
 
 
 
     public static final String CREATE_DATABASE = "CREATE TABLE "+
             "userAction(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
-            "time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER)";
+            "time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER,important INTEGER,urgent INTEGER)";
     public  static final String DROP_TABLE = "DROP TABLE "+
             "userAction";
 
@@ -69,7 +67,7 @@ public class TraceManager {//用于管理trace的工具类
         editor.apply();
     }
 
-    static public List<Trace> initialTraces()
+    static public List<Trace> initialTraces(String  nowDate)
     {
         traceList  = new ArrayList<Trace>();
         SQLiteDatabase db = helper.getWritableDatabase();
@@ -77,10 +75,11 @@ public class TraceManager {//用于管理trace的工具类
         String [] col = new String [1];
         col[0] = "date";
 
-        String [] sel =new String [1];
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-        Date tempDate = Calendar.getInstance().getTime();
-        sel[0] = df.format(tempDate);
+         String [] sel =new String [1];
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+//        Date tempDate = Calendar.getInstance().getTime();
+//        sel[0] = df.format(tempDate);
+          sel[0] = nowDate;
 
         Cursor cursor  =db.query("userAction",null,"date = ?",
                 sel,null,null,"time desc");
@@ -94,7 +93,11 @@ public class TraceManager {//用于管理trace的工具类
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 int traceId = cursor.getInt(cursor.getColumnIndex("traceId"));
                 int finishTemp= cursor.getInt(cursor.getColumnIndex("finish"));
+                int importantTemp = cursor.getInt(cursor.getColumnIndex("important"));
+                int urgentTemp = cursor.getInt(cursor.getColumnIndex("urgent"));
                 boolean finish;
+                boolean important;
+                boolean urgent;
                 if(finishTemp==1)
                 {
                     finish=true ;
@@ -102,14 +105,43 @@ public class TraceManager {//用于管理trace的工具类
                 else{
                     finish =false;
                 }
+                if(importantTemp ==1)
+                {
+                    important = true;
+                }
+                else
+                {
+                    important = false;
+                }
+                if(urgentTemp==1)
+                {
+                    urgent = true;
+                }
+                else
+                {
+                    urgent = false;
+                }
+
                 if(!finish  ||  showFinished)
                 {
-                    traceList.add(new Trace(time, date, event, traceId, finish));
+                    traceList.add(new Trace(time, date, event, traceId, finish,important,urgent));
                 }
-                Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish);
+                Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish+" "+important+" "+urgent);
             }while (cursor.moveToNext());
             cursor.close();
         }
+        if(useIntellectSort)//如果开启智能排序
+        {
+            Log.i("useIntellectSort","-----------------------------------"+"智能排序");
+            return intellectSort(traceList);
+        }
+        Log.i("useIntellectSort","-----------------------------------"+"普通排序");
+        return traceList;
+    }
+
+
+    static private List<Trace> intellectSort(List<Trace> traceList)  //排序函数
+    {
         return traceList;
     }
 
@@ -134,7 +166,9 @@ public class TraceManager {//用于管理trace的工具类
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 int traceId = cursor.getInt(cursor.getColumnIndex("traceId"));
                 int finish = cursor.getInt(cursor.getColumnIndex("finish"));
-                Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish);
+                int important= cursor.getInt(cursor.getColumnIndex("important"));
+                int urgent = cursor.getInt(cursor.getColumnIndex("urgent"));
+                Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish+" "+important+" "+urgent);
             }while (cursor.moveToNext());
             cursor.close();
         }
@@ -154,10 +188,13 @@ public class TraceManager {//用于管理trace的工具类
             cv.put("date",traceList.get(i).getDate());
             cv.put("traceId",traceList.get(i).getTraceId());
             cv.put("finish",traceList.get(i).getFinish_int());
+            cv.put("important",traceList.get(i).getImportant_int());
+            cv.put("urgent",traceList.get(i).getUrgent_int());
 
             db.insert("userAction",null,cv);
             Log.i("input","------------"+traceList.get(i).getDate()+"   "+traceList.get(i).getTime()
-                    +"  "+traceList.get(i).getEvent()+" "+traceList.get(i).getTraceId()+" "+traceList.get(i).getFinish_int());
+                    +"  "+traceList.get(i).getEvent()+" "+traceList.get(i).getTraceId()+" "+traceList.get(i).getFinish_int()+
+            " "+traceList.get(i).getImportant()+" "+traceList.get(i).getUrgent());
         }
     }
 
@@ -165,9 +202,11 @@ public class TraceManager {//用于管理trace的工具类
     {
         SQLiteDatabase db = helper.getWritableDatabase();
         db.execSQL("update userAction set time = '"+e.getTime()+"',event = '"+e.getEvent()+
-                "',date = '"+e.getDate()+"'"+",finish = "+e.getFinish_int()+"  where traceId = "+e.getTraceId());
+                "',date = '"+e.getDate()+"'"+",finish = "+e.getFinish_int()+",important ="+e.getImportant_int()
+                +",urgent = "+e.getUrgent_int()+"  where traceId = "+e.getTraceId());
         Log.i("SqlUpdate","--------------------------"+"update userAction set time = '"+e.getTime()+"',event = '"+e.getEvent()+
-                "',date = '"+e.getDate()+"'"+",finish = "+e.getFinish_int()+"  where traceId = "+e.getTraceId());
+                "',date = '"+e.getDate()+"'"+",finish = "+e.getFinish_int()+",important ="+e.getImportant_int()
+                +",urgent = "+e.getUrgent_int()+"  where traceId = "+e.getTraceId());
 
     }
 
@@ -180,6 +219,8 @@ public class TraceManager {//用于管理trace的工具类
         cv.put("date",e.getDate());
         cv.put("traceId",e.getTraceId());
         cv.put("finish",e.getFinish_int());
+        cv.put("important",e.getImportant_int());
+        cv.put("urgent",e.getUrgent_int());
         Log.i("SqlAdd","id:"+e.getTraceId());
         db.insert("userAction",null,cv);
     }
@@ -197,6 +238,11 @@ public class TraceManager {//用于管理trace的工具类
     static  public void setShowFinished(boolean show)
     {
         TraceManager.showFinished = show;
+    }
+
+    static  public void setUseIntellectSort(boolean open)
+    {
+        TraceManager.useIntellectSort= open;
     }
 }
 

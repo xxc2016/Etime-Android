@@ -25,7 +25,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.student.xxc.etime.entity.Trace;
-import com.student.xxc.etime.helper.DragItemTouchHelper;
+import com.student.xxc.etime.helper.TraceItemTouchHelper;
+import com.student.xxc.etime.helper.MyItemTouchHelperCallback;
 import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.helper.TimeLineAdapter;
@@ -41,11 +42,14 @@ import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener{
     private RecyclerView recyclerView;
-    private List<Trace>traceList=new ArrayList<>();
+    private static List<Trace>traceList=new ArrayList<>();
+    private TraceItemTouchHelper touchHelper;
     private TimeLineAdapter adapter;
     private String nowDate;  //用来限定今天时间
+    private Boolean showFinished=false;//用来显示是否显示完成时间
+    private Boolean useIntellectSort =false;//控制是否进行智能排序
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     private static final int REQUEST_CODE_SELECT_PIC = 120;
     private ImageView imageView = null;
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
+        initDate();//更新今天日期
         initData(null);
 
         setSupportActionBar(toolbar);
@@ -76,7 +81,7 @@ public class MainActivity extends AppCompatActivity
 
         toggle.setDrawerIndicatorEnabled(false);
         toolbar.setNavigationIcon(R.mipmap.personal);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {//侧滑栏图标
             @Override
             public void onClick(View view) {
                 drawer.openDrawer(GravityCompat.START);
@@ -84,7 +89,7 @@ public class MainActivity extends AppCompatActivity
         });
 
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);//侧滑栏初始化
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
         /////////////////////////////////////////////////////////////
@@ -92,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         String imagePath = sharedPreferences.getString("selectedImagePath", "");
         String user_name=sharedPreferences.getString("user_name","用户");
 
-        imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);
+        imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
         final TextView username=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
         username.setText(user_name);
         username.setOnClickListener(new View.OnClickListener() {
@@ -132,8 +137,10 @@ public class MainActivity extends AppCompatActivity
             boolean finish = bundle.getBoolean("finish");
             int traceId = bundle.getInt("traceId");
             boolean isdelete = bundle.getBoolean("isdel");
-            Log.i("set", "---------" + time + "  " + event + "  " + finish + "  " + traceId+" "+isdelete);
-            Trace one =new  Trace(time,nowDate,event,traceId,finish);
+            boolean isimportant = bundle.getBoolean("isimportant");
+            boolean isurgent = bundle.getBoolean("isurgent");//新增关键字
+            Log.i("set", "-----------------" + time + "  " + event + "  " + finish + "  " + traceId+" "+isdelete+" "+isimportant+" "+isurgent);
+            Trace one =new  Trace(time,nowDate,event,traceId,finish,isimportant,isurgent);
             if(isdelete)
             {
                 TraceManager.deleteTrace(one);
@@ -155,18 +162,41 @@ public class MainActivity extends AppCompatActivity
 
         if(data!=null)
             getSetTrace(data); //获得从设定来的数据
-        traceList =TraceManager.initialTraces();
+        traceList.clear();
+        traceList.addAll(TraceManager.initialTraces(this.nowDate));
+//        traceList =TraceManager.initialTraces(this.nowDate);//11.14  初始化增加设置日期
+//        adapter.notifyDataSetChanged();
     }
 
-    private void initData(Intent data) {
+    private void initDate()
+    {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         Date tempDate = Calendar.getInstance().getTime();
         String date = df.format(tempDate);  //新加时间
         nowDate = date;
+    }//11.14  初始化时间
+
+    private void initView() {
+        if(touchHelper==null)
+            touchHelper = new TraceItemTouchHelper(new MyItemTouchHelperCallback(adapter));
+        touchHelper.setEnableDrag(!this.showFinished);
+        touchHelper.setEnableSwipe(!this.showFinished);
+        touchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    private void initData(Intent data) {
+
+        TraceManager.setShowFinished(this.showFinished);//设定设置
 
          initDataBase(data);//初始化数据库
-
-        adapter=new TimeLineAdapter(this,traceList);
+        for(int i=0;i<traceList.size();i++)
+            Log.i("trace"+i,traceList.get(i).getEvent());
+        if(adapter==null) {
+            adapter = new TimeLineAdapter(this, traceList);
+        }
+        else{
+            adapter.notifyDataSetChanged();
+        }
         recyclerView.setLayoutManager(manager);
         recyclerView.setItemAnimator(new SlideInLeftAnimator());
 
@@ -174,9 +204,15 @@ public class MainActivity extends AppCompatActivity
         alphaAdapter.setDuration(1000);
         alphaAdapter.setFirstOnly(true);
         recyclerView.setAdapter(alphaAdapter);
-        DragItemTouchHelper.setItemTouchHelper(alphaAdapter,traceList);
-        DragItemTouchHelper.getHelper().attachToRecyclerView(recyclerView);
-//        Log.i("MainActivity","--------------------OnCreate");
+
+//        MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(adapter);
+//        mItemTouchHelper = new WItemTouchHelperPlus(callback);
+//        mItemTouchHelper.attachToRecyclerView(recyclerView);
+        initView();
+//        DragItemTouchHelper.setItemTouchHelper(alphaAdapter,traceList);
+//        DragItemTouchHelper.getHelper().attachToRecyclerView(recyclerView);
+
+        Log.i("MainActivity","--------------------OnCreate");
     }
 
     @Override
@@ -206,7 +242,13 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_lock) {
-            //查看未完成与全部
+           // actionAdd();
+//            touchHelper.setEnableDrag(this.showFinished);
+            this.showFinished = !this.showFinished;//暂时把事件改成切换模式了
+//            DragItemTouchHelper.setEnableDrag(!showFinished);
+            initData(null);
+
+
         }
 
         return super.onOptionsItemSelected(item);
@@ -231,10 +273,14 @@ public class MainActivity extends AppCompatActivity
                 String event=(String)data.getSerializableExtra("event");
                 String time=(String) data.getSerializableExtra("time");
                 int traceId=data.getIntExtra("traceId",-1);
+                Boolean important = data.getBooleanExtra("isimportant",false);
+                Boolean urgent = data.getBooleanExtra("isurgent",false);
+                Log.i("onActivity","-----------------------------"+important+"  "+urgent);
+
                 SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
                 Date tempDate = Calendar.getInstance().getTime();
                 String date = df_date.format(tempDate);  //新加时间
-                Trace trace=new Trace(time, date,event,traceId,false);
+                Trace trace=new Trace(time, date,event,traceId,false,important,urgent);
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
             }
@@ -242,6 +288,13 @@ public class MainActivity extends AppCompatActivity
         if(requestCode == 2 && resultCode == 1){
             if(data!=null){
                 initData(data);
+            }
+        }
+        if(requestCode == 3 && resultCode == 1){ //11.14 日历测试
+            if(data!=null){
+                this.nowDate = data.getStringExtra("Date");
+                Log.i("come back fromCal","---------------------"+this.nowDate);
+                initData(null);
             }
         }
         if (requestCode == REQUEST_CODE_SELECT_PIC)
@@ -275,7 +328,7 @@ public class MainActivity extends AppCompatActivity
             //日期设置选项
             Intent intent=new Intent();
             intent.setClass(this,SetDateActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent,3);
 
         } else if (id == R.id.nav_lock) {
 
@@ -283,6 +336,10 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_setting) {
 
+        }else if (id==R.id.nav_sort) {  //添加侧栏
+            this.useIntellectSort = !this.useIntellectSort;
+            TraceManager.setUseIntellectSort( this.useIntellectSort);
+            this.initData(null);
         }
 
 

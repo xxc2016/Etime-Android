@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,13 +16,15 @@ import com.student.xxc.etime.MainActivity;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.SetTraceActivity;
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.impl.ItemTouchHelperAdapter;
 import com.student.xxc.etime.impl.TraceManager;
 
+import java.util.Collections;
 import java.util.List;
 
 import static android.support.v4.app.ActivityCompat.startActivityForResult;
 
-public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHolder> {
+public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHolder> implements ItemTouchHelperAdapter{
 
     private Context context;
     private List<Trace>traces;
@@ -51,6 +54,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
     public TimeLineAdapter(Context text,List<Trace> races) {
         traces=races;
         context=text;
+        for(int i=0;i<traces.size();i++)
+            Log.i("tra"+i,traces.get(i).getEvent());
     }
 
     @NonNull
@@ -88,6 +93,9 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 intent.putExtra("traceId",traces.get(viewHolder.getAdapterPosition()).getTraceId());
                 intent.putExtra("time",traces.get(viewHolder.getAdapterPosition()).getTime());
                 intent.putExtra("event",traces.get(viewHolder.getAdapterPosition()).getEvent());
+                intent.putExtra("isimportant",traces.get(viewHolder.getAdapterPosition()).getImportant());
+                intent.putExtra("isurgent",traces.get(viewHolder.getAdapterPosition()).getUrgent());
+                intent.putExtra("isfinish",traces.get(viewHolder.getAdapterPosition()).getFinish());
                 intent.setClass(context, SetTraceActivity.class);
                 startActivityForResult((MainActivity)context,intent,2,null);
             }
@@ -95,7 +103,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
         viewHolder.itemView.findViewById(R.id.card).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {//长按事件
-                DragItemTouchHelper.getHelper().startDrag(viewHolder);
+//                mItemTouchHelper.startDrag(viewHolder);
+//                DragItemTouchHelper.getHelper().startDrag(viewHolder);
                 return true;
             }
         });
@@ -103,14 +112,16 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
             @Override
             public void onClick(View view) {
                 removeData(viewHolder.getAdapterPosition());
-                DragItemTouchHelper.ifdel=true;
+//                MyItemTouchHelperCallback.ifdel=true;
+                DragItemTouchHelper.setIfdel(true);
             }
         });
         viewHolder.itemView.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finishData(viewHolder.getAdapterPosition());
-                DragItemTouchHelper.ifdel=true;
+//                MyItemTouchHelperCallback.ifdel=true;
+                DragItemTouchHelper.setIfdel(true);
             }
         });
     }
@@ -144,5 +155,37 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
             manager.scrollToPositionWithOffset(n, 0);
 //            manager.setStackFromEnd(true);
         }
+    }
+
+    @Override
+    public void onItemMove(int fromPos, int toPos) {
+        for(int i=0;i<traces.size();i++)
+            Log.i("move"+i,traces.get(i).getEvent());
+        if (fromPos < toPos) {
+            for (int i = fromPos; i < toPos; i++) {
+                Collections.swap(traces, i, i + 1);
+                String tempTime = traces.get(i).getTime();
+                traces.get(i).setTime(traces.get(i + 1).getTime());
+                traces.get(i + 1).setTime(tempTime);
+                TraceManager.updateTrace(traces.get(i));
+                TraceManager.updateTrace(traces.get(i + 1)); //交换跟新数据库内容
+            }
+        }
+        else if (fromPos > toPos) {
+            for (int i = fromPos; i > toPos; i--) {
+                Collections.swap(traces, i, i - 1);
+                String tempTime = traces.get(i).getTime();
+                traces.get(i).setTime(traces.get(i - 1).getTime());
+                traces.get(i - 1).setTime(tempTime);
+                TraceManager.updateTrace(traces.get(i));
+                TraceManager.updateTrace(traces.get(i - 1)); //交换跟新数据库内容
+            }
+        }
+        notifyItemMoved(fromPos, toPos);
+    }
+
+    @Override
+    public void onItemClearView() {
+        notifyDataSetChanged();
     }
 }
