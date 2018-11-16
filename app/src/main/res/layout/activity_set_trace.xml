@@ -53,10 +53,10 @@
             <EditText
                 android:id="@+id/editText_activity"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="3"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:layout_marginStart="8dp"
+                android:layout_weight="3"
                 android:ems="10"
                 android:gravity="start"
                 android:inputType="textMultiLine"
@@ -64,6 +64,48 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:layout_editor_absoluteY="102dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="55dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <Switch
+                    android:id="@+id/switch_isfix"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="固定" />
+
+                <TextView
+                    android:id="@+id/textView_predict"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="预计时间" />
+
+                <EditText
+                    android:id="@+id/editText_predict"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="numberDecimal" />
+
+                <!--<EditText-->
+                <!--android:id="@+id/editText_predict"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"-->
+                <!--android:ems="10"-->
+                <!--android:inputType="textPersonName"-->
+                <!--android:text="Name" />-->
+
+
+            </LinearLayout>
 
 
             <LinearLayout
@@ -118,7 +160,7 @@
             <Button
                 android:id="@+id/button_confirm"
                 android:layout_width="186dp"
-                android:layout_height="77dp"
+                android:layout_height="35dp"
                 android:layout_gravity="center"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"

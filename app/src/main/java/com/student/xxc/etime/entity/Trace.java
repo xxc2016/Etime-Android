@@ -9,6 +9,8 @@ public class Trace {
     private int imageType;
     private boolean important;
     private boolean urgent;
+    private boolean fix;//设为固定
+    private int predict;//预计时间
 
     public Trace(String time,String date ,String event,int traceId,boolean finish, int imageType,boolean important,boolean urgent) {
         this.time = time;
@@ -19,6 +21,8 @@ public class Trace {
         this.imageType = imageType;
         this.important = important;
         this.urgent = urgent;
+        this.fix = false;//自动默认
+        this.predict = 30;
     }
 
     public Trace(String time,String date, String event,int traceId,boolean finish) {
@@ -29,6 +33,8 @@ public class Trace {
         this.finish  =finish;
         this.urgent =false;
         this.important = false;//自动默认
+        this.fix = false;
+        this.predict = 30;
     }
 
     public Trace(String time,String date ,String event,int traceId,boolean finish,boolean important,boolean urgent) {
@@ -39,6 +45,33 @@ public class Trace {
         this.finish = finish;
         this.important = important;
         this.urgent = urgent;
+        this.fix =false;
+        this.predict =30;
+    }
+
+
+    public Trace(String time,String date ,String event,int traceId,boolean finish,boolean important,boolean urgent,boolean fix) {
+        this.time = time;
+        this.date = date;
+        this.event = event;
+        this.traceId = traceId;
+        this.finish = finish;
+        this.important = important;
+        this.urgent = urgent;
+        this.fix =fix;
+        this.predict =30;
+    }
+
+    public Trace(String time,String date ,String event,int traceId,boolean finish,boolean important,boolean urgent,boolean fix,int predict) {
+        this.time = time;
+        this.date = date;
+        this.event = event;
+        this.traceId = traceId;
+        this.finish = finish;
+        this.important = important;
+        this.urgent = urgent;
+        this.fix =fix;
+        this.predict =predict;
     }
 
     public String getTime() {
@@ -131,6 +164,37 @@ public class Trace {
         }
     }
 
+
+    public  int getFix_int()
+    {
+        if(fix ==  true)
+        {
+            return 1;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    public  boolean getFix()
+    {
+        return this.fix;
+    }
+
+    public void setFix(boolean fix) {
+        this.fix = fix;
+    }
+
+    public int getPredict()
+    {
+        return this.predict;
+    }
+
+    public void setPredict(int predictTime) {
+        this.predict = predictTime;
+    }
+
     public  void setImportant(boolean important){
         this.important = important;
     }
@@ -138,6 +202,36 @@ public class Trace {
     public  void setUrgent(boolean urgent){
         this.urgent = urgent;
     }
+
+
+    public  int  getHour() {
+        String tempHour =this.time.charAt(0)+""+this.time.charAt(1);
+        return  Integer.parseInt(tempHour);
+    }
+
+    public int getMinute(){
+        String tempMinute = this.time.charAt(3)+""+this.time.charAt(4);
+        return  Integer.parseInt(tempMinute);
+    }
+
+
+    public  void setTime(int hour,int minute)
+    {
+        String tempTime ="";
+        if(hour<10)
+        {
+            tempTime+="0";
+        }
+        tempTime+=hour;
+        tempTime+=":";
+        if(minute<10)
+        {
+            tempTime+="0";
+        }
+        tempTime+=minute;
+        this.time = tempTime;
+    }
+
 
 
 

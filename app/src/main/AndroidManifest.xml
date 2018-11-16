@@ -22,7 +22,8 @@
         </activity>
         <activity
             android:name=".SetTraceActivity"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".SetDateActivity"
             android:label="选择日期"

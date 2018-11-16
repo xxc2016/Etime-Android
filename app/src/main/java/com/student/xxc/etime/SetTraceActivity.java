@@ -37,12 +37,19 @@ public class SetTraceActivity extends Activity {
         boolean important = intent.getBooleanExtra("isimportant",false);//初始化三个选项开关
         boolean  urgent = intent.getBooleanExtra("isurgent",false);
         boolean  finish = intent.getBooleanExtra("isfinish",false);
+        boolean  fixed  = intent.getBooleanExtra("isfix",false);
+        int predictTime = intent.getIntExtra("predict",30);
         Switch switch_import = (Switch) this.findViewById(R.id.switch_isimportant);
         switch_import.setChecked(important);
         Switch switch_urgent = (Switch) this.findViewById(R.id.switch_isurgent);
         switch_urgent.setChecked(urgent);
         Switch switch_finish = (Switch) this.findViewById(R.id.switch_isfinish);
         switch_finish.setChecked(finish);
+        Switch switch_fix = (Switch) this.findViewById(R.id.switch_isfix);
+        switch_fix.setChecked(fixed);
+        EditText editText_predict =  (EditText)this.findViewById(R.id.editText_predict);
+        editText_predict.setText(""+predictTime);
+
 
         initial();
     }
@@ -71,8 +78,10 @@ public class SetTraceActivity extends Activity {
                 bundle.putBoolean("isdel",((Switch)SetTraceActivity.this.findViewById(R.id.switch_delete)).isChecked());
                 bundle.putBoolean("isimportant",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isimportant)).isChecked());
                 bundle.putBoolean("isurgent",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isurgent)).isChecked());
+                bundle.putBoolean("isfix",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isfix)).isChecked());
+                bundle.putInt("predict",Integer.parseInt(((EditText)SetTraceActivity.this.findViewById(R.id.editText_predict)).getText().toString()));
                 Log.i("SetTraceActivity","-----------------------"
-                        +((Switch)SetTraceActivity.this.findViewById(R.id.switch_isimportant)).isChecked());
+                        +((Switch)SetTraceActivity.this.findViewById(R.id.switch_isfix)).isChecked());
                 bundle.putInt("traceId",traceId);
                 Intent intent = new Intent();
                 intent.putExtras(bundle);

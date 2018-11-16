@@ -3,12 +3,14 @@ package com.student.xxc.etime;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -33,7 +35,18 @@ public class SetDateActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Button showdailog = (Button) findViewById(R.id.showdailog);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getWindow();
+            //设置修改状态栏
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            //设置状态栏的颜色，和你的app主题或者标题栏颜色设置一致就ok了
+            window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+        }
+
+
+            Button showdailog = (Button) findViewById(R.id.showdailog);
         Button time = (Button) findViewById(R.id.time);
 
         Button seek = (Button)this.findViewById(R.id.seek);//测试使用  可删
@@ -48,7 +61,7 @@ public class SetDateActivity extends AppCompatActivity {
                     SetDateActivity.this.finish();//还是用到回到老界面  使用新界面没有太好的方法
                 }
                 else{
-                    Toast.makeText(SetDateActivity.this,"查询日期  为空",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SetDateActivity.this,"查询日期为空",Toast.LENGTH_SHORT).show();
                 }
             }
         });

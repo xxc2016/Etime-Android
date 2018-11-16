@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,8 +53,6 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
     public TimeLineAdapter(Context text,List<Trace> races) {
         traces=races;
         context=text;
-        for(int i=0;i<traces.size();i++)
-            Log.i("tra"+i,traces.get(i).getEvent());
     }
 
     @NonNull
@@ -96,6 +93,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 intent.putExtra("isimportant",traces.get(viewHolder.getAdapterPosition()).getImportant());
                 intent.putExtra("isurgent",traces.get(viewHolder.getAdapterPosition()).getUrgent());
                 intent.putExtra("isfinish",traces.get(viewHolder.getAdapterPosition()).getFinish());
+                intent.putExtra("isfix",traces.get(viewHolder.getAdapterPosition()).getFix());
+                intent.putExtra("predict",traces.get(viewHolder.getAdapterPosition()).getPredict());
                 intent.setClass(context, SetTraceActivity.class);
                 startActivityForResult((MainActivity)context,intent,2,null);
             }
@@ -159,8 +158,6 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
 
     @Override
     public void onItemMove(int fromPos, int toPos) {
-        for(int i=0;i<traces.size();i++)
-            Log.i("move"+i,traces.get(i).getEvent());
         if (fromPos < toPos) {
             for (int i = fromPos; i < toPos; i++) {
                 Collections.swap(traces, i, i + 1);

@@ -152,8 +152,11 @@ public class MainActivity extends AppCompatActivity
             boolean isdelete = bundle.getBoolean("isdel");
             boolean isimportant = bundle.getBoolean("isimportant");
             boolean isurgent = bundle.getBoolean("isurgent");//新增关键字
-            Log.i("set", "-----------------" + time + "  " + event + "  " + finish + "  " + traceId+" "+isdelete+" "+isimportant+" "+isurgent);
-            Trace one =new  Trace(time,nowDate,event,traceId,finish,isimportant,isurgent);
+            boolean isfix = bundle.getBoolean("isfix");
+            int predict = bundle.getInt("predict");
+            Log.i("set", "-----------------" + time + "  " + event + "  " + finish + "  " + traceId
+                    +" "+isdelete+" "+isimportant+" "+isurgent+" "+isfix+" "+predict);
+            Trace one =new  Trace(time,nowDate,event,traceId,finish,isimportant,isurgent,isfix,predict);
             if(isdelete)
             {
                 TraceManager.deleteTrace(one);
@@ -288,12 +291,14 @@ public class MainActivity extends AppCompatActivity
                 int traceId=data.getIntExtra("traceId",-1);
                 Boolean important = data.getBooleanExtra("isimportant",false);
                 Boolean urgent = data.getBooleanExtra("isurgent",false);
-                Log.i("onActivity","-----------------------------"+important+"  "+urgent);
+                Boolean fix = data.getBooleanExtra("isfix",false);
+                int predict = data.getIntExtra("predict",30);
+                Log.i("onActivity","-----------------------------"+fix+"  "+predict);
 
                 SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
                 Date tempDate = Calendar.getInstance().getTime();
                 String date = df_date.format(tempDate);  //新加时间
-                Trace trace=new Trace(time, date,event,traceId,false,important,urgent);
+                Trace trace=new Trace(time, date,event,traceId,false,important,urgent,fix,predict);
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
             }
@@ -344,6 +349,9 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(intent,3);
 
         } else if (id == R.id.nav_lock) {
+//            this.showFinished = !this.showFinished;//暂时把事件改成切换模式了
+            initDate();
+            initData(null);
 
         } else if (id == R.id.nav_about) {
 

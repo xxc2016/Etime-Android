@@ -9,7 +9,7 @@ public class TraceSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public static final String CREATE_DATABASE = "CREATE TABLE "+
             "userAction(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
-            "time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER,important INTEGER,urgent INTEGER)";
+            "time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER,important INTEGER,urgent INTEGER,fix INTEGER,predict INTEGER)";
     public  static final String DROP_TABLE = "DROP TABLE "+
             "userAction";
     private Context  context;
