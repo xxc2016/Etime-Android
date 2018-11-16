@@ -3,6 +3,7 @@ package com.student.xxc.etime.helper;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -77,8 +78,12 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
 //            viewHolder.tvDot.setBackgroundResource(R.drawable.ic_menu_send);
 //        }
         viewHolder.time.setTextColor(0xff555555);
-        viewHolder.event.setTextColor(0xff555555);
-        viewHolder.tvDot.setBackgroundResource(R.drawable.ic_menu_send);
+        viewHolder.event.setTextColor(context.getResources().getColor(R.color.colorText));
+        viewHolder.tvDot.setBackgroundResource(R.drawable.ic_menu_send );
+        if(traces.get(position).getFinish()){
+            CardView cardView=viewHolder.itemView.findViewById(R.id.card);
+            cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorfinish));
+        }
 
         viewHolder.time.setText(traces.get(position).getTime());
         viewHolder.event.setText(traces.get(position).getEvent());

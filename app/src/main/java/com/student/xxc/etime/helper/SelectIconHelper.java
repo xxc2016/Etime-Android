@@ -66,6 +66,8 @@ public class SelectIconHelper {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String user_name=editText.getText().toString();
+                if(user_name.equals(""))
+                    return;
                 username.setText(user_name);
                 SharedPreferences sharedPreferences = context.getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();

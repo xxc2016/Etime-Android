@@ -1,11 +1,28 @@
 <resources>
 
+    <attr name="colorBg">#FAFAFA</attr>
+    <attr name="colorText">#FFFFFF</attr>
+    <attr name="colorfinish">#02C7B5</attr>
+
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorBg">@color/colorBg</item>
+        <item name="colorText">@color/colorText</item>
+        <item name="colorfinish">@color/colorfinish</item>
+
+    </style>
+    <style name="DarkTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorBg">@color/colorBg</item>
+        <item name="colorText">@color/colorText</item>
+        <item name="colorfinish">@color/colorfinish</item>
 
     </style>
 

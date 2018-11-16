@@ -1,5 +1,6 @@
 package com.student.xxc.etime;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,17 +22,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.student.xxc.etime.entity.Trace;
-import com.student.xxc.etime.helper.TraceItemTouchHelper;
 import com.student.xxc.etime.helper.MyItemTouchHelperCallback;
 import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.helper.TimeLineAdapter;
+import com.student.xxc.etime.helper.TraceItemTouchHelper;
 import com.student.xxc.etime.impl.TraceManager;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,15 +67,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
         initDate();//更新今天日期
 
-        final TextView title=(TextView)findViewById(R.id.toolbar_title);
-        title.setText(getDateTitle(titleType));
-        title.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                title.setText(getDateTitle(!titleType));
-                titleType=!titleType;
-            }
-        });
+
 
         initData(null);
 
@@ -190,6 +185,16 @@ public class MainActivity extends AppCompatActivity
         Date tempDate = Calendar.getInstance().getTime();
         String date = df.format(tempDate);  //新加时间
         nowDate = date;
+
+        final TextView title=(TextView)findViewById(R.id.toolbar_title);
+        title.setText(getDateTitle(titleType));
+        title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                title.setText(getDateTitle(!titleType));
+                titleType=!titleType;
+            }
+        });
     }//11.14  初始化时间
 
     private void initView() {
@@ -308,13 +313,6 @@ public class MainActivity extends AppCompatActivity
                 initData(data);
             }
         }
-        if(requestCode == 3 && resultCode == 1){ //11.14 日历测试
-            if(data!=null){
-                this.nowDate = data.getStringExtra("Date");
-                Log.i("come back fromCal","---------------------"+this.nowDate);
-                initData(null);
-            }
-        }
         if (requestCode == REQUEST_CODE_SELECT_PIC)
         {
             // 获取选择的图片
@@ -344,9 +342,10 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_date) {
             //日期设置选项
-            Intent intent=new Intent();
-            intent.setClass(this,SetDateActivity.class);
-            startActivityForResult(intent,3);
+            showDailog();
+//            Intent intent=new Intent();
+//            intent.setClass(this,SetDateActivity.class);
+//            startActivityForResult(intent,3);
 
         } else if (id == R.id.nav_lock) {
 //            this.showFinished = !this.showFinished;//暂时把事件改成切换模式了
@@ -356,6 +355,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_about) {
 
         } else if (id == R.id.nav_setting) {
+
 
         }else if (id==R.id.nav_sort) {  //添加侧栏
             this.useIntellectSort = !this.useIntellectSort;
@@ -370,11 +370,18 @@ public class MainActivity extends AppCompatActivity
     }
 //////////////////////////////////////////////////////////////
  public String getDateTitle(boolean titleType) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Calendar cal = Calendar.getInstance();
-        int year=cal.get(Calendar.YEAR);
-        int month=cal.get(Calendar.MONTH)+1;
-        int day=cal.get(Calendar.DAY_OF_MONTH);
-        int i = cal.get(Calendar.DAY_OF_WEEK);
+         try {
+            cal.setTime(format.parse(nowDate));
+         } catch (ParseException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+         int year=cal.get(Calendar.YEAR);
+         int month=cal.get(Calendar.MONTH)+1;
+         int day=cal.get(Calendar.DAY_OF_MONTH);
+         int i = cal.get(Calendar.DAY_OF_WEEK);
         String part = year+"年"+month+"月"+day+"日";
         if(titleType)
             return part;
@@ -399,4 +406,39 @@ public class MainActivity extends AppCompatActivity
             }
         }
     }
+
+    private void showDailog(){
+
+        Calendar calendar=Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(
+                this, new DatePickerDialog.OnDateSetListener() {
+            public void onDateSet(DatePicker view, int year, int monthofYear, int dayofMonth) {
+                String time = String.valueOf(year)+ "-" ;
+                if(monthofYear<10)
+                {
+                    time+="0";
+                }
+                time+=(monthofYear + 1) + "-" ;
+                if(dayofMonth<10)
+                {
+                    time+="0";
+                }
+                time+= dayofMonth;
+                nowDate=time;
+                final TextView title=(TextView)findViewById(R.id.toolbar_title);
+                title.setText(getDateTitle(titleType));
+                initData(null);
+                //Log.i("SatDateActivity","----------------------"+SetDateActivity.this.nowDate);
+            }
+        },
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.show();
+        //自动弹出键盘问题解决
+//        datePickerDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+    }
+
 }
