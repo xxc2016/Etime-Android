@@ -53,14 +53,27 @@ public class MainActivity extends AppCompatActivity
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     private static final int REQUEST_CODE_SELECT_PIC = 120;
     private ImageView imageView = null;
+    private boolean titleType=false;//标题默认显示周几
     ////////////////////////////////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
         initDate();//更新今天日期
+
+        final TextView title=(TextView)findViewById(R.id.toolbar_title);
+        title.setText(getDateTitle(titleType));
+        title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                title.setText(getDateTitle(!titleType));
+                titleType=!titleType;
+            }
+        });
+
         initData(null);
 
         setSupportActionBar(toolbar);
@@ -343,16 +356,39 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-
-
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 //////////////////////////////////////////////////////////////
-
-
-
+ public String getDateTitle(boolean titleType) {
+        Calendar cal = Calendar.getInstance();
+        int year=cal.get(Calendar.YEAR);
+        int month=cal.get(Calendar.MONTH)+1;
+        int day=cal.get(Calendar.DAY_OF_MONTH);
+        int i = cal.get(Calendar.DAY_OF_WEEK);
+        String part = year+"年"+month+"月"+day+"日";
+        if(titleType)
+            return part;
+        else {
+            switch (i) {
+                case 1:
+                    return "周日";
+                case 2:
+                    return "周一";
+                case 3:
+                    return "周二";
+                case 4:
+                    return "周三";
+                case 5:
+                    return "周四";
+                case 6:
+                    return "周五";
+                case 7:
+                    return "周六";
+                default:
+                    return "";
+            }
+        }
+    }
 }

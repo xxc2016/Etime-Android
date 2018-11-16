@@ -48,7 +48,7 @@ public class SetDateActivity extends AppCompatActivity {
                     SetDateActivity.this.finish();//还是用到回到老界面  使用新界面没有太好的方法
                 }
                 else{
-                    Toast.makeText(SetDateActivity.this,"查询日期为空",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SetDateActivity.this,"查询日期  为空",Toast.LENGTH_SHORT).show();
                 }
             }
         });

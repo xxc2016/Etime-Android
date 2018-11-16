@@ -11,7 +11,19 @@
             android:layout_height="?attr/actionBarSize"
             android:background="#1E90FF"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:layout_scrollFlags="scroll|snap" />
+            app:layout_scrollFlags="scroll|snap">
 
-    </android.support.design.widget.AppBarLayout>
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:singleLine="true"
+                    android:textColor="#FFFFFF"
+                    android:textSize="17sp"
+                    android:paddingTop="2dp"/>
+
+        </android.support.v7.widget.Toolbar>
+
+</android.support.design.widget.AppBarLayout>
 
