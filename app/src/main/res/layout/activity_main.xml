@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    android:background="@color/colorBg"
+    android:background="?colorBg"
     tools:openDrawer="start">
 
     <include

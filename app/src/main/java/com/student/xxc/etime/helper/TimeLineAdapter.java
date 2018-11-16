@@ -77,12 +77,12 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
 //            viewHolder.event.setTextColor(0xff999999);
 //            viewHolder.tvDot.setBackgroundResource(R.drawable.ic_menu_send);
 //        }
-        viewHolder.time.setTextColor(0xff555555);
+        viewHolder.time.setTextColor(context.getResources().getColor(R.color.colorTime));
         viewHolder.event.setTextColor(context.getResources().getColor(R.color.colorText));
         viewHolder.tvDot.setBackgroundResource(R.drawable.ic_menu_send );
         if(traces.get(position).getFinish()){
             CardView cardView=viewHolder.itemView.findViewById(R.id.card);
-            cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorfinish));
+            cardView.setCardBackgroundColor(context.getResources().getColor(R.color.colorFinish));
         }
 
         viewHolder.time.setText(traces.get(position).getTime());

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#F7BF2C</color>//事件背景
+    <color name="colorPrimaryDark">#4E4754</color>//标题、状态栏
+    <color name="colorAccent">#F7BF2C</color>//新建事件
+    <color name="colorBg">#4E4754</color>//背景
+    <color name="colorText">#483F52</color>//事件文本
+    <color name="colorFinish">#95729F</color>//完成事件
+    <color name="colorTime">#BBA06E</color>//时间文本
+</resources>

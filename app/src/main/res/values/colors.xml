@@ -5,7 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorBg">#FAFAFA</color>
     <color name="colorText">#FFFFFF</color>
-    <color name="colorfinish">#02C7B5</color>
-
+    <color name="colorFinish">#02C7B5</color>
+    <color name="colorTime">#555555</color>
 
 </resources>
