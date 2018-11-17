@@ -356,9 +356,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_date) {
             //日期设置选项
             showDailog();
-//            Intent intent=new Intent();
-//            intent.setClass(this,SetDateActivity.class);
-//            startActivityForResult(intent,3);
 
         } else if (id == R.id.nav_lock) {
 //            this.showFinished = !this.showFinished;//暂时把事件改成切换模式了

@@ -24,11 +24,6 @@
             android:name=".SetTraceActivity"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
-        <activity
-            android:name=".SetDateActivity"
-            android:label="选择日期"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".impl.Splash"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
