@@ -65,10 +65,9 @@ public class MyItemTouchHelperCallback extends WItemTouchHelperPlus.Callback {
         int fromPos = viewHolder.getAdapterPosition();
         int toPos = viewHolderto.getAdapterPosition();
 
-        if(!ifmoved) {
-            ifmoved = true;
-            alphaAdapter.onItemMove(fromPos, toPos);
-        }
+        ifmoved = true;
+        alphaAdapter.onItemMove(fromPos, toPos);
+
 
             //对函数进行了改造   会导致动画闪烁
         Log.i("pos", "-----------------------" + "form" + fromPos + "  toPos" + toPos);

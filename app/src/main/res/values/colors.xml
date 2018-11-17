@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#49A7FF</color>//消息
     <color name="colorPrimaryDark">#49A7FF</color>//标题、状态栏
-    <color name="colorAccent">#FF4F7D</color>
+    <color name="colorAccent">#BFB087</color>
     <color name="colorBg">#FAFAFA</color>
     <color name="colorText">#FFFFFF</color>
     <color name="colorFinish">#02C7B5</color>

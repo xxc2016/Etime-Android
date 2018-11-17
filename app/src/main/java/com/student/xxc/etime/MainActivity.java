@@ -68,7 +68,13 @@ public class MainActivity extends AppCompatActivity
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
 
+        SharedPreferences preferences=getSharedPreferences("default_night", MODE_PRIVATE);
+        int currentNightMode = preferences.getInt("default_night",getResources().getConfiguration().uiMode);
+        getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
+                AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
@@ -360,13 +366,31 @@ public class MainActivity extends AppCompatActivity
             initData(null);
 
         } else if (id == R.id.nav_about) {
-
+            Intent intent=new Intent();
+            intent.putExtra("mode",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
+            intent.setClass(this,AboutUsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_setting) {
             int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
             getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
                     AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
             // 同样需要调用recreate方法使之生效
+            Thread myThread=new Thread(){//创建子线程
+                @Override
+                public void run() {
+                    try{
+                        SharedPreferences preferences=getSharedPreferences("default_night",MODE_PRIVATE);
+                        SharedPreferences.Editor editor=preferences.edit();
+                        editor.putInt("default_night",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
+                        editor.apply();
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            };
+            myThread.start();
             recreate();
+
 
         }else if (id==R.id.nav_sort) {  //添加侧栏
             this.useIntellectSort = !this.useIntellectSort;

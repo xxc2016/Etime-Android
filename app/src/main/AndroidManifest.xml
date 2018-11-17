@@ -37,6 +37,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AboutUsActivity"
+            android:parentActivityName=".MainActivity"
+            android:label="关于我们"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>
