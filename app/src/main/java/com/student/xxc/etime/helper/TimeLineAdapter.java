@@ -116,16 +116,14 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
             @Override
             public void onClick(View view) {
                 removeData(viewHolder.getAdapterPosition());
-//                MyItemTouchHelperCallback.ifdel=true;
-                DragItemTouchHelper.setIfdel(true);
+                MyItemTouchHelperCallback.setIfdel(true);
             }
         });
         viewHolder.itemView.findViewById(R.id.finish).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finishData(viewHolder.getAdapterPosition());
-//                MyItemTouchHelperCallback.ifdel=true;
-                DragItemTouchHelper.setIfdel(true);
+                MyItemTouchHelperCallback.setIfdel(true);
             }
         });
     }

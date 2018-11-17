@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.CardView;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
@@ -52,6 +53,10 @@ public class SetTraceActivity extends Activity {
         EditText editText_predict =  (EditText)this.findViewById(R.id.editText_predict);
         editText_predict.setText(""+predictTime);
 
+        if(finish){
+            CardView cardView=(CardView)findViewById(R.id.cardTrace);
+            cardView.setCardBackgroundColor(getResources().getColor(R.color.colorFinish));
+        }
 
         initial();
     }

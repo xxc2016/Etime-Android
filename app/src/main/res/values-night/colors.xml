@@ -7,4 +7,7 @@
     <color name="colorText">#483F52</color>//事件文本
     <color name="colorFinish">#95729F</color>//完成事件
     <color name="colorTime">#BBA06E</color>//时间文本
+    <color name="colorButton">#43C27B</color>
+    <color name="colorTrace">#C6AB90</color>
+    <color name="colorTraceText">#BBA06E</color>
 </resources>

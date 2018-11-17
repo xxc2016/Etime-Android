@@ -8,5 +8,7 @@
     <color name="colorFinish">#02C7B5</color>
     <color name="colorTime">#555555</color>
     <color name="colorButton">#43C27B</color>
+    <color name="colorTrace">#49A7FF</color>
+    <color name="colorTraceText">#6D6F7C</color>
 
 </resources>

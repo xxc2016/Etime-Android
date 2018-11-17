@@ -157,6 +157,14 @@ public class MyItemTouchHelperCallback extends WItemTouchHelperPlus.Callback {
         }
         super.clearView(recyclerView, viewHolder);
     }
+
+    public static boolean isIfdel() {
+        return ifdel;
+    }
+
+    public static void setIfdel(boolean ifdel) {
+        MyItemTouchHelperCallback.ifdel = ifdel;
+    }
 }
 
 

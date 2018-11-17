@@ -3,7 +3,8 @@
     <attr name="colorBg" format="reference|color"/>
     <attr name="colorText" format="reference|color"/>
     <attr name="colorFinish" format="reference|color"/>
-
+    <attr name="colorTrace" format="reference|color"/>
+    <attr name="colorTraceText" format="reference|color"/>
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
@@ -14,7 +15,8 @@
         <item name="colorBg">@color/colorBg</item>
         <item name="colorText">@color/colorText</item>
         <item name="colorFinish">@color/colorFinish</item>
-
+        <item name="colorTrace">@color/colorTrace</item>
+        <item name="colorTraceText">@color/colorTraceText</item>
     </style>
 
 

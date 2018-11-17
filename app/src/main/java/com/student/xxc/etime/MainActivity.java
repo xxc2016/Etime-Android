@@ -311,12 +311,13 @@ public class MainActivity extends AppCompatActivity
                 Boolean urgent = data.getBooleanExtra("isurgent",false);
                 Boolean fix = data.getBooleanExtra("isfix",false);
                 int predict = data.getIntExtra("predict",30);
+                Boolean finish=data.getBooleanExtra("finish",false);
                 Log.i("onActivity","-----------------------------"+fix+"  "+predict);
 
                 SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
                 Date tempDate = Calendar.getInstance().getTime();
                 String date = df_date.format(tempDate);  //新加时间
-                Trace trace=new Trace(time, date,event,traceId,false,important,urgent,fix,predict);
+                Trace trace=new Trace(time, date,event,traceId,finish,important,urgent,fix,predict);
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
             }
