@@ -49,7 +49,7 @@ public class PushService extends Service {
 
     @Override
     public IBinder onBind(Intent arg0) {
-        
+
         return null;
     }
 
