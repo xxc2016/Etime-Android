@@ -31,6 +31,7 @@ import android.widget.TextView;
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.helper.MyItemTouchHelperCallback;
 import com.student.xxc.etime.helper.PermissionHelper;
+import com.student.xxc.etime.helper.PushService;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.helper.TimeLineAdapter;
 import com.student.xxc.etime.helper.TraceItemTouchHelper;
@@ -59,6 +60,7 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_CODE_SELECT_PIC = 120;
     private ImageView imageView = null;
     private boolean titleType=false;//标题默认显示周几
+    private PushService pushService=new PushService();
 
     ////////////////////////////////////////////////
     @Override
@@ -79,8 +81,6 @@ public class MainActivity extends AppCompatActivity
         toolbar.setTitle("");
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
         initDate();//更新今天日期
-
-
 
         initData(null);
 
@@ -188,6 +188,7 @@ public class MainActivity extends AppCompatActivity
             getSetTrace(data); //获得从设定来的数据
         traceList.clear();
         traceList.addAll(TraceManager.initialTraces(this.nowDate));
+//        refreshInform();
 //        traceList =TraceManager.initialTraces(this.nowDate);//11.14  初始化增加设置日期
 //        adapter.notifyDataSetChanged();
     }
@@ -222,7 +223,8 @@ public class MainActivity extends AppCompatActivity
 
         TraceManager.setShowFinished(this.showFinished);//设定设置
 
-         initDataBase(data);//初始化数据库
+        initDataBase(data);//初始化数据库
+
         for(int i=0;i<traceList.size();i++)
             Log.i("trace"+i,traceList.get(i).getEvent());
         if(adapter==null) {
@@ -239,12 +241,7 @@ public class MainActivity extends AppCompatActivity
         alphaAdapter.setFirstOnly(true);
         recyclerView.setAdapter(alphaAdapter);
 
-//        MyItemTouchHelperCallback callback = new MyItemTouchHelperCallback(adapter);
-//        mItemTouchHelper = new WItemTouchHelperPlus(callback);
-//        mItemTouchHelper.attachToRecyclerView(recyclerView);
         initView();
-//        DragItemTouchHelper.setItemTouchHelper(alphaAdapter,traceList);
-//        DragItemTouchHelper.getHelper().attachToRecyclerView(recyclerView);
 
         Log.i("MainActivity","--------------------OnCreate");
     }
@@ -320,12 +317,17 @@ public class MainActivity extends AppCompatActivity
                 Trace trace=new Trace(time, date,event,traceId,finish,important,urgent,fix,predict);
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
+
+                String t=trace.getDate()+" "+trace.getTime()+":00";//通知
+                Log.i("t", "onActivityResult: "+t);
+                addInform(t,"E_time",trace.getEvent());
             }
         }
         if(requestCode == 2 && resultCode == 1){
             if(data!=null){
                 initData(data);
             }
+            refreshInform();
         }
         if (requestCode == REQUEST_CODE_SELECT_PIC)
         {
@@ -394,6 +396,13 @@ public class MainActivity extends AppCompatActivity
             this.useIntellectSort = !this.useIntellectSort;
             TraceManager.setUseIntellectSort( this.useIntellectSort);
             this.initData(null);
+            refreshInform();
+
+        }else if(id==R.id.nav_community){
+            Intent intent=new Intent();
+            intent.putExtra("mode",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
+            intent.setClass(this,CommunityActivity.class);
+            startActivity(intent);
         }
 
 
@@ -473,6 +482,32 @@ public class MainActivity extends AppCompatActivity
         //自动弹出键盘问题解决
 //        datePickerDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+    }
+
+    public void addInform(String servertime,String contentTitle,String contentText)
+    {
+        Date curDate = new Date(System.currentTimeMillis());//当前时间
+        Date endDate=new Date();
+        String format = "yyyy-MM-dd HH:mm:ss";
+        endDate=PushService.parseServerTime(servertime,format);//将字符串转化为date
+        long delaytime = endDate.getTime() - curDate.getTime();//得到设定时间与当前时间间隔多少毫米
+        if (delaytime>0)
+        pushService.addNotification(delaytime,contentTitle,contentText);//通过addNotification 添加service
+        Log.e("addNotification", String.valueOf(delaytime));
+    }
+
+    public void refreshInform(){//更新通知
+        PushService.cleanAllNotification();
+        Thread myThread=new Thread(){//创建子线程
+            @Override
+            public void run() {
+                for(int i=0;i<traceList.size();i++){
+                    String time=traceList.get(i).getDate()+" "+traceList.get(i).getTime()+":00";
+                    addInform(time,"E_time",traceList.get(i).getEvent());
+                }
+            }
+        };
+        myThread.start();
     }
 
 }
