@@ -36,16 +36,16 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.View
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         viewHolder.username.setText(posts.get(i).getUsername());
         viewHolder.postTime.setText(posts.get(i).getPostTime());
-        viewHolder.watch.setText(posts.get(i).getWatch());
-        viewHolder.remark.setText(posts.get(i).getRemark());
-        Glide.with(context).load(R.mipmap.personal).into(viewHolder.head);
+        viewHolder.watch.setText(posts.get(i).getWatch()+"");
+        viewHolder.remark.setText(posts.get(i).getRemark()+"");
+//        Glide.with(context).load(R.mipmap.personal).into(viewHolder.head);
         Glide.with(context).load(posts.get(i).getPic()).into(viewHolder.pic);
 
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return posts.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

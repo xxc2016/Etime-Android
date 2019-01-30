@@ -85,36 +85,7 @@ public class MyItemTouchHelperCallback extends WItemTouchHelperPlus.Callback {
         //仅对侧滑状态下的效果做出改变
 
         if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-////                    如果dX小于等于删除方块的宽度，那么我们把该方块滑出来
-//                    float actionWidth = getSlideLimitation(viewHolder);
-//                    Log.i("dx", "onChildDraw: " + (dX)+isCurrentlyActive);
-//                    if (predX != 0 && dX == 0 && !isCurrentlyActive) {
-//                        if(predX != 3){
-//                            predX=3;
-//                        }
-//                        else {
-//                            predX=0;
-//                            clearView(recyclerView, viewHolder);
-//                            ((TimeLineAdapter.ViewHolder) viewHolder).itemView.findViewById(R.id.del).callOnClick();
-//
-//                        }
-//                        return;
-//                    } else {
-//                        if (dX < -actionWidth ) {
-//                            predX = 1;
-//                            dX = -actionWidth;
-//                        } else if (dX > actionWidth ) {
-//                            predX = -1;
-//                            dX = actionWidth;
-//                        }
-//                        else
-//                            predX=0;
-//                        viewHolder.itemView.scrollTo(-(int) dX, 0);
-//                    }
-//                }else {
-//                    //拖拽状态下不做改变，需要调用父类的方法
-//                    predX=0;
-//                }
+
             if (viewHolder instanceof TimeLineAdapter.ViewHolder) {
                 TimeLineAdapter.ViewHolder holder = (TimeLineAdapter.ViewHolder) viewHolder;
                 float actionWidth = holder.getActionWidth();

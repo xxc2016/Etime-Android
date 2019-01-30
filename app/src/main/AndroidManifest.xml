@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.qti.permission.PROFILER" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:name=".util.MyApplication"
@@ -38,6 +39,8 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".CommunityActivity"
+            android:label="会员社区"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
         <service
             android:enabled="true"
