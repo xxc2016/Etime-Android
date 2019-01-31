@@ -1,7 +1,6 @@
 package com.student.xxc.etime;
 
 import android.app.DatePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -28,9 +27,12 @@ import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.helper.MyItemTouchHelperCallback;
-import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.PushService;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.helper.TimeLineAdapter;
@@ -44,6 +46,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 
@@ -114,29 +117,59 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
         /////////////////////////////////////////////////////////////
-        SharedPreferences sharedPreferences=getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
-        String imagePath = sharedPreferences.getString("selectedImagePath", "");
-        String user_name=sharedPreferences.getString("user_name","用户");
+//        SharedPreferences sharedPreferences=getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+//        String imagePath = sharedPreferences.getString("selectedImagePath", "");
+//        String user_name=sharedPreferences.getString("user_name","用户");
+
+        initAccount();//初始化账户
+
+        String imagePath = Account.getUserImagePath();
+        String user_name = Account.getUserName();
 
         imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
         final TextView username=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
         username.setText(user_name);
-        username.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SelectIconHelper.showInputDialog(username,MainActivity.this);
-            }
-        });
+
+//        username.setOnClickListener(new View.OnClickListener() {   //取消侧滑栏改用户名  改到个人中心  1.29
+//            @Override
+//            public void onClick(View v) {
+//                SelectIconHelper.showInputDialog(username,MainActivity.this);
+//            }
+//        });
+
         if(!imagePath.isEmpty()) {
-            SelectIconHelper.setIcon(imageView, imagePath);
+            //SelectIconHelper.setIcon(imageView, imagePath);  //放弃本地设置图片做法1.29
+            RequestListener mRequestListener = new RequestListener() {//用于监听错误
+                @Override
+                public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
+                    Log.d("glide", "onException: " + e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    Log.e("glide","model:"+model+"isFirstRource"+isFirstResource);
+                    return false;
+                }
+            };
+
+
+            Glide.with(this)//使用glide加载网络图片
+                    .load(imagePath)
+                    .listener(mRequestListener)
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
+                    .bitmapTransform(new CropCircleTransformation(this))
+                    .into(imageView);
+
         }
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PermissionHelper.checkPermission(MainActivity.this);
-                selectPicture();
-            }
-        });
+//        imageView.setOnClickListener(new View.OnClickListener() {  //取消侧滑栏改头像  改到个人中心  1.29
+//            @Override
+//            public void onClick(View v) {
+//                PermissionHelper.checkPermission(MainActivity.this);
+//                selectPicture();
+//            }
+//        });
     }
 
     private void selectPicture() {
@@ -313,8 +346,10 @@ public class MainActivity extends AppCompatActivity
 
                 SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
                 Date tempDate = Calendar.getInstance().getTime();
+
+                Log.i("Date",this.nowDate+"--------------------------------"); //修改新增日期错误问题 1.11 zyf
                 String date = df_date.format(tempDate);  //新加时间
-                Trace trace=new Trace(time, date,event,traceId,finish,important,urgent,fix,predict);
+                Trace trace=new Trace(time,this.nowDate,event,traceId,finish,important,urgent,fix,predict);
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
 
@@ -341,10 +376,11 @@ public class MainActivity extends AppCompatActivity
                 // 获取到图片的路径
                 String selectedImagePath = cursor.getString(columnIndex);
                 SelectIconHelper.setIcon(imageView,selectedImagePath);
-                SharedPreferences sharedPreferences = getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("selectedImagePath", selectedImagePath);
-                editor.apply();
+//                SharedPreferences sharedPreferences = getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+//                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                editor.putString("selectedImagePath", selectedImagePath);
+//                editor.apply();
+                Account.setUserImagePath(selectedImagePath);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -397,7 +433,11 @@ public class MainActivity extends AppCompatActivity
             TraceManager.setUseIntellectSort( this.useIntellectSort);
             this.initData(null);
             refreshInform();
-
+        }else if(id==R.id.nav_user) {//用户登陆功能1.21
+            Intent intent = new Intent();
+            intent.putExtra("mode",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
+            intent.setClass(this,UserSettingActivity.class);
+            startActivity(intent);
         }else if(id==R.id.nav_community){
             Intent intent=new Intent();
             intent.putExtra("mode",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
@@ -509,5 +549,68 @@ public class MainActivity extends AppCompatActivity
         };
         myThread.start();
     }
+    private  void initAccount()
+    {
+//        SharedPreferences sharedPreferences=getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+//        String imagePath = sharedPreferences.getString("selectedImagePath", "");
+//        String user_name=sharedPreferences.getString("user_name","用户");
+//        String user_account = sharedPreferences.getString("user_account",null);
+//
+//        Account.setUserName(user_name);
+//        Account.setUserImagePath(imagePath);
+//        Account.setUserAccount(user_account);
 
+        Account.setContext(this);
+        Account.initAccount();
+    }
+
+    @Override
+    protected void onRestart() {//作为点击back键回到主界面没有刷新用户信息的弥补
+        super.onRestart();
+        updateUserImage();
+    }
+
+
+    void updateUserImage()//刷新用户信息
+    {
+        String userName = Account.getUserName();
+        String imagePath = Account.getUserImagePath();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
+        final TextView textView_userName=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
+
+        textView_userName.setText(userName);
+
+        final ImageView imageView_userImage = (ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);
+        //SelectIconHelper.setIcon(imageView_userImage,imagePath);
+
+        if(!imagePath.isEmpty()) {
+            //SelectIconHelper.setIcon(imageView, imagePath);  //放弃本地设置图片做法1.29
+            RequestListener mRequestListener = new RequestListener() {//用于监听错误
+                @Override
+                public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
+                    Log.d("glide", "onException: " + e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
+                    return false;
+                }
+
+                @Override
+                public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
+                    Log.e("glide","model:"+model+"isFirstRource"+isFirstResource);
+                    return false;
+                }
+            };
+
+
+            Glide.with(this)//使用glide加载网络图片
+                    .load(imagePath)
+                    .listener(mRequestListener)
+                    .placeholder(R.mipmap.ic_launcher)
+                    .error(R.mipmap.ic_launcher)
+                    .bitmapTransform(new CropCircleTransformation(this))
+                    .into(imageView);
+
+        }
+
+    }
 }

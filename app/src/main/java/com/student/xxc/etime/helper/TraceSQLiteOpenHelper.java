@@ -28,7 +28,7 @@ public class TraceSQLiteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_DATABASE);
-        Toast.makeText(context,"数据库创建成功",Toast.LENGTH_LONG).show();
+      //  Toast.makeText(context,"数据库创建成功",Toast.LENGTH_LONG).show();  取消显示
     }
 
     public void onUpgrade(SQLiteDatabase db,int oldVersion,int newVersion)

@@ -2,7 +2,6 @@ package com.student.xxc.etime.helper;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -16,6 +15,8 @@ import android.util.Base64;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.student.xxc.etime.entity.Account;
 
 import java.io.ByteArrayOutputStream;
 
@@ -69,10 +70,11 @@ public class SelectIconHelper {
                 if(user_name.equals(""))
                     return;
                 username.setText(user_name);
-                SharedPreferences sharedPreferences = context.getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("user_name", user_name);
-                editor.apply();
+//                SharedPreferences sharedPreferences = context.getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+//                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                editor.putString("user_name", user_name);
+//                editor.apply();
+                Account.setUserName(user_name);
             }
         }).show();
     }
