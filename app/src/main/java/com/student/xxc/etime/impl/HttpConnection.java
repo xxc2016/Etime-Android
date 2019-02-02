@@ -2,22 +2,17 @@ package com.student.xxc.etime.impl;
 
 import android.util.Log;
 
-import java.io.File;
-import java.io.IOException;
+import com.student.xxc.etime.entity.User;
+import com.student.xxc.etime.helper.UrlHelper;
 
-import okhttp3.Call;
+import java.io.File;
+
 import okhttp3.Callback;
-import okhttp3.FormBody;
-import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
-
-import com.student.xxc.etime.entity.User;
-import com.student.xxc.etime.helper.UrlHelper;
 
 
 public class HttpConnection {//用于和后台通讯接口

@@ -1,6 +1,5 @@
 package com.student.xxc.etime;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -37,7 +36,6 @@ import com.bumptech.glide.request.target.Target;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.User;
 import com.student.xxc.etime.helper.PermissionHelper;
-import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
@@ -540,8 +538,6 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
     {
         //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
         int currentNightMode=getIntent().getIntExtra("mode", Configuration.UI_MODE_NIGHT_NO);
-
-
         getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
                 AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
 

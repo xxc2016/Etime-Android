@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-
     <application
         android:name=".util.MyApplication"
         android:allowBackup="true"
@@ -21,7 +20,7 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SetTraceActivity"
             android:parentActivityName=".MainActivity"
@@ -40,18 +39,26 @@
             android:label="关于我们"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".CommunityActivity"
+        <activity
+            android:name=".CommunityActivity"
             android:label="会员社区"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <activity android:name=".UserSettingActivity"
-            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".UserSettingActivity"
             android:label="账户设置"
-            android:theme="@style/AppTheme.NoActionBar"/>
-        <service
-            android:enabled="true"
-            android:name=".helper.PushService"/>
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
 
+        <service
+            android:name=".helper.PushService"
+            android:enabled="true" />
+
+        <activity
+            android:name=".SetPostActivity"
+            android:parentActivityName=".CommunityActivity"
+            android:label="新建帖子"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

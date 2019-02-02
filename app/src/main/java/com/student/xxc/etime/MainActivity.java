@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
 
         super.onCreate(savedInstanceState);
 
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
 
         SharedPreferences preferences=getSharedPreferences("default_night", MODE_PRIVATE);
         int currentNightMode = preferences.getInt("default_night",getResources().getConfiguration().uiMode);
@@ -117,9 +117,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
         /////////////////////////////////////////////////////////////
-//        SharedPreferences sharedPreferences=getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
-//        String imagePath = sharedPreferences.getString("selectedImagePath", "");
-//        String user_name=sharedPreferences.getString("user_name","用户");
 
         initAccount();//初始化账户
 
@@ -130,12 +127,6 @@ public class MainActivity extends AppCompatActivity
         final TextView username=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
         username.setText(user_name);
 
-//        username.setOnClickListener(new View.OnClickListener() {   //取消侧滑栏改用户名  改到个人中心  1.29
-//            @Override
-//            public void onClick(View v) {
-//                SelectIconHelper.showInputDialog(username,MainActivity.this);
-//            }
-//        });
 
         if(!imagePath.isEmpty()) {
             //SelectIconHelper.setIcon(imageView, imagePath);  //放弃本地设置图片做法1.29
@@ -163,21 +154,9 @@ public class MainActivity extends AppCompatActivity
                     .into(imageView);
 
         }
-//        imageView.setOnClickListener(new View.OnClickListener() {  //取消侧滑栏改头像  改到个人中心  1.29
-//            @Override
-//            public void onClick(View v) {
-//                PermissionHelper.checkPermission(MainActivity.this);
-//                selectPicture();
-//            }
-//        });
+
     }
 
-    private void selectPicture() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
-    }
 
 /////////////////////////////////////////////////////////////////
     private void getSetTrace(Intent intent)

@@ -38,7 +38,9 @@ public class TraceManager {//用于管理trace的工具类
 
     static public void getDatabase()
     {
-       helper = new TraceSQLiteOpenHelper(context,"userAction",null,1);
+        if(helper==null){
+            helper = new TraceSQLiteOpenHelper(context,"userAction",null,1);
+        }
        helper.getWritableDatabase();
     }
 

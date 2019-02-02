@@ -23,12 +23,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/userLogo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="user"
-                    android:src="@mipmap/personal" />
+                    android:background="@mipmap/personal" />
 
                 <TextView
                     android:id="@+id/textView4"

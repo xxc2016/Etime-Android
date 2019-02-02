@@ -1,13 +1,16 @@
 package com.student.xxc.etime;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -33,10 +36,11 @@ public class CommunityActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        int currentNightMode=getIntent().getIntExtra("mode", Configuration.UI_MODE_NIGHT_NO);
 
+        int currentNightMode=getIntent().getIntExtra("mode", Configuration.UI_MODE_NIGHT_NO);
         getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
                 AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getWindow();
@@ -45,6 +49,14 @@ public class CommunityActivity extends AppCompatActivity {
             //设置状态栏的颜色，和你的app主题或者标题栏颜色设置一致就ok了
             window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.setPost);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionAdd();
+            }
+        });
 
         initData();
         initView();
@@ -68,5 +80,9 @@ public class CommunityActivity extends AppCompatActivity {
             postList.add(i,new Post(null,"test",url,"3分钟前",3500,200));
         }
     }
-
+    public void actionAdd(){
+        Intent intent=new Intent();
+        intent.setClass(this, SetPostActivity.class);
+        this.startActivity(intent);
+    }
 }

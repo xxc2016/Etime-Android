@@ -1,10 +1,12 @@
 package com.student.xxc.etime;
 
-import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
@@ -18,7 +20,7 @@ import android.widget.TimePicker;
 
 import java.util.Calendar;
 
-public class SetTraceActivity extends Activity {
+public class SetTraceActivity extends AppCompatActivity {
 
     static  final  int requestCode =0x000011;
     int traceId;
@@ -29,7 +31,11 @@ public class SetTraceActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+        SharedPreferences preferences=getSharedPreferences("default_night", MODE_PRIVATE);
+        int currentNightMode = preferences.getInt("default_night",getResources().getConfiguration().uiMode);
+        getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
+                AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
+
         setContentView(R.layout.activity_set_trace);
         Intent intent = getIntent();
         traceId = intent.getIntExtra("traceId",0);
