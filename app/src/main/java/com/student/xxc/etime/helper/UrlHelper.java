@@ -11,6 +11,7 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
       static private String url_user = "http://"+url_ip+"//E_TimeServer/servlet/E_TimeServlet";
       static private String url_user_image = "http://"+url_ip+"//E_TimeServer/StoreImageServlet";
       static private String url_base = "http://"+url_ip+"//E_TimeServer";
+      static private String url_user_trace="http://"+url_ip+"//E_TimeServer/TracesServlet";
 
 
 
@@ -21,6 +22,7 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
     static private String url_user_test = "http://"+url_ip_test+"//E_TimeServer/servlet/E_TimeServlet";
     static private String url_user_image_test = "http://"+url_ip_test+"//E_TimeServer/StoreImageServlet";
     static private String url_base_test ="http://"+url_ip_test+"//E_TimeServer";
+    static private String url_user_trace_test="http://"+url_ip_test+"//E_TimeServer/TracesServlet";
 
 
     public static String getUrl_user() {
@@ -49,6 +51,17 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
             return url_base;
         }else {
             return url_base_test;
+        }
+    }
+
+    public static String getUrl_user_trace() {
+        if(!isTest)
+        {
+            return url_user_trace;
+        }
+        else
+        {
+            return url_user_trace_test;
         }
     }
 }

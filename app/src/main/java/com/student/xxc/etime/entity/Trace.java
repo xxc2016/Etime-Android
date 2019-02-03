@@ -74,6 +74,22 @@ public class Trace {
         this.predict =predict;
     }
 
+    public Trace(String time,String date ,String event,int traceId,boolean finish,boolean important,boolean urgent,boolean fix,int predict,int imageType) {
+        this.time = time;
+        this.date = date;
+        this.event = event;
+        this.traceId = traceId;
+        this.finish = finish;
+        this.important = important;
+        this.urgent = urgent;
+        this.fix =fix;
+        this.predict =predict;
+        this.imageType = imageType;
+    }
+
+
+
+
     public String getTime() {
         return time;
     }
@@ -133,6 +149,18 @@ public class Trace {
         }
     }
 
+    public static boolean judgeImportant_boolean(int important)
+    {
+        if(important==1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 
     public int getUrgent_int()
     {
@@ -143,6 +171,18 @@ public class Trace {
         else
         {
             return 0;
+        }
+    }
+
+    public static boolean judgeUrgent_boolean(int urgent)
+    {
+        if(urgent==1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -164,6 +204,18 @@ public class Trace {
         }
     }
 
+    public static boolean judgeFinish_boolean(int finish)
+    {
+        if(finish==1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
 
     public  int getFix_int()
     {
@@ -174,6 +226,18 @@ public class Trace {
         else
         {
             return 0;
+        }
+    }
+
+    public static boolean judgeFix_boolean(int fix)
+    {
+        if(fix==1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

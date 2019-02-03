@@ -39,6 +39,7 @@ import com.student.xxc.etime.helper.TimeLineAdapter;
 import com.student.xxc.etime.helper.TraceItemTouchHelper;
 import com.student.xxc.etime.impl.TraceManager;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -85,6 +86,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView=(RecyclerView)findViewById(R.id.recyclerView);
         initDate();//更新今天日期
 
+        initAccount();//初始化账户  完善更新顺序2.1
         initData(null);
 
         setSupportActionBar(toolbar);
@@ -117,44 +119,31 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
         /////////////////////////////////////////////////////////////
+//        SharedPreferences sharedPreferences=getSharedPreferences("photo_Path", Context.MODE_PRIVATE);
+//        String imagePath = sharedPreferences.getString("selectedImagePath", "");
+//        String user_name=sharedPreferences.getString("user_name","用户");
+//        username.setOnClickListener(new View.OnClickListener() {   //取消侧滑栏改用户名  改到个人中心  1.29
+//            @Override
+//            public void onClick(View v) {
+//                SelectIconHelper.showInputDialog(username,MainActivity.this);
+//            }
+//        });
+//        imageView.setOnClickListener(new View.OnClickListener() {  //取消侧滑栏改头像  改到个人中心  1.29
+//            @Override
+//            public void onClick(View v) {
+//                PermissionHelper.checkPermission(MainActivity.this);
+//                selectPicture();
+//            }
+//        });
 
-        initAccount();//初始化账户
+        updateUserImage();//统一归纳到一个函数 2.1
+    }
 
-        String imagePath = Account.getUserImagePath();
-        String user_name = Account.getUserName();
-
-        imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
-        final TextView username=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
-        username.setText(user_name);
-
-
-        if(!imagePath.isEmpty()) {
-            //SelectIconHelper.setIcon(imageView, imagePath);  //放弃本地设置图片做法1.29
-            RequestListener mRequestListener = new RequestListener() {//用于监听错误
-                @Override
-                public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
-                    Log.d("glide", "onException: " + e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
-                    return false;
-                }
-
-                @Override
-                public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.e("glide","model:"+model+"isFirstRource"+isFirstResource);
-                    return false;
-                }
-            };
-
-
-            Glide.with(this)//使用glide加载网络图片
-                    .load(imagePath)
-                    .listener(mRequestListener)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.mipmap.ic_launcher)
-                    .bitmapTransform(new CropCircleTransformation(this))
-                    .into(imageView);
-
-        }
-
+    private void selectPicture() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
     }
 
 
@@ -194,7 +183,7 @@ public class MainActivity extends AppCompatActivity
          TraceManager.getDatabase();
 //         TraceManager.setShowFinished(true);  //设置显示完成可见
       //  TraceManager.saveTraces();
-//        TraceManager.getTraces();   //其实是删库哒
+          TraceManager.getTraces();   //其实是删库哒  //然而并不删库 1.31
 
         if(data!=null)
             getSetTrace(data); //获得从设定来的数据
@@ -359,7 +348,8 @@ public class MainActivity extends AppCompatActivity
 //                SharedPreferences.Editor editor = sharedPreferences.edit();
 //                editor.putString("selectedImagePath", selectedImagePath);
 //                editor.apply();
-                Account.setUserImagePath(selectedImagePath);
+                Account.setUserLocalImagePath(selectedImagePath);
+                updateUserImage(); //本地选择图片的弥补
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -534,7 +524,6 @@ public class MainActivity extends AppCompatActivity
 //        String imagePath = sharedPreferences.getString("selectedImagePath", "");
 //        String user_name=sharedPreferences.getString("user_name","用户");
 //        String user_account = sharedPreferences.getString("user_account",null);
-//
 //        Account.setUserName(user_name);
 //        Account.setUserImagePath(imagePath);
 //        Account.setUserAccount(user_account);
@@ -556,38 +545,60 @@ public class MainActivity extends AppCompatActivity
         String imagePath = Account.getUserImagePath();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        imageView=(ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
-        final TextView textView_userName=(TextView)navigationView.getHeaderView(0).findViewById(R.id.textView);
+        imageView = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
+        final TextView textView_userName = (TextView) navigationView.getHeaderView(0).findViewById(R.id.textView);
 
         textView_userName.setText(userName);
 
-        final ImageView imageView_userImage = (ImageView)navigationView.getHeaderView(0).findViewById(R.id.imageView_user);
-        //SelectIconHelper.setIcon(imageView_userImage,imagePath);
+        final ImageView imageView_userImage = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView_user);
 
-        if(!imagePath.isEmpty()) {
-            //SelectIconHelper.setIcon(imageView, imagePath);  //放弃本地设置图片做法1.29
-            RequestListener mRequestListener = new RequestListener() {//用于监听错误
-                @Override
-                public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
-                    Log.d("glide", "onException: " + e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
-                    return false;
+
+        RequestListener mRequestListener = new RequestListener() {//用于监听Glide加载错误
+            @Override
+            public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
+                Log.d("glide", "onException: " + e.toString() + "  model:" + model + " isFirstResource: " + isFirstResource);
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
+                Log.e("glide", "model:" + model + "isFirstRource" + isFirstResource);
+                return false;
+            }
+        };
+
+        if (!this.isDestroyed()) {
+            if (!imagePath.isEmpty()) {//网络图片路径存在
+                //SelectIconHelper.setIcon(imageView, imagePath);  //放弃本地设置图片做法1.29
+
+
+                Glide.with(this)//使用glide加载网络图片
+                        .load(imagePath)
+                        .listener(mRequestListener)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.mipmap.ic_launcher)
+                        .bitmapTransform(new CropCircleTransformation(this))
+                        .into(imageView);
+
+            } else {
+                if ((new File(Account.getUserLocalImagePath()).exists())) //加载本地图片路径
+                {
+                    Glide.with(this)
+                            .load(Account.getUserLocalImagePath())
+                            .listener(mRequestListener)
+                            .placeholder(R.mipmap.ic_launcher)
+                            .error(R.mipmap.ic_launcher)
+                            .bitmapTransform(new CropCircleTransformation(this))
+                            .into(imageView);
+                } else {
+                    Glide.with(this)//使用初始照片
+                            .load(R.mipmap.ic_launcher)
+                            .listener(mRequestListener)
+                            .placeholder(R.mipmap.ic_launcher)
+                            .error(R.mipmap.ic_launcher)
+                            .into(imageView);
                 }
-
-                @Override
-                public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.e("glide","model:"+model+"isFirstRource"+isFirstResource);
-                    return false;
-                }
-            };
-
-
-            Glide.with(this)//使用glide加载网络图片
-                    .load(imagePath)
-                    .listener(mRequestListener)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.mipmap.ic_launcher)
-                    .bitmapTransform(new CropCircleTransformation(this))
-                    .into(imageView);
+            }
 
         }
 

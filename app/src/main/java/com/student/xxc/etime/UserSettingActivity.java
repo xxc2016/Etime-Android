@@ -33,12 +33,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.student.xxc.etime.bean.TraceBean;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.User;
 import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
+import com.student.xxc.etime.impl.TraceManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -117,6 +119,17 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
                 Account.setUserImagePath(imagePath);
                 mActivity.get().updateAccount();
             }
+            if (response == TraceBean.UP_STORE_RESPONSE_SUCCESSED)
+            {
+                String json = bundle.getString("json");
+                Log.i("json_response",json);
+            }
+            if(response == TraceBean.DOWN_LOAD_REUQEST_SUCCESSED)
+            {
+                String json = bundle.getString("json");
+                Log.i("json_response",json);
+                mActivity.get().updateTraces(json);
+            }
         }
     }
 
@@ -159,7 +172,21 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
             case  User.UNKNOWN_ERROR:
                 Toast.makeText(this,"未知错误",Toast.LENGTH_SHORT).show();
                 break;
-
+            case  TraceBean.DOWN_LOAD_REUQEST_SUCCESSED:
+                Toast.makeText(this,"日程下载成功",Toast.LENGTH_SHORT).show();
+                break;
+            case  TraceBean.DOWN_LOAD_REQUEST_FAILED:
+                Toast.makeText(this,"日程下载失败",Toast.LENGTH_SHORT).show();
+                break;
+            case   TraceBean.UP_STORE_RESPONSE_FAILED:
+                Toast.makeText(this,"日程上传失败",Toast.LENGTH_SHORT).show();
+                break;
+            case   TraceBean.UP_STORE_RESPONSE_SUCCESSED:
+                Toast.makeText(this,"日程上传成功",Toast.LENGTH_SHORT).show();
+                break;
+            case   TraceBean.UNKNOWN_ERROR:
+                Toast.makeText(this,"未知错误",Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
@@ -245,19 +272,40 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
         });
 
 
-        Button button_user_setting_exit= (Button) this.findViewById(R.id.button_user_setting_exit);
+        Button button_user_setting_exit= (Button) this.findViewById(R.id.button_user_setting_exit);//用户退出
         button_user_setting_exit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 if(Account.getState()==Account.ACCOUNT_ONLINE) {
                     Account.setState(Account.ACCOUNT_OFFLINE);
+                    Account.setUserAccount("");//改正退出时设置的部分逻辑
+                    Account.setUserImagePath("");
                     Toast.makeText(UserSettingActivity.this, "登出成功", Toast.LENGTH_SHORT).show();
                     UserSettingActivity.this.updateAccount();
                 }
 
             }
         });
+
+
+        Button button_user_setting_upStore_trace  = (Button)this.findViewById(R.id.button_user_setting_upStore_trace);//上传日程
+        button_user_setting_upStore_trace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                      upStoreTraces();
+            }
+        });
+
+
+        Button button_user_setting_downLoad_trace = (Button)this.findViewById(R.id.button_user_setting_downLoad_trace);//下载日程
+        button_user_setting_downLoad_trace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    downLoadTrace();
+            }
+        });
+
 
 
         Button button_user_setting_login = (Button) this.findViewById(R.id.button_user_setting_login);
@@ -479,44 +527,74 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
         ImageView user_setting_background = (ImageView)this.findViewById(R.id.imageView_user_setting_background);
         String imagePath = Account.getUserImagePath();
         ImageView user_setting_image = (ImageView)this.findViewById(R.id.imageView_user_setting_image);
-        if(imagePath.isEmpty()) {
-            Glide.with(this).load(R.mipmap.ic_launcher)
-                    .dontAnimate()
-                    .bitmapTransform(new BlurTransformation(this, 25, 3), new CenterCrop(this))
-                    .into(user_setting_background);//使用glide包处理图片实现图片磨砂效果
-        }
-        else
+
+        RequestListener mRequestListener = new RequestListener() {//用于监听错误
+            @Override
+            public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
+                Log.d("glide", "onException: " + e.toString() + "  model:" + model + " isFirstResource: " + isFirstResource);
+                return false;
+            }
+
+            @Override
+            public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
+                Log.e("glide", "model:" + model + "isFirstRource" + isFirstResource);
+                return false;
+            }
+        };
+
+        if(!this.isDestroyed())//防止出现glide的一个bug
         {
-            Glide.with(this).load(imagePath)
-                    .dontAnimate()
-                    .bitmapTransform(new BlurTransformation(this, 25, 3), new CenterCrop(this))
-                    .error(R.mipmap.ic_launcher)//出错备用
-                    .into(user_setting_background);//使用glide包处理图片实现图片磨砂效果
 
-            //SelectIconHelper.setIcon(user_setting_image,imagePath);//图片裁圆并设置   放弃本地设置图片做法1.29
+            if (!Account.getUserImagePath().isEmpty())//网络地址有效
+            {
+                Log.i("glide", "network");
+                Glide.with(this).load(Account.getUserImagePath())//背景
+                        .dontAnimate()
+                        .error(R.mipmap.ic_launcher)
+                        .bitmapTransform(new BlurTransformation(this, 25, 3), new CenterCrop(this))
+                        .into(user_setting_background);//使用glide包处理图片实现图片磨砂效果
 
-            RequestListener mRequestListener = new RequestListener() {//用于监听错误
-                @Override
-                public boolean onException(Exception e, Object model, Target target, boolean isFirstResource) {
-                    Log.d("glide", "onException: " + e.toString()+"  model:"+model+" isFirstResource: "+isFirstResource);
-                    return false;
+                Glide.with(this)//头像
+                        .load(Account.getUserImagePath())
+                        .listener(mRequestListener)
+                        .placeholder(R.mipmap.ic_launcher)
+                        .error(R.mipmap.ic_launcher)
+                        .bitmapTransform(new CropCircleTransformation(this))
+                        .into(user_setting_image);
+            } else {
+                if ((new File(Account.getUserLocalImagePath()).exists()))//本地图片地址有效
+                {
+                    Log.i("glide", "local");
+                    Glide.with(this).load(Account.getUserLocalImagePath())//背景
+                            .dontAnimate()
+                            .error(R.mipmap.ic_launcher)
+                            .bitmapTransform(new BlurTransformation(this, 25, 3), new CenterCrop(this))
+                            .into(user_setting_background);//使用glide包处理图片实现图片磨砂效果
+
+                    Glide.with(this)//头像
+                            .load(Account.getUserLocalImagePath())
+                            .listener(mRequestListener)
+                            .placeholder(R.mipmap.ic_launcher)
+                            .error(R.mipmap.ic_launcher)
+                            .bitmapTransform(new CropCircleTransformation(this))
+                            .into(user_setting_image);
+                } else //默认情况
+                {
+                    Log.i("glide", "default");
+                    Glide.with(this).load(R.mipmap.ic_launcher)//背景
+                            .dontAnimate()
+                            .error(R.mipmap.ic_launcher)
+                            .bitmapTransform(new BlurTransformation(this, 25, 3), new CenterCrop(this))
+                            .into(user_setting_background);//使用glide包处理图片实现图片磨砂效果
+
+                    Glide.with(this)//头像
+                            .load(R.mipmap.ic_launcher)
+                            .listener(mRequestListener)
+                            .placeholder(R.mipmap.ic_launcher)
+                            .error(R.mipmap.ic_launcher)
+                            .into(user_setting_image);
                 }
-
-                @Override
-                public boolean onResourceReady(Object resource, Object model, Target target, boolean isFromMemoryCache, boolean isFirstResource) {
-                    Log.e("glide","model:"+model+"isFirstRource"+isFirstResource);
-                    return false;
-                }
-            };
-
-
-            Glide.with(this)//使用glide加载网络图片
-                    .load(imagePath)
-                    .listener(mRequestListener)
-                    .placeholder(R.mipmap.ic_launcher)
-                    .error(R.mipmap.ic_launcher)
-                    .bitmapTransform(new CropCircleTransformation(this))
-                    .into(user_setting_image);
+            }
         }
 
 
@@ -538,6 +616,8 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
     {
         //        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
         int currentNightMode=getIntent().getIntExtra("mode", Configuration.UI_MODE_NIGHT_NO);
+
+
         getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
                 AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
 
@@ -570,6 +650,8 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
                 String selectedImagePath = cursor.getString(columnIndex);
 
               //  Account.setUserImagePath(selectedImagePath);
+                Account.setUserLocalImagePath(selectedImagePath);
+                updateUserImage(); //本地选择图片的弥补
                 upStoreUserImage(selectedImagePath);
 
                 Log.i("imagepath","--------------------------------"+selectedImagePath);
@@ -582,6 +664,10 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
 
     private void upStoreUserImage(String userImagePath)//网络上传用户头像
     {
+        if(Account.getUserAccount().isEmpty())//账户不存在时 2.1
+        {
+            return ;
+        }
         if(Account.getState()!=Account.ACCOUNT_ONLINE)
         {
             Toast.makeText(UserSettingActivity.this,"请登陆！",Toast.LENGTH_LONG).show();
@@ -846,5 +932,160 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
                 UserSettingActivity.this.upStoreUserImageExtra();
             }
         }).show();
+    }
+
+    private  void  upStoreTraces()
+    {
+        final TraceBean traceBean = TraceManager.getTraces();
+
+        if(Account.getState()!=Account.ACCOUNT_ONLINE)
+        {
+            Toast.makeText(UserSettingActivity.this,"请登陆后使用",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!isConnectingToInternet())
+        {
+            Toast.makeText(UserSettingActivity.this,"请检查网络状态！",Toast.LENGTH_LONG).show();
+            return ;
+        }
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Callback callback=new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.i("POST",""+e);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("POST",response.protocol()+" "+
+                                response.code()+" "+response.message());
+                        Headers headers = response.headers();
+                        for (int i=0;i<headers.size();i++) {
+                            Log.d("HEAD", headers.name(i) + ":" + headers.value(i));
+                        }
+
+                        String json = response.body().string();
+                        Log.d("tag","onResponse"+json);
+
+                        TraceBean traceBean = new TraceBean();
+                        try {
+                            traceBean = JsonManager.JsonToTraceBean(json);
+                        }catch (Exception e)
+                        {
+                            Log.i("jsonError",e+"");
+                            Looper.prepare();
+                            Bundle  bundle = new Bundle();
+                            bundle.putInt("response",TraceBean.UNKNOWN_ERROR);
+                            Message  message = myhandler.obtainMessage();
+                            message.setData(bundle);
+                            message.sendToTarget();
+                            Looper.loop();
+                            return ;
+                        }
+
+                        Looper.prepare();
+                        Bundle  bundle = new Bundle();
+                        bundle.putInt("response", traceBean.getResponseCode());
+                        bundle.putString("json",json); //绕过序列化的取巧方法
+                        Message  message = myhandler.obtainMessage();
+                        message.setData(bundle);
+                        message.sendToTarget();
+                        Log.i("thread","-----------------------------send message");
+                        Looper.loop();
+
+                    }
+                };
+                HttpConnection.sendOkHttpRequest_sendTraces(traceBean,callback);
+            }
+        };
+
+        Log.i("UserSettingActivity","--------------------------new thread");
+        Thread thread = new Thread(runnable);
+        thread.start();
+
+    }
+
+    private void downLoadTrace()
+    {
+         final TraceBean traceBean = new TraceBean();
+        if(Account.getState()!=Account.ACCOUNT_ONLINE)
+        {
+            Toast.makeText(UserSettingActivity.this,"请登陆后使用",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(!isConnectingToInternet())
+        {
+            Toast.makeText(UserSettingActivity.this,"请检查网络状态！",Toast.LENGTH_LONG).show();
+            return ;
+        }
+
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Callback callback=new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.i("POST",""+e);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("POST",response.protocol()+" "+
+                                response.code()+" "+response.message());
+                        Headers headers = response.headers();
+                        for (int i=0;i<headers.size();i++) {
+                            Log.d("HEAD", headers.name(i) + ":" + headers.value(i));
+                        }
+
+                        String json = response.body().string();
+                        Log.d("tag","onResponse"+json);
+
+                        TraceBean traceBean = new TraceBean();
+                        try {
+                            traceBean = JsonManager.JsonToTraceBean(json);
+                        }catch (Exception e)
+                        {
+                            Log.i("jsonError",e+"");
+                            Looper.prepare();
+                            Bundle  bundle = new Bundle();
+                            bundle.putInt("response",TraceBean.UNKNOWN_ERROR);
+                            Message  message = myhandler.obtainMessage();
+                            message.setData(bundle);
+                            message.sendToTarget();
+                            Looper.loop();
+                            return ;
+                        }
+
+                        Looper.prepare();
+                        Bundle  bundle = new Bundle();
+                        bundle.putInt("response", traceBean.getResponseCode());
+                        bundle.putString("json",json); //绕过序列化的取巧方法
+                        Message  message = myhandler.obtainMessage();
+                        message.setData(bundle);
+                        message.sendToTarget();
+                        Log.i("thread","-----------------------------send message");
+                        Looper.loop();
+
+                    }
+                };
+                HttpConnection.sendOkHttpRequest_downLoadTraces(Account.getUserAccount(),traceBean,callback);
+            }
+        };
+
+        Log.i("UserSettingActivity","--------------------------new thread");
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
+
+    private void updateTraces(String json)//调用修改数据库
+    {
+        TraceBean traceBean = JsonManager.JsonToTraceBean(json);
+        TraceManager.resetTraces(traceBean);
     }
 }

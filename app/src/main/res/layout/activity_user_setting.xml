@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <Button
-        android:id="@+id/button_confirm2"
+        android:id="@+id/button_user_setting_upStore_trace"
         android:layout_width="160dp"
         android:layout_height="30dp"
         android:layout_gravity="center"
@@ -58,7 +58,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button_confirm4"
+        android:id="@+id/button_user_setting_downLoad_trace"
         android:layout_width="160dp"
         android:layout_height="30dp"
         android:layout_gravity="center"

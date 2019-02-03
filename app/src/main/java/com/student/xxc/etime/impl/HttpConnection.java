@@ -2,6 +2,7 @@ package com.student.xxc.etime.impl;
 
 import android.util.Log;
 
+import com.student.xxc.etime.bean.TraceBean;
 import com.student.xxc.etime.entity.User;
 import com.student.xxc.etime.helper.UrlHelper;
 
@@ -109,6 +110,32 @@ public class HttpConnection {//用于和后台通讯接口
         okHttpClient.newCall(request).enqueue(callback);
     }
 
+    public static void sendOkHttpRequest_sendTraces(TraceBean bean, Callback callback)//上传用户日程
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
 
+        bean.setRequestCode(TraceBean.UP_STORE_REQUEST);
+        String json = JsonManager.TraceBeanToJson(bean);
+        Log.i("json",""+json);
+        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
+        RequestBody requestBody= RequestBody.create(JSON,json);
+        Request request =new Request.Builder().url(UrlHelper.getUrl_user_trace()).post(requestBody).build();
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+
+
+    public static void sendOkHttpRequest_downLoadTraces(String userAccount,TraceBean bean, Callback callback)//下载用户日程
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
+
+        bean.setRequestCode(TraceBean.DOWN_LOAD_REQUEST);
+        bean.setUserAccount(userAccount);
+        String json = JsonManager.TraceBeanToJson(bean);
+        Log.i("json",""+json);
+        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
+        RequestBody requestBody= RequestBody.create(JSON,json);
+        Request request =new Request.Builder().url(UrlHelper.getUrl_user_trace()).post(requestBody).build();
+        okHttpClient.newCall(request).enqueue(callback);
+    }
 
 }

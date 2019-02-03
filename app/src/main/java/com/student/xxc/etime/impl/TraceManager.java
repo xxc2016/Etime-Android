@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.student.xxc.etime.bean.TraceBean;
+import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.helper.TraceSQLiteOpenHelper;
 
@@ -14,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class TraceManager {//用于管理trace的工具类
@@ -32,6 +36,7 @@ public class TraceManager {//用于管理trace的工具类
             "important INTEGER,urgent INTEGER,fix INTEGER,predict INTEGER)";
     public  static final String DROP_TABLE = "DROP TABLE "+
             "userAction";
+    public  static final String DELETE_TABLE = "DELETE FROM "+ "userAction";
 
     private static final int TYPE_TOP = 0x0000;
     private static final int TYPE_NORMAL= 0x0001;
@@ -64,7 +69,7 @@ public class TraceManager {//用于管理trace的工具类
 
     static public void setContext(Context context)
     {
-        TraceManager.context = context;
+        TraceManager.context = context.getApplicationContext(); //同改正一个context的问题  1.31
         SharedPreferences sp = context.getSharedPreferences("userInfo",Context.MODE_PRIVATE);
         traceId = sp.getInt("traceId",0);  //获得消息索引
         SharedPreferences.Editor editor = sp.edit();
@@ -435,18 +440,26 @@ public class TraceManager {//用于管理trace的工具类
         return tempList_1;
     }
 
-    static  public void deleteTable()
+    static  public void dropTable()
     {
         helper.getWritableDatabase().execSQL(DROP_TABLE);
     }
 
-    static  public void getTraces()   //单纯读一遍
+    static  public void deleteTable()
+    {
+        helper.getWritableDatabase().execSQL(DELETE_TABLE);
+    }
+
+    static  public TraceBean  getTraces()   //单纯读一遍  //2.1  改成返回数据库TraceBean
     {
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.execSQL(DROP_TABLE);
-        db.execSQL(CREATE_DATABASE);
+//        db.execSQL(DROP_TABLE);
+//        db.execSQL(CREATE_DATABASE);
         Cursor cursor  =db.query("userAction",null,null,
         null,null,null,null);
+        ArrayList<TraceBean.Trace>  traces = new ArrayList<TraceBean.Trace>();
+        TraceBean list = new TraceBean();
+        list.setUserAccount(Account.getUserAccount());
         if(cursor.moveToFirst())
         {
             do{
@@ -460,10 +473,40 @@ public class TraceManager {//用于管理trace的工具类
                 int urgent = cursor.getInt(cursor.getColumnIndex("urgent"));
                 int fix = cursor.getInt(cursor.getColumnIndex("fix"));
                 int predict = cursor.getInt(cursor.getColumnIndex("predict"));
+                Trace trace =new Trace(time,date ,event,traceId,Trace.judgeFinish_boolean(finish),
+                        Trace.judgeImportant_boolean(important),
+                        Trace.judgeUrgent_boolean(urgent),
+                        Trace.judgeFix_boolean(fix),predict);
+                TraceBean.Trace bean = new TraceBean.Trace(Account.getUserAccount(),time,event,date,finish,traceId,important,urgent,fix,predict);
+                traces.add(bean);
                 Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish+" "+important+" "+urgent
-                +" "+fix+" "+predict);
+                +" "+fix+" "+predict+"  account"+Account.getUserAccount());
             }while (cursor.moveToNext());
             cursor.close();
+        }
+        list.setTraces(traces);
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        Log.i("json",json);
+
+//        java.lang.reflect.Type type = new TypeToken<TraceBean>(){}.getType();
+//        TraceBean  traceList = gson.fromJson(json,type);
+//        Log.i("json",traceList.getUserAccount()+"  "+traceList.getTraces().get(1).toString());  //回归测试
+        return list;
+    }
+
+
+    static public void  resetTraces(TraceBean traceBean)//通过traceBean 改数据库
+    {
+        deleteTable();
+        List<TraceBean.Trace>  traces =  traceBean.getTraces();
+        Iterator<TraceBean.Trace> it =  traces.iterator();
+        while(it.hasNext())
+        {
+            TraceBean.Trace  trace = it.next();
+            Trace  trace1= new Trace(trace.time,trace.date ,trace.event,trace.traceId,
+                    trace.finish,trace.important,trace.urgent,trace.fix,trace.predict,trace.imageType);
+            addTrace(trace1);
         }
     }
 
