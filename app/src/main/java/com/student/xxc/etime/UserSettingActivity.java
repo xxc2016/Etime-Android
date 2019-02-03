@@ -830,7 +830,6 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
         Thread thread = new Thread(runnable);
         thread.start();
 
-
     }
 
     private void downLoadUserImage()//用户下载用户信息
