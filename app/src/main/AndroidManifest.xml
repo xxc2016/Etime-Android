@@ -56,9 +56,14 @@
 
         <activity
             android:name=".SetPostActivity"
-            android:parentActivityName=".CommunityActivity"
             android:label="新建帖子"
+            android:parentActivityName=".CommunityActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity android:name=".PostDetailActivity"
+            android:label="帖子详情"
+            android:parentActivityName=".CommunityActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

@@ -27,7 +27,12 @@ public class User {//用户登陆和注册和其他通讯
 
      final public static int   UNKNOWN_ERROR = 0x00016;//未知错误
 
+     public User(String nickName) {
+          this.nickName = nickName;
+     }
 
+     public User() {
+     }
 
      public String getName() {
           return name;
