@@ -1,7 +1,5 @@
 package com.student.xxc.etime.entity;
 
-import android.graphics.Bitmap;
-
 import java.util.List;
 
 public class PostDetail {

@@ -25,7 +25,7 @@ public class CommunityActivity extends AppCompatActivity {
 
     private CommunityAdapter adapter;
     private RecyclerView recyclerView;
-    private List<Post> postList=new ArrayList<Post>();
+    private List<Post> postList= new ArrayList<>();
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
