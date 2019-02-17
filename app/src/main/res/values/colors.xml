@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#49A7FF</color>//消息
+    <color name="colorPrimaryDark">#49A7FF</color>//标题、状态栏
+    <color name="colorAccent">#BFB087</color>
+    <color name="colorBg">#FAFAFA</color>
+    <color name="colorText">#FFFFFF</color>
+    <color name="colorFinish">#02C7B5</color>
+    <color name="colorTime">#555555</color>
+    <color name="colorButton">#43C27B</color>
+    <color name="colorTrace">#49A7FF</color>
+    <color name="colorTraceText">#6D6F7C</color>
+
+</resources>
