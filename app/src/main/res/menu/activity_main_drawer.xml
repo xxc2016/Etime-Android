@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_date"
+            android:icon="@drawable/ic_menu_date"
+            android:title="历史日程" />
+        <item
+            android:id="@+id/nav_lock"
+            android:icon="@drawable/ic_menu_lock"
+            android:title="今日安排" />
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_menu_setting"
+            android:title="风格切换" />
+        <item
+            android:id="@+id/nav_sort"
+            android:icon="@drawable/ic_menu_sort"
+            android:title="智能规划" />
+        <item
+            android:id="@+id/nav_user"
+            android:icon="@drawable/ic_menu_user"
+            android:title="个人中心" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_menu_about"
+            android:title="关于我们" />
+        <item
+            android:id="@+id/nav_community"
+            android:icon="@drawable/ic_menu_lock"
+            android:title="社区"/>
+    </group>
+
+</menu>
