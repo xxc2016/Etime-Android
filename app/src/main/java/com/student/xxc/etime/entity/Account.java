@@ -3,8 +3,6 @@ package com.student.xxc.etime.entity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import java.util.LinkedList;
-
 public class Account {//账户类 用于管理用户账户信息
 
 

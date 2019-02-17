@@ -44,7 +44,7 @@ public class CommunityActivity extends AppCompatActivity {
 
     private CommunityAdapter adapter;
     private RecyclerView recyclerView;
-    private List<Post> postList=new ArrayList<Post>();
+    private List<Post> postList= new ArrayList<>();
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     private MyHandler myhandler = new MyHandler(this);
 
