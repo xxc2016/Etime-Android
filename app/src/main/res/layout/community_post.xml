@@ -26,14 +26,10 @@
 
                 <ImageButton
                     android:id="@+id/userLogo"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:contentDescription="user"
-                    android:background="@mipmap/crystal_2"/>
-
-                    <!--android:background="@mipmap/personal"    去除原来背景  添加透明图片2.16
-                    有一个glide和服务器图片的蜜汁问题-->
-
+                    android:background="@mipmap/personal" />
 
                 <TextView
                     android:id="@+id/textView4"
@@ -42,15 +38,13 @@
                     android:gravity="center"
                     android:text="TextView" />
             </LinearLayout>
-
             <TextView
-                android:id="@+id/textView_post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="16dp"
-                android:paddingTop="5dp"
                 android:text="title"
-                android:textSize="30sp" />
+                android:paddingTop="5dp"
+                android:textSize="30sp"
+                android:paddingLeft="16dp"/>
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="10dp" />
