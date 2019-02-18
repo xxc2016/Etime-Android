@@ -223,7 +223,7 @@ public class PostDetailActivity extends AppCompatActivity {
 //            RemarkBean.(user);//获得用户账号
 //            Remark remark=new Remark(user,);
 //            textView.getText().toString();
-            textView.clearComposingText();
+            textView.setText("");
             cardView.setVisibility(View.GONE);
         }
     }
