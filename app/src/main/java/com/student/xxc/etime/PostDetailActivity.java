@@ -328,8 +328,13 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void insertPic(final TextView textView, final String content, final List<String>bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
+        int sub=0;//存在删除图片后，[pic:]可能不从0开始
+        String tmpSub = "[pic:" + sub + "]";
+        while(!content.contains(tmpSub)){
+            tmpSub = "[pic:" + (++sub) + "]";
+        }
         for(int i=0;i<bitmaps.size();i++) {
-            final int finalI = i;
+            final int finalI = i+sub;
             Glide.with(this).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
@@ -340,7 +345,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     int start=spannableString.toString().indexOf(tempUrl);
                     spannableString.setSpan(imageSpan, start, start+tempUrl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     textView.setText(spannableString);
-                    Log.i("hh", "onResourceReady: "+spannableString.toString());
+                    Log.i("PDA", "onResourceReady: "+spannableString.toString());
 
                 }
             });

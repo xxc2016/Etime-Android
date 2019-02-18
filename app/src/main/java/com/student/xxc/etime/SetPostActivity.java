@@ -186,6 +186,7 @@ public class SetPostActivity extends AppCompatActivity {
                 LinkedList<File>  files =  new LinkedList<File>();
                 for(int i=0;i<picPathList.size();i++)
                 {
+                    if(isDelete(i,content)) continue;
                     Uri imageUri  =picPathList.get(i);
                     String imagePath = FilePathHelper.getFilePathByUri(SetPostActivity.this,imageUri);
                     try {
@@ -196,13 +197,18 @@ public class SetPostActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                     //Log.i("imagePath",imagePath);
-                };
+                }
 
                 sendPostDetailBean(postDetailBean,files);
                 showWaitDialog();
             }
         });
 
+    }
+
+    private boolean isDelete(int i,String content) {
+        String tmp="[pic:"+i+"]";
+        return !content.contains(tmp);
     }
 
     public void insertPic(){//imagespan图文混合
@@ -225,18 +231,6 @@ public class SetPostActivity extends AppCompatActivity {
             edit_text.insert(index, spannableString);
         }
        // System.out.println("插入的图片：" + spannableString.toString());
-    }
-
-    public Bitmap drawableToBitmap(Drawable drawable) // drawable 转换成bitmap
-    {
-        int width = drawable.getIntrinsicWidth();// 取drawable的长宽
-        int height = drawable.getIntrinsicHeight();
-        Bitmap.Config config = drawable.getOpacity() != PixelFormat.OPAQUE ?Bitmap.Config.ARGB_8888:Bitmap.Config.RGB_565;// 取drawable的颜色格式
-        Bitmap bitmap = Bitmap.createBitmap(width, height, config);// 建立对应bitmap
-        Canvas canvas = new Canvas(bitmap);// 建立对应bitmap的画布
-        drawable.setBounds(0, 0, width, height);
-        drawable.draw(canvas);// 把drawable内容画到画布中
-        return bitmap;
     }
 
     public void getImage() {
@@ -332,6 +326,7 @@ public class SetPostActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClass(SetPostActivity.this,CommunityActivity.class);
         startActivity(intent);
+        finish();
     }
 
     public void showWaitDialog()
