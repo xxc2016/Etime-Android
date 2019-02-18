@@ -68,7 +68,6 @@ import okhttp3.Response;
 public class SetPostActivity extends AppCompatActivity {
 
     private static final int SELECT_PIC = 544;//选择图片
-    private List<Bitmap> bitmapList=new ArrayList<Bitmap>();
     private List<Uri> picPathList  =new ArrayList<Uri>();//图片路径
 
     private MyHandler myhandler = new MyHandler(this);
@@ -211,12 +210,11 @@ public class SetPostActivity extends AppCompatActivity {
         return !content.contains(tmp);
     }
 
-    public void insertPic(){//imagespan图文混合
+    public void insertPic(Bitmap bitmap){//imagespan图文混合
         EditText et_detail=(EditText)findViewById(R.id.set_post_editPost);
-        Bitmap bitmap=bitmapList.get(bitmapList.size()-1);
         ImageSpan imageSpan = new ImageSpan(SetPostActivity.this, bitmap);
         //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
-        String tempUrl = "[pic:"+(bitmapList.size()-1)+"]";
+        String tempUrl = "[pic:"+(picPathList.size()-1)+"]";
         SpannableString spannableString = new SpannableString(tempUrl);
         //用ImageSpan对象替换你指定的字符串
         spannableString.setSpan(imageSpan, 0, tempUrl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -252,9 +250,9 @@ public class SetPostActivity extends AppCompatActivity {
                 try {
                     originalBitmap = BitmapFactory.decodeStream(cr.openInputStream(selectedImage));
                     Bitmap bitmap = ImageUtil.resizeImage(originalBitmap);//屏幕比例缩放，质量压缩
-                    bitmapList.add(bitmap);
+//                    bitmapList.add(bitmap);
                     picPathList.add(selectedImage);
-                    insertPic();
+                    insertPic(bitmap);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }

@@ -67,13 +67,15 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
 
     private void insertPic(final TextView textView, final String content, final List<String> bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
-        int sub=0;//存在删除图片后，[pic:]可能不从0开始
-        String tmpSub = "[pic:" + sub + "]";
-        while(!content.contains(tmpSub)){
-            tmpSub = "[pic:" + (++sub) + "]";
-        }
+        int sub=-1;
         for(int i=0;i<bitmaps.size();i++) {
-            final int finalI = i+sub;
+            //存在删除图片后，[pic:]可能不从0开始,也可能中间少数
+            sub+=1;
+            String tmpSub = "[pic:" + sub + "]";
+            while(!content.contains(tmpSub)){
+                tmpSub = "[pic:" + (++sub) + "]";
+            }
+            final int finalI = sub;
             Glide.with(context).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {

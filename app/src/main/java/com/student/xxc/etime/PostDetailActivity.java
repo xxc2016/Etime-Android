@@ -10,9 +10,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,10 +23,12 @@ import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -46,6 +50,7 @@ import com.student.xxc.etime.helper.RemarkAdapter;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
+import com.student.xxc.etime.util.ImageUtil;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -165,6 +170,62 @@ public class PostDetailActivity extends AppCompatActivity {
         initRemarkData();
 
         initView();
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.setRemark);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                actionAdd();
+            }
+        });//添加评论
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {//分发点击事件
+        if(ev.getAction()==MotionEvent.ACTION_DOWN){
+            CardView v = findViewById(R.id.setRemarkCardView);
+            if(isShouldHide(v,ev)){//点击添加评论cardview以外位置控件消失
+                v.setVisibility(View.GONE);
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    private boolean isShouldHide(View v, MotionEvent event) {
+        if (v != null && (v instanceof CardView)) {
+            int[] leftTop = { 0, 0 };
+            //获取输入框当前的location位置
+            v.getLocationInWindow(leftTop);
+            int left = leftTop[0];
+            int top = leftTop[1];
+            int bottom = top + v.getHeight();
+            int right = left + v.getWidth();
+            if (event.getX() > left && event.getX() < right
+                    && event.getY() > top && event.getY() < bottom) {
+                // 点击的是输入框区域，保留点击EditText的事件
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void actionAdd() {
+        CardView cardView=findViewById(R.id.setRemarkCardView);
+        if(cardView.getVisibility()==View.GONE){
+            cardView.setVisibility(View.VISIBLE);
+        }else{
+            TextView textView=(TextView)cardView.findViewById(R.id.setRemarkText);
+
+            String userAccount = Account.getUserAccount();
+            RemarkBean.User user = new RemarkBean.User();
+            user.account = userAccount;
+//            RemarkBean.(user);//获得用户账号
+//            Remark remark=new Remark(user,);
+//            textView.getText().toString();
+            textView.clearComposingText();
+            cardView.setVisibility(View.GONE);
+        }
     }
 
     private void initPostDetailData(final int postDetailId) {//帖子详情数据加载，intent传过来的id  帖子详细类id
@@ -328,16 +389,19 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void insertPic(final TextView textView, final String content, final List<String>bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
-        int sub=0;//存在删除图片后，[pic:]可能不从0开始
-        String tmpSub = "[pic:" + sub + "]";
-        while(!content.contains(tmpSub)){
-            tmpSub = "[pic:" + (++sub) + "]";
-        }
+        int sub=-1;
         for(int i=0;i<bitmaps.size();i++) {
-            final int finalI = i+sub;
+            //存在删除图片后，[pic:]可能不从0开始,也可能中间少数
+            sub+=1;
+            String tmpSub = "[pic:" + sub + "]";
+            while(!content.contains(tmpSub)){
+                tmpSub = "[pic:" + (++sub) + "]";
+            }
+            final int finalI = sub;
             Glide.with(this).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                    resource= ImageUtil.resizeImage(resource);
                     ImageSpan imageSpan = new ImageSpan(PostDetailActivity.this, resource);
                     //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
                     String tempUrl = "[pic:" + finalI + "]";
