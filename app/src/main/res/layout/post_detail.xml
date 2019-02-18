@@ -26,11 +26,13 @@
 
                 <ImageButton
                     android:id="@+id/userLogo2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="user"
-                    android:background="@mipmap/personal"
-                    android:layout_gravity="center"/>
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_gravity="center"
+                    android:background="@mipmap/crystal_2"
+                    android:contentDescription="user" />
+
+                <!--背景改成透明-->
 
                 <TextView
                     android:id="@+id/textView5"
