@@ -36,6 +36,7 @@ import com.bumptech.glide.request.target.Target;
 import com.student.xxc.etime.bean.TraceBean;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.User;
+import com.student.xxc.etime.helper.FilePathHelper;
 import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
@@ -602,8 +603,8 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
             @Override
             public void onClick(View v) {
                 PermissionHelper.checkPermission(UserSettingActivity.this);
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_PICK);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
             }
@@ -637,19 +638,18 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode==REQUEST_CODE_SELECT_PIC)//修改头像
+        if(resultCode == RESULT_OK && requestCode==REQUEST_CODE_SELECT_PIC)//修改头像
         {
             // 获取选择的图片
             if(data!=null) {
                 Uri selectedImage = data.getData();
-                String[] filePathColumn = {MediaStore.Images.Media.DATA};
-                Cursor cursor = getContentResolver().query(selectedImage, null, null, null, null);
-                cursor.moveToFirst();
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                 // 获取到图片的路径
-                String selectedImagePath = cursor.getString(columnIndex);
+                String selectedImagePath = null;
+                if (selectedImage != null) {
+                    selectedImagePath = FilePathHelper.getFilePathByUri(UserSettingActivity.this,selectedImage);
+                }
 
-              //  Account.setUserImagePath(selectedImagePath);
+                //  Account.setUserImagePath(selectedImagePath);
                 Account.setUserLocalImagePath(selectedImagePath);
                 updateUserImage(); //本地选择图片的弥补
                 upStoreUserImage(selectedImagePath);

@@ -19,6 +19,7 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.Remark;
+import com.student.xxc.etime.util.ImageUtil;
 
 import java.util.List;
 
@@ -65,13 +66,21 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
         }
     }
 
-    public void insertPic(final TextView textView, final String content, final List<String>bitmaps){//imagespan图文混合
+    private void insertPic(final TextView textView, final String content, final List<String> bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
+        int sub=-1;
         for(int i=0;i<bitmaps.size();i++) {
-            final int finalI = i;
+            //存在删除图片后，[pic:]可能不从0开始,也可能中间少数
+            sub+=1;
+            String tmpSub = "[pic:" + sub + "]";
+            while(!content.contains(tmpSub)){
+                tmpSub = "[pic:" + (++sub) + "]";
+            }
+            final int finalI = sub;
             Glide.with(context).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+//                    resource= ImageUtil.resizeImage(resource);//已经压缩大小过了
                     ImageSpan imageSpan = new ImageSpan(context, resource);
                     //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
                     String tempUrl = "[pic:" + finalI + "]";
@@ -79,7 +88,7 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                     int start=spannableString.toString().indexOf(tempUrl);
                     spannableString.setSpan(imageSpan, start, start+tempUrl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     textView.setText(spannableString);
-                    Log.i("hh", "onResourceReady: "+spannableString.toString());
+                    Log.i("RA", "onResourceReady: "+spannableString.toString());
 
                 }
             });

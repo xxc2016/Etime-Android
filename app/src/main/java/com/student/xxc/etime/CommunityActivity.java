@@ -5,21 +5,40 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
+import com.student.xxc.etime.bean.PostBean;
+import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.entity.Post;
 import com.student.xxc.etime.helper.CommunityAdapter;
+import com.student.xxc.etime.helper.TimeCalculateHelper;
+import com.student.xxc.etime.helper.UrlHelper;
+import com.student.xxc.etime.impl.HttpConnection;
+import com.student.xxc.etime.impl.JsonManager;
 
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Headers;
+import okhttp3.Response;
 
 public class CommunityActivity extends AppCompatActivity {
 
@@ -27,6 +46,62 @@ public class CommunityActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private List<Post> postList=new ArrayList<Post>();
     private LinearLayoutManager manager=new LinearLayoutManager(this);
+    private MyHandler myhandler = new MyHandler(this);
+
+
+
+    private static class MyHandler extends Handler {
+        private final WeakReference<CommunityActivity> mActivity;
+
+        public MyHandler(CommunityActivity activity) {
+            mActivity = new WeakReference<CommunityActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {//处理消息
+            super.handleMessage(msg);
+            if (mActivity.get() == null) {
+                return;
+            }
+            Bundle bundle = msg.getData();
+            int response = bundle.getInt("response");
+            mActivity.get().updateToast(response);
+
+            if(response == PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_SUCCESSED)
+            {
+                String json = bundle.getString("json");
+                PostBean postBean =  JsonManager.JsonToPostBean(json);
+                mActivity.get().updatePost(postBean);
+            }
+        }
+    }
+
+
+    private void updateToast(int response)//提示
+    {
+        switch (response) {
+            case PostBean.POST_COMMUNITY_GET_LIST_RESPONSE_SUCCESSED:
+                Toast.makeText(this,"预览帖子获得序列号成功",Toast.LENGTH_SHORT).show();
+                break;
+            case PostBean.POST_COMMUNITY_GET_LIST_RESPONSE_FAILED:
+                Toast.makeText(this,"预览帖子获得序列号失败",Toast.LENGTH_SHORT).show();
+                break;
+            case PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_SUCCESSED:
+                Toast.makeText(this,"预览帖子全部下载成功",Toast.LENGTH_SHORT).show();
+                break;
+            case PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_FAILED:
+                Toast.makeText(this,"预览帖子全部下载失败",Toast.LENGTH_SHORT).show();
+                break;
+            case  PostBean.POST_DOWN_LOAD_LIST_RESPONSE_SUCCESSED:
+                Toast.makeText(this,"预览帖子按照给定序号下载成功",Toast.LENGTH_SHORT).show();
+                break;
+            case  PostBean.POST_DOWN_LOAD_LIST_RESPONSE_FAILED:
+                Toast.makeText(this,"预览帖子按照给定序号下载失败",Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,14 +154,93 @@ public class CommunityActivity extends AppCompatActivity {
     }
 
     public void initData(){
-        String url = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2756575517,833879878&fm=200&gp=0.jpg";
-        for(int i=0;i<5;i++){
-            postList.add(i,new Post(null,"test",url,"3分钟前",3500,200));
-        }
+
+        getPostBean_ALL(new PostBean());//发送请求下载所有帖子
+//        String url = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2756575517,833879878&fm=200&gp=0.jpg";
+//        for(int i=0;i<5;i++){
+//            postList.add(i,new Post(null,"test",url,"3分钟前",3500,200));
+//        }
+
+
     }
     public void actionAdd(){
         Intent intent=new Intent();
         intent.setClass(this, SetPostActivity.class);
         this.startActivity(intent);
     }
+
+    public void updatePost(PostBean postBean)//刷新帖子
+    {
+        postList.clear();
+        List<PostBean.Post> list = postBean.getPosts();
+        if(list!=null){
+            for(PostBean.Post post:list)
+            {
+                String timeGap = TimeCalculateHelper.getTimeGap(post.date,post.time);
+                postList.add(new Post(UrlHelper.getUrl_base()+post.user.head,post.user.nickName, UrlHelper.getUrl_base()+post.pic,
+                        timeGap,post.watch,post.remark,post.title,post.PostId,post.detailId));
+            }
+            adapter.notifyDataSetChanged();
+        }
+    }
+
+
+    private  void   getPostBean_ALL(final PostBean postBean)//获得所有帖子
+    {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Callback callback=new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.i("POST",""+e);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("POST",response.protocol()+" "+
+                                response.code()+" "+response.message());
+                        Headers headers = response.headers();
+
+                        String json = response.body().string();
+                        Log.d("tag","onResponse"+json);
+
+                        PostBean askPostBean = null;
+                        try {
+                            askPostBean = JsonManager.JsonToPostBean(json);
+                        }catch (Exception e)
+                        {
+                            Log.i("jsonError",e+"");
+                            Looper.prepare();
+                            Bundle  bundle = new Bundle();
+                            bundle.putInt("response",PostBean.UNKNOWN_ERROR);
+                            Message message = myhandler.obtainMessage();
+                            message.setData(bundle);
+                            message.sendToTarget();
+                            Looper.loop();
+                            return ;
+                        }
+
+                        if(askPostBean!=null) {
+                            Looper.prepare();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("response", askPostBean.getResponseCode());
+                            bundle.putString("json",JsonManager.PostBeanToJson(askPostBean));
+                            Message message = myhandler.obtainMessage();
+                            message.setData(bundle);
+                            message.sendToTarget();
+                            Log.i("thread", "-----------------------------send message");
+                            Looper.loop();
+                        }
+                    }
+                };
+
+                HttpConnection.sendOkHttpRequest_downLoadPostALL(postBean,callback);
+            }
+        };
+
+        Thread thread = new Thread(runnable);
+        thread.start();
+    }
+
 }

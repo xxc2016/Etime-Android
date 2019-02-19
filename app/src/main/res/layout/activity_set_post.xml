@@ -21,17 +21,18 @@
         android:orientation="vertical">
 
         <EditText
-            android:id="@+id/title"
+            android:id="@+id/set_post_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="这里填入标题" />
+
         <EditText
-            android:id="@+id/editPost"
+            android:id="@+id/set_post_editPost"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:ems="10"
             android:layout_weight="24"
+            android:ems="10"
             android:gravity="start"
             android:hint="这里填入内容"
             android:inputType="textMultiLine"
@@ -42,8 +43,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
+
             <ImageView
-                android:id="@+id/upPic"
+                android:id="@+id/set_post_upPic"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="Update"
@@ -58,7 +60,7 @@
             android:paddingLeft="5dp">
 
             <ImageButton
-                android:id="@+id/setPic"
+                android:id="@+id/set_post_setPic"
                 android:layout_width="34dp"
                 android:layout_height="34dp"
                 android:background="@drawable/ic_menu_setting" />
@@ -66,15 +68,15 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/send"
+            android:id="@+id/set_post_send"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
             android:layout_marginLeft="40dp"
             android:layout_marginRight="40dp"
+            android:layout_weight="4"
             android:background="@drawable/button_shape"
             android:text="发表帖子"
-            android:textSize="18sp"/>
+            android:textSize="18sp" />
 
     </LinearLayout>
 
