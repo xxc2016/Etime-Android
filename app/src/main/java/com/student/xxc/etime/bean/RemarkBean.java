@@ -1,5 +1,7 @@
 package com.student.xxc.etime.bean;
 
+import java.util.List;
+
 public class RemarkBean {
     public int remarkId;
     public User user;
@@ -7,6 +9,7 @@ public class RemarkBean {
     public String time;
     public String date;
     public String content;
+    public List<String> bitmapPath;//评论图片
     private int requestCode;
     private int responseCode;
 
