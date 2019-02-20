@@ -1,16 +1,21 @@
 package com.student.xxc.etime;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -18,6 +23,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
@@ -42,19 +48,28 @@ import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.bean.RemarkBean;
 import com.student.xxc.etime.bean.UserBean;
 import com.student.xxc.etime.entity.Account;
+import com.student.xxc.etime.entity.Post;
 import com.student.xxc.etime.entity.PostDetail;
 import com.student.xxc.etime.entity.Remark;
 import com.student.xxc.etime.entity.User;
+import com.student.xxc.etime.helper.FilePathHelper;
 import com.student.xxc.etime.helper.GlideCirlceTransHelper;
+import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.RemarkAdapter;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
 import com.student.xxc.etime.util.ImageUtil;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -70,6 +85,9 @@ public class PostDetailActivity extends AppCompatActivity {
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     private MyHandler myhandler = new MyHandler(this);
     private PostDetail postDetail = null;//用于存储相关信息
+    private List<Uri> remarkPicPathList  =new ArrayList<Uri>();//图片路径
+    private static final int SELECT_REMARK_PIC = 555;//选择图片
+    private AlertDialog  waitDialog = null;//等待对话框
 
 
 
@@ -97,6 +115,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 mActivity.get().updatePostDetail(postDetailBean);//更新详细帖子信息
                 mActivity.get().updatePostDetailView();//更新详细帖子界面
                 mActivity.get().askUpdateFollowListButton();//请求更新按钮
+                mActivity.get().updateRemark(postDetailBean);//更新评论信息
 
             }
 
@@ -115,6 +134,17 @@ public class PostDetailActivity extends AppCompatActivity {
             if(response == UserBean.USER_DELETE_FOLLOWLIST_RESPONSE_SUCCESSED)
             {
                 mActivity.get().askUpdateFollowListButton();
+            }
+
+            if(response == RemarkBean.REMARK_UP_STORE_RESPONSE_SUCCESSED)
+            {
+                mActivity.get().stopWaitDialog();
+                mActivity.get().updatePostDetailBean();//更新界面
+            }
+
+            if(response== RemarkBean.REMARK_UP_STORE_RESPONSE_FAILED)
+            {
+                mActivity.get().stopWaitDialog();
             }
 
 
@@ -160,6 +190,15 @@ public class PostDetailActivity extends AppCompatActivity {
             case UserBean.USER_DOWN_LOAD_RESPONSE_FAILED:
                 Toast.makeText(this,"用户信息下载失败",Toast.LENGTH_SHORT).show();
                 break;
+            case RemarkBean.REMARK_UP_STORE_RESPONSE_SUCCESSED:
+                Toast.makeText(this,"发表评论成功",Toast.LENGTH_SHORT).show();
+                break;
+            case RemarkBean.REMARK_UP_STORE_RESPONSE_FAILED:
+                Toast.makeText(this,"发表失败失败",Toast.LENGTH_SHORT).show();
+                break;
+            case RemarkBean.UNKNOWN_ERROR:
+                Toast.makeText(this,"未知错误",Toast.LENGTH_SHORT).show();
+                break;
         }
     }
     @Override
@@ -191,16 +230,23 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
         initPostDetailData(postDetailId);
-        initRemarkData();
+       // initRemarkData();
 
         initView();
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.setRemark);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                actionAdd();
+                actionAdd(view);
             }
         });//添加评论
+        ImageButton button=(ImageButton)findViewById(R.id.set_remark_setPic);
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getImage();
+            }
+        });
     }
 
     @Override
@@ -234,22 +280,104 @@ public class PostDetailActivity extends AppCompatActivity {
         return false;
     }
 
-    private void actionAdd() {//添加评论
+    private void actionAdd(View view) {//添加评论
         CardView cardView=findViewById(R.id.setRemarkCardView);
         if(cardView.getVisibility()==View.GONE){
             cardView.setVisibility(View.VISIBLE);
         }else{
             TextView textView=(TextView)cardView.findViewById(R.id.setRemarkText);
+            if(textView.getText().toString().equals("")) {
+                Snackbar.make(view, "评论不可为空", Snackbar.LENGTH_SHORT).show();
+                return;
+            }
 
+            RemarkBean remarkBean = new RemarkBean();
             String userAccount = Account.getUserAccount();
             RemarkBean.User user = new RemarkBean.User();
             user.account = userAccount;
-//            RemarkBean.(user);//获得用户账号
-//            Remark remark=new Remark(user,);
-//            textView.getText().toString();
+            remarkBean.setUser(user);//设置用户
+            String content = textView.getText().toString();
+            remarkBean.setContent(content);//获得评论内容
+
+            remarkBean.setDetailId(postDetail.getDetailId());//设置detailId
+
+            SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
+            Date tempDate = Calendar.getInstance().getTime();
+            String date = df_date.format(tempDate);
+            SimpleDateFormat df_time = new SimpleDateFormat("HH:mm");
+            String time = df_time.format(tempDate);
+            remarkBean.setDate(date);
+            remarkBean.setTime(time);//设置时间日期
+
+            LinkedList<File>  files =  new LinkedList<File>();
+            for(int i=0;i<remarkPicPathList.size();i++)
+            {
+                //if(isDelete(i,content)) continue;
+                Uri imageUri  =remarkPicPathList.get(i);
+                String imagePath = FilePathHelper.getFilePathByUri(PostDetailActivity.this,imageUri);
+                try {
+                    File file = new File(imagePath);
+                    files.add(file);
+                }catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+
+            sendRemarkBean(remarkBean,files);
+            showWaitDialog();
+
             textView.setText("");
             cardView.setVisibility(View.GONE);
+            remarkPicPathList.clear();//清空评论图片
         }
+    }
+
+    public void getImage() {
+        PermissionHelper.checkPermission(PostDetailActivity.this);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
+        startActivityForResult(intent, SELECT_REMARK_PIC);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode == RESULT_OK && requestCode == SELECT_REMARK_PIC) {
+            if (data != null) {
+                ContentResolver cr = this.getContentResolver();
+                Uri selectedImage = data.getData();
+
+                Bitmap originalBitmap = null;
+                try {
+                    originalBitmap = BitmapFactory.decodeStream(cr.openInputStream(selectedImage));
+                    Bitmap bitmap = ImageUtil.resizeImage(originalBitmap,200f,480f);//屏幕比例缩放，质量压缩
+                    remarkPicPathList.add(selectedImage);
+                    insertPic(bitmap);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    public void insertPic(Bitmap bitmap){//imagespan图文混合
+        EditText et_detail=(EditText)findViewById(R.id.setRemarkText);
+        ImageSpan imageSpan = new ImageSpan(PostDetailActivity.this, bitmap);
+        //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
+        String tempUrl = "[pic:"+(remarkPicPathList.size()-1)+"]";
+        SpannableString spannableString = new SpannableString(tempUrl);
+        //用ImageSpan对象替换你指定的字符串
+        spannableString.setSpan(imageSpan, 0, tempUrl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        //将选择的图片追加到EditText中光标所在位置
+        int index = et_detail.getSelectionStart(); //获取光标所在位置
+        Editable edit_text = et_detail.getEditableText();
+        if(index < 0 || index >= edit_text.length()) {
+            edit_text.append(spannableString);
+        }
+        else
+        {
+            edit_text.insert(index, spannableString);
+        }
+        // System.out.println("插入的图片：" + spannableString.toString());
     }
 
     private void initPostDetailData(final int postDetailId) {//帖子详情数据加载，intent传过来的id  帖子详细类id
@@ -430,7 +558,7 @@ public class PostDetailActivity extends AppCompatActivity {
             Glide.with(this).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                    resource= ImageUtil.resizeImage(resource);
+                    resource= ImageUtil.resizeImage(resource,800f,480f);
                     ImageSpan imageSpan = new ImageSpan(PostDetailActivity.this, resource);
                     //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
                     String tempUrl = "[pic:" + finalI + "]";
@@ -767,4 +895,118 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
 
+    private  void sendRemarkBean(final RemarkBean remarkBean,final List<File>  files)//发送评论
+    {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                Callback callback = new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.i("POST", "" + e);
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.d("POST", response.protocol() + " " +
+                                response.code() + " " + response.message());
+                        Headers headers = response.headers();
+
+                        String json = response.body().string();
+                        Log.d("tag", "onResponse" + json);
+
+                        RemarkBean askRemarkBean = null;
+                        try {
+                            askRemarkBean = JsonManager.JsonToRemarkBean(json);
+                        } catch (Exception e) {
+                            Log.i("jsonError", e + "");
+                            Looper.prepare();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("response", RemarkBean.UNKNOWN_ERROR);
+                            Message message = myhandler.obtainMessage();
+                            message.setData(bundle);
+                            message.sendToTarget();
+                            Looper.loop();
+                            return;
+                        }
+
+                        if (askRemarkBean != null) {
+                            Looper.prepare();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt("response", askRemarkBean.getResponseCode());
+                            Message message = myhandler.obtainMessage();
+                            message.setData(bundle);
+                            message.sendToTarget();
+                            Log.i("thread", "-----------------------------send message");
+                            Looper.loop();
+                        }
+                    }
+                };
+                HttpConnection.sendOkHttpRequest_sendRemarkBean(remarkBean, callback,files);
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+
+    }
+
+    public void showWaitDialog()
+    {
+        View view_wait = LayoutInflater.from(PostDetailActivity.this).inflate(R.layout.dialog_wait,null,false);
+        waitDialog = new AlertDialog.Builder(PostDetailActivity.this).setView(view_wait).create();
+        waitDialog.setTitle("帖子发送中");
+        waitDialog.show();
+    }
+
+    public void stopWaitDialog()
+    {
+        if(waitDialog!=null) {
+            waitDialog.dismiss();
+        }
+    }
+
+    private boolean isDelete(int i,String content) {
+        String tmp="[pic:"+i+"]";
+        return !content.contains(tmp);
+    }
+
+
+    private  void updateRemark(PostDetailBean postDetailBean)//更新评论信息
+    {
+        remarkList.clear();
+        List<PostDetailBean.Remark> remarkList_1  =postDetailBean.getRemarkList();
+        if(remarkList_1==null)  return;
+
+        for(int i=0;i<remarkList_1.size();i++)
+        {
+            PostDetailBean.Remark r = remarkList_1.get(i);
+            User user = new User();
+            user.setName(r.user.account);
+            user.setNickName(r.user.nickName);
+            user.setImagePath(UrlHelper.getUrl_base()+r.user.head);//路径补全
+
+            List<String>  bitmapPath_2 = r.bitmapPath;
+            if(bitmapPath_2!=null)
+            {
+                for(int j=0;j<bitmapPath_2.size();j++)
+                {
+                    bitmapPath_2.set(j, UrlHelper.getUrl_base()+bitmapPath_2.get(j));//路径补全
+                }
+            }
+
+            Remark remark = new Remark(user,r.content,bitmapPath_2,r.date,r.time,r.remarkId,r.detailId);
+            remarkList.add(remark);
+        }
+        adapter.notifyDataSetChanged();
+    }
+
+    private void updatePostDetailBean()//发表评论之后刷新帖子
+    {
+        if(postDetail==null)
+        {
+            return;
+        }
+
+        initPostDetailData(postDetail.getDetailId());
+    }
 }

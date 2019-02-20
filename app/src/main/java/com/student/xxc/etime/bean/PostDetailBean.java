@@ -38,6 +38,7 @@ public class PostDetailBean {
         public String time;
         public String date;
         public String content;
+        public List<String> bitmapPath;//评论图片
 
         public static class User{
             public String account;

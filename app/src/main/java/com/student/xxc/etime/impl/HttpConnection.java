@@ -301,6 +301,52 @@ public class HttpConnection {//用于和后台通讯接口
     }
 
 
+    public static void sendOkHttpRequest_downLoadRemarkBean(RemarkBean bean, Callback callback)//下载评论类
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        bean.setRequestCode(RemarkBean.REMARK_DOWN_LOAD_REQUEST);
+        String json = JsonManager.RemarkBeanToJson(bean);
+        Log.i("json",""+json);
+        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
+        RequestBody requestBody= RequestBody.create(JSON,json);
+        Request request =new Request.Builder().url(UrlHelper.getUrl_remark()).post(requestBody).build();
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+
+    public static void sendOkHttpRequest_sendRemarkBean(RemarkBean bean, Callback callback,List<File>  files)//根据发送评论类
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
+
+        bean.setRequestCode(RemarkBean.REMARK_UP_STORE_REQUEST);
+        String json = JsonManager.RemarkBeanToJson(bean);
+        MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder();
+        multipartBodyBuilder.setType(MultipartBody.FORM);
+        Log.i("json",""+json);
+
+        multipartBodyBuilder.addFormDataPart("json",json);
+        multipartBodyBuilder.addFormDataPart("jsonType","remarkBean");
+        Log.i("json",json);
+        if(files!=null) {
+            for (int i = 0; i < files.size(); i++) {
+                File file = files.get(i);
+                RequestBody fileBody = RequestBody.create(MediaType.parse("multipart/form-data"),file);
+                multipartBodyBuilder.addFormDataPart("file"+i,file.getName(),fileBody);
+                Log.i("file"+i,file.getName());
+            }
+            multipartBodyBuilder.addFormDataPart("picNumber",""+files.size());
+        }else
+        {
+            multipartBodyBuilder.addFormDataPart("picNumber",""+0);
+        }
+        RequestBody requestBody = multipartBodyBuilder.build();
+        Request request = new Request.Builder().url(UrlHelper.getUrl_image()).post(requestBody).build();
+        okHttpClient.newCall(request).enqueue(callback);
+    }
+
+
+
+
+
 
 
 }

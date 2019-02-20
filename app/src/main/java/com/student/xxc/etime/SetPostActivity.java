@@ -67,7 +67,7 @@ import okhttp3.Response;
 
 public class SetPostActivity extends AppCompatActivity {
 
-    private static final int SELECT_PIC = 544;//选择图片
+    private static final int SELECT_POST_PIC = 544;//选择图片
     private List<Uri> picPathList  =new ArrayList<Uri>();//图片路径
 
     private MyHandler myhandler = new MyHandler(this);
@@ -236,12 +236,12 @@ public class SetPostActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
-        startActivityForResult(intent, SELECT_PIC);
+        startActivityForResult(intent, SELECT_POST_PIC);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (resultCode == RESULT_OK && requestCode == SELECT_PIC) {
+        if (resultCode == RESULT_OK && requestCode == SELECT_POST_PIC) {
             if (data != null) {
                 ContentResolver cr = this.getContentResolver();
                 Uri selectedImage = data.getData();
@@ -249,7 +249,7 @@ public class SetPostActivity extends AppCompatActivity {
                 Bitmap originalBitmap = null;
                 try {
                     originalBitmap = BitmapFactory.decodeStream(cr.openInputStream(selectedImage));
-                    Bitmap bitmap = ImageUtil.resizeImage(originalBitmap);//屏幕比例缩放，质量压缩
+                    Bitmap bitmap = ImageUtil.resizeImage(originalBitmap,800f,480f);//屏幕比例缩放，质量压缩
 //                    bitmapList.add(bitmap);
                     picPathList.add(selectedImage);
                     insertPic(bitmap);

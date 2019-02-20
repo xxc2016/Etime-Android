@@ -44,8 +44,10 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         viewHolder.username.setText(remarkList.get(i).getUser().getNickName());
         insertPic(viewHolder.content,remarkList.get(i).getContent(),remarkList.get(i).getBitmapList());
-//        Glide.with(context).load(R.mipmap.personal).into(viewHolder.head);
-//        Glide.with(context).load(remarkList.get(i).getPic()).into(viewHolder.pic);
+        viewHolder.content.setText(remarkList.get(i).getContent());
+
+        Glide.with(context).load(remarkList.get(i).getUser().getImagePath()).transform(new GlideCirlceTransHelper(context)).placeholder(R.mipmap.personal)  //添加占位图2.18
+                    .into(viewHolder.head);
 
     }
 
@@ -60,7 +62,7 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
         TextView content;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            head=(ImageView)itemView.findViewById(R.id.userLogo);
+            head=(ImageView)itemView.findViewById(R.id.userLogo2);//应该是2
             username=(TextView)itemView.findViewById(R.id.textView5);
             content=(TextView)itemView.findViewById(R.id.remarkContent);
         }
@@ -80,7 +82,7 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
             Glide.with(context).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-//                    resource= ImageUtil.resizeImage(resource);//已经压缩大小过了
+                    resource= ImageUtil.resizeImage(resource,800f,480f);//已经压缩大小过了
                     ImageSpan imageSpan = new ImageSpan(context, resource);
                     //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
                     String tempUrl = "[pic:" + finalI + "]";
