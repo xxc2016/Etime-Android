@@ -336,8 +336,8 @@ public class PostDetailActivity extends AppCompatActivity {
 
     public void getImage() {
         PermissionHelper.checkPermission(PostDetailActivity.this);
-        Intent intent = new Intent(Intent.ACTION_PICK);
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         startActivityForResult(intent, SELECT_REMARK_PIC);
     }

@@ -603,8 +603,8 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
             @Override
             public void onClick(View v) {
                 PermissionHelper.checkPermission(UserSettingActivity.this);
-                Intent intent = new Intent(Intent.ACTION_PICK);
-//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
             }
