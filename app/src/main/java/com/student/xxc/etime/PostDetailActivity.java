@@ -425,15 +425,6 @@ public class PostDetailActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
     }
-    public void initRemarkData(){//评论数据加载
-        String url = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2756575517,833879878&fm=200&gp=0.jpg";
-        List<String> t=new ArrayList<String>();
-        t.add(url);
-        t.add(url);
-        for(int i=0;i<5;i++){
-            remarkList.add(new Remark(new User("test"),"test[pic:0]test[pic:1]test",t));
-        }
-    }
 
 
     public  void updatePostDetail(PostDetailBean postDetailBean)//加载详细帖子内容
@@ -829,6 +820,25 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
 
+        for(int i=0;i<remarkList.size();i++)//更新评论列表跟随
+        {
+            Remark r = remarkList.get(i);
+            String userId = remarkList.get(i).getUser().getName();
+            boolean followState  = false;
+            for(int j=0;j<followList.size();j++)
+            {
+                if(followList.get(j).equals(userId))
+                {
+                    followState = true;
+                    break;
+                }
+            }
+            r.setFollowState(followState);
+        }
+
+        adapter.notifyDataSetChanged();
+
+
     }
 
 
@@ -897,6 +907,13 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private  void sendRemarkBean(final RemarkBean remarkBean,final List<File>  files)//发送评论
     {
+
+        if(Account.getState()!=Account.ACCOUNT_ONLINE)
+        {
+            Toast.makeText(this,"请先登陆！",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         Runnable runnable = new Runnable() {
             @Override
             public void run() {

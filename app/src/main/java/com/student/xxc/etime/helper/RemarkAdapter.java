@@ -11,16 +11,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.student.xxc.etime.PostDetailActivity;
 import com.student.xxc.etime.R;
+import com.student.xxc.etime.bean.UserBean;
+import com.student.xxc.etime.entity.Account;
+import com.student.xxc.etime.entity.PostDetail;
 import com.student.xxc.etime.entity.Remark;
 import com.student.xxc.etime.util.ImageUtil;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder>{
@@ -49,6 +55,8 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
         Glide.with(context).load(remarkList.get(i).getUser().getImagePath()).transform(new GlideCirlceTransHelper(context)).placeholder(R.mipmap.personal)  //添加占位图2.18
                     .into(viewHolder.head);
 
+        updateFollowButton(viewHolder.follow,i);
+
     }
 
     @Override
@@ -60,13 +68,16 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
         ImageView head;
         TextView username;
         TextView content;
+        Button  follow;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             head=(ImageView)itemView.findViewById(R.id.userLogo2);//应该是2
             username=(TextView)itemView.findViewById(R.id.textView5);
             content=(TextView)itemView.findViewById(R.id.remarkContent);
+            follow = (Button)itemView.findViewById(R.id.button_remark_follow);
         }
     }
+
 
     private void insertPic(final TextView textView, final String content, final List<String> bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
@@ -92,6 +103,45 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                     textView.setText(spannableString);
                     Log.i("RA", "onResourceReady: "+spannableString.toString());
 
+                }
+            });
+        }
+    }
+
+    private  void updateFollowButton(Button follow,final int i)
+    {
+        if(remarkList.get(i).isFollowState())//跟随
+        {
+            follow.setText("已关注");
+            follow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    UserBean userBean = new UserBean();
+                    userBean.setAccount(Account.getUserAccount());
+                    LinkedList<String>  followList = new LinkedList<String>();
+                    followList.add(remarkList.get(i).getUser().getName());
+                    userBean.setFollowList(followList);
+                    if(context.getClass()== PostDetailActivity.class)
+                    {
+                        ((PostDetailActivity)context).delete_UserBean_FollowList(userBean);
+                    }
+                }
+            });
+        }else
+        {
+            follow.setText("+关注");
+            follow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    UserBean userBean = new UserBean();
+                    userBean.setAccount(Account.getUserAccount());
+                    LinkedList<String>  followList = new LinkedList<String>();
+                    followList.add(remarkList.get(i).getUser().getName());
+                    userBean.setFollowList(followList);
+                    if(context.getClass()== PostDetailActivity.class)
+                    {
+                        ((PostDetailActivity)context).send_UserBean_FollowList(userBean);
+                    }
                 }
             });
         }
