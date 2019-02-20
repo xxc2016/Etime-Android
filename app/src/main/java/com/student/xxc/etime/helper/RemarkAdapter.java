@@ -91,9 +91,10 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                 tmpSub = "[pic:" + (++sub) + "]";
             }
             final int finalI = sub;
-            Glide.with(context).load(bitmaps.get(i)).asBitmap().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(new SimpleTarget<Bitmap>(){
+            Glide.with(context).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                    Log.e("RA2",finalI+"");
                     resource= ImageUtil.resizeImage(resource,800f,480f);//已经压缩大小过了
                     ImageSpan imageSpan = new ImageSpan(context, resource);
                     //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
