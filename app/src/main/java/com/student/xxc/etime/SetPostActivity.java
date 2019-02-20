@@ -233,8 +233,8 @@ public class SetPostActivity extends AppCompatActivity {
 
     public void getImage() {
         PermissionHelper.checkPermission(SetPostActivity.this);
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent intent = new Intent(Intent.ACTION_PICK);
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         startActivityForResult(intent, SELECT_POST_PIC);
     }

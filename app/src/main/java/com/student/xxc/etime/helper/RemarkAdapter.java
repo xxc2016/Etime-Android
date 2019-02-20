@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.student.xxc.etime.PostDetailActivity;
@@ -90,7 +91,7 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                 tmpSub = "[pic:" + (++sub) + "]";
             }
             final int finalI = sub;
-            Glide.with(context).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
+            Glide.with(context).load(bitmaps.get(i)).asBitmap().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                     resource= ImageUtil.resizeImage(resource,800f,480f);//已经压缩大小过了
