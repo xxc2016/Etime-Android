@@ -474,11 +474,13 @@ public class PostDetailActivity extends AppCompatActivity {
 
 
         ImageButton head=(ImageButton)findViewById(R.id.userLogo2);
-        Glide.with(this).load(postDetail.getUser().getImagePath())
-                .placeholder(R.mipmap.personal).transform(new GlideCirlceTransHelper(this)).into(head);
+        if(!this.isDestroyed()) {
+            Glide.with(this).load(postDetail.getUser().getImagePath())
+                    .placeholder(R.mipmap.personal).transform(new GlideCirlceTransHelper(this)).into(head);
 
-        TextView  postContent = (TextView)this.findViewById(R.id.postContent);
-        insertPic(postContent,postDetail.getContent(),postDetail.getBitmapList());
+            TextView postContent = (TextView) this.findViewById(R.id.postContent);
+            insertPic(postContent, postDetail.getContent(), postDetail.getBitmapList());
+        }
     }
 
 

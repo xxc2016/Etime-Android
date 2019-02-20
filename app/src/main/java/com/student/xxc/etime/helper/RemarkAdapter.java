@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.target.Target;
 import com.student.xxc.etime.PostDetailActivity;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.UserBean;
@@ -29,6 +30,7 @@ import com.student.xxc.etime.util.ImageUtil;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder>{
     Context context;
@@ -91,7 +93,7 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                 tmpSub = "[pic:" + (++sub) + "]";
             }
             final int finalI = sub;
-            Glide.with(context).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
+            Glide.with(context).load(bitmaps.get(i)).asBitmap().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                     Log.e("RA2",finalI+"");
