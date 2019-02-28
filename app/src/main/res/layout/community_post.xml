@@ -59,7 +59,7 @@
                 android:id="@+id/picture"
                 android:layout_width="match_parent"
                 android:scaleType="fitStart"
-                android:layout_height="171dp"
+                android:layout_height="200dp"
                 android:layout_gravity="center"
                 android:paddingLeft="16dp"/>
 

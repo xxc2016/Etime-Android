@@ -26,6 +26,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
+import com.student.xxc.etime.bean.ImageBean;
 import com.student.xxc.etime.bean.PostBean;
 import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.bean.RemarkBean;
@@ -541,6 +544,7 @@ public class PostDetailActivity extends AppCompatActivity {
     public void insertPic(final TextView textView, final String content, final List<String>bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
         int sub=-1;
+        int count = -1;//图片位置
         for(int i=0;i<bitmaps.size();i++) {
             //存在删除图片后，[pic:]可能不从0开始,也可能中间少数
             sub+=1;
@@ -548,7 +552,9 @@ public class PostDetailActivity extends AppCompatActivity {
             while(!content.contains(tmpSub)){
                 tmpSub = "[pic:" + (++sub) + "]";
             }
+            count++;
             final int finalI = sub;
+            final int position = count;
             Glide.with(this).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
@@ -559,8 +565,29 @@ public class PostDetailActivity extends AppCompatActivity {
                     //用ImageSpan对象替换你指定的字符串
                     int start=spannableString.toString().indexOf(tempUrl);
                     spannableString.setSpan(imageSpan, start, start+tempUrl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    ClickableSpan clickableSpan = new ClickableSpan() {
+                        @Override
+                        public void onClick(View widget) {
+                            Log.i("span","clicked");
+                                  ArrayList<String>  imagePath  = new ArrayList<String>();
+                                  imagePath.addAll(bitmaps);
+                                  Intent intent = new Intent();
+                                  Bundle bundle =new Bundle();
+                                  bundle.putStringArrayList("pic",imagePath);
+                                  bundle.putInt("position",position);
+                                  intent.putExtras(bundle);
+                                  intent.setClass(PostDetailActivity.this,PictureViewActivity.class);
+                                  PostDetailActivity.this.startActivity(intent);
+
+                        }
+                    };
+
+                    spannableString.setSpan(clickableSpan,start,start+tempUrl.length(),spannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
                     textView.setText(spannableString);
                     Log.i("PDA", "onResourceReady: "+spannableString.toString());
+                    textView.setMovementMethod(LinkMovementMethod.getInstance());
 
                 }
             });

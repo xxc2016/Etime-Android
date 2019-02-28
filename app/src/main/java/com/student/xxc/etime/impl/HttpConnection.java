@@ -2,6 +2,7 @@ package com.student.xxc.etime.impl;
 
 import android.util.Log;
 
+import com.student.xxc.etime.bean.ImageBean;
 import com.student.xxc.etime.bean.PostBean;
 import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.bean.RemarkBean;
@@ -344,9 +345,16 @@ public class HttpConnection {//用于和后台通讯接口
     }
 
 
-
-
-
-
+    public static void sendOkHttpRequest_downLoadImnageBean(ImageBean bean, Callback callback)//下载原图
+    {
+        OkHttpClient okHttpClient = new OkHttpClient();
+        bean.setRequestCode(ImageBean.IMAGE_GET_SOURCE_REQUEST);
+        String json = JsonManager.ImageBeanToJson(bean);
+        Log.i("json",""+json);
+        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
+        RequestBody requestBody= RequestBody.create(JSON,json);
+        Request request =new Request.Builder().url(UrlHelper.getUrl_image_source()).post(requestBody).build();
+        okHttpClient.newCall(request).enqueue(callback);
+    }
 
 }

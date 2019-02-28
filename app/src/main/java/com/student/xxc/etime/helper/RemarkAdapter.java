@@ -1,11 +1,15 @@
 package com.student.xxc.etime.helper;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,7 +23,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.bumptech.glide.request.target.Target;
+import com.student.xxc.etime.PictureViewActivity;
 import com.student.xxc.etime.PostDetailActivity;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.UserBean;
@@ -28,6 +32,7 @@ import com.student.xxc.etime.entity.PostDetail;
 import com.student.xxc.etime.entity.Remark;
 import com.student.xxc.etime.util.ImageUtil;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -85,6 +90,7 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
     private void insertPic(final TextView textView, final String content, final List<String> bitmaps){//imagespan图文混合
         final SpannableString spannableString = new SpannableString(content);
         int sub=-1;
+        int count = -1;
         for(int i=0;i<bitmaps.size();i++) {
             //存在删除图片后，[pic:]可能不从0开始,也可能中间少数
             sub+=1;
@@ -92,8 +98,10 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
             while(!content.contains(tmpSub)){
                 tmpSub = "[pic:" + (++sub) + "]";
             }
+            count++;
+            final int position = count;
             final int finalI = sub;
-            Glide.with(context).load(bitmaps.get(i)).asBitmap().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE).into(new SimpleTarget<Bitmap>(){
+            Glide.with(context).load(bitmaps.get(i)).asBitmap().skipMemoryCache(true).dontAnimate().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                     Log.e("RA2",finalI+"");
@@ -104,8 +112,31 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                     //用ImageSpan对象替换你指定的字符串
                     int start=spannableString.toString().indexOf(tempUrl);
                     spannableString.setSpan(imageSpan, start, start+tempUrl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    ClickableSpan clickableSpan = new ClickableSpan() {
+                        @Override
+                        public void onClick(View widget) {
+                            Log.i("span","clicked");
+
+                                ArrayList<String> imagePath  = new ArrayList<String>();
+                                imagePath.addAll(bitmaps);
+                                Intent intent = new Intent();
+                                Bundle bundle =new Bundle();
+                                bundle.putStringArrayList("pic",imagePath);
+                                bundle.putInt("position",position);
+                                intent.putExtras(bundle);
+                                intent.setClass(context,PictureViewActivity.class);
+                                context.startActivity(intent);
+
+                        }
+                    };
+
+                    spannableString.setSpan(clickableSpan,start,start+tempUrl.length(),spannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+
                     textView.setText(spannableString);
                     Log.i("RA", "onResourceReady: "+spannableString.toString());
+                    textView.setMovementMethod(LinkMovementMethod.getInstance());
 
                 }
             });
