@@ -3,6 +3,7 @@ package com.student.xxc.etime.helper;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
@@ -16,10 +17,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.student.xxc.etime.PictureViewActivity;
 import com.student.xxc.etime.PostDetailActivity;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.Post;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.ViewHolder>{
@@ -85,7 +88,7 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.View
 //                .bitmapTransform(new CropCircleTransformation(context)).placeholder(R.mipmap.personal).into(viewHolder.head);
 
         viewHolder.head.setTag(R.id.useLogo,i);
-        Glide.with(context).load(posts.get(i).getPic()).into(viewHolder.pic);
+        Glide.with(context).load(posts.get(i).getPic()).centerCrop().into(viewHolder.pic);
         viewHolder.itemView.findViewById(R.id.communityCard).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,6 +97,21 @@ public class CommunityAdapter extends RecyclerView.Adapter<CommunityAdapter.View
                 Log.i("postDetailId",""+postDetailId);
                 intent.putExtra("postDetailId",postDetailId);
                 intent.setClass(context, PostDetailActivity.class);
+                context.startActivity(intent);
+            }
+        });
+
+        viewHolder.pic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {//点击查看原图 2.26
+                Intent intent=new Intent();
+                String url = posts.get(i).getPic();
+                Bundle bundle = new Bundle();
+                ArrayList<String> pic = new ArrayList<String>();
+                pic.add(url);
+                bundle.putStringArrayList("pic",pic);
+                intent.putExtras(bundle);
+                intent.setClass(context, PictureViewActivity.class);
                 context.startActivity(intent);
             }
         });

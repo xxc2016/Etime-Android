@@ -2,6 +2,7 @@ package com.student.xxc.etime.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.student.xxc.etime.bean.ImageBean;
 import com.student.xxc.etime.bean.PostBean;
 import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.bean.RemarkBean;
@@ -98,6 +99,21 @@ public class JsonManager {
         java.lang.reflect.Type type = new TypeToken<UserBean>(){}.getType();
         UserBean  userBean = gson.fromJson(json,type);
         return userBean;
+    }
+
+    static  public String ImageBeanToJson(ImageBean imageBean)
+    {
+        Gson gson = new Gson();
+        String json = gson.toJson(imageBean);
+        return json;
+    }
+
+    static  public ImageBean JsonToImageBean(String json)
+    {
+        Gson gson =new Gson();
+        java.lang.reflect.Type type = new TypeToken<ImageBean>(){}.getType();
+        ImageBean  imageBean = gson.fromJson(json,type);
+        return imageBean;
     }
 
 }

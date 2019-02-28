@@ -64,6 +64,12 @@
             android:label="帖子详情"
             android:parentActivityName=".CommunityActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".PictureViewActivity"
+            android:label="图片查看"
+            android:parentActivityName=".CommunityActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
+
     </application>
 
 </manifest>

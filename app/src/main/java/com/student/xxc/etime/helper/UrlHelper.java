@@ -19,10 +19,11 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
     static private String url_userBean = "http://"+url_ip+"//E_TimeServer/UserBeanServlet";
     static private String url_post_detail_image = "http://"+url_ip+"//E_TimeServer/PostDetailImageServlet";
     static private String url_image = "http://"+url_ip+"//E_TimeServer/ImageServlet";
+    static private String url_image_source = "http://"+url_ip+"//E_TimeServer/ImageBeanServlet";
 
 
 
-    static private String url_ip_test = "192.168.1.105:8080";
+    static private String url_ip_test = "192.168.43.179:8080";
     //    static private String url_user_test = "http://192.168.1.105:8080//E_TimeServer/servlet/E_TimeServlet";
 //    static private String url_user_image_test = "http://192.168.1.105:8080//E_TimeServer/StoreImageServlet";
 //    static private String url_base_test ="http://192.168.1.105:8080//E_TimeServer";
@@ -36,6 +37,7 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
     static private String url_userBean_test = "http://"+url_ip_test+"//E_TimeServer/UserBeanServlet";
     static private String url_post_detail_image_test = "http://"+url_ip_test+"//E_TimeServer/PostDetailImageServlet";
     static private String url_image_test = "http://"+url_ip_test+"//E_TimeServer/ImageServlet";
+    static private String url_image_source_test = "http://"+url_ip_test+"//E_TimeServer/ImageBeanServlet";
 
 
     public static String getUrl_user() {
@@ -134,5 +136,13 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
             return url_image_test;
         }
 
+    }
+
+    public static String getUrl_image_source() {
+        if(!isTest) {
+            return url_image_source;
+        }else {
+          return url_image_source_test;
+        }
     }
 }
