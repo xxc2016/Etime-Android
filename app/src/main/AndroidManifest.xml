@@ -70,6 +70,10 @@
             android:parentActivityName=".CommunityActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
+        <activity android:name=".FollowListActivity"
+            />
+        <activity android:name=".UserHomePageActivity"/>
+
     </application>
 
 </manifest>
