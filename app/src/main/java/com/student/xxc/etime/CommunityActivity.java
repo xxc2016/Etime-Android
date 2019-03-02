@@ -147,7 +147,6 @@ public class CommunityActivity extends AppCompatActivity {
     }
 
     private void initTabLayout() {
-        pagerAdapter = new SimpleFragmentPagerAdapter(getSupportFragmentManager(), this);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         pagerAdapter = new SimpleFragmentPagerAdapter(getSupportFragmentManager(),this);

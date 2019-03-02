@@ -373,7 +373,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_about) {
             Intent intent=new Intent();
             intent.putExtra("mode",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
-            intent.setClass(this,AboutUsActivity.class);
+//            intent.setClass(this,AboutUsActivity.class);
+            intent.setClass(this,FollowListActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_setting) {
             int currentNightMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
