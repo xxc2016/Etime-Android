@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
@@ -49,9 +50,6 @@ public class CommunityActivity extends AppCompatActivity {
     private List<Post> postList=new ArrayList<Post>();
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     private MyHandler myhandler = new MyHandler(this);
-    private SimpleFragmentPagerAdapter pagerAdapter;
-    private ViewPager viewPager;
-    private TabLayout tabLayout;
 
 
     private static class MyHandler extends Handler {
@@ -144,14 +142,6 @@ public class CommunityActivity extends AppCompatActivity {
         initData();
         initView();
 //        initTabLayout();
-    }
-
-    private void initTabLayout() {
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
-        pagerAdapter = new SimpleFragmentPagerAdapter(getSupportFragmentManager(),this);
-        viewPager.setAdapter(pagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
     }
 
     private void initView() {

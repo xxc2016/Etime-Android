@@ -39,8 +39,7 @@ public class FollowListFragment extends Fragment {
                 intent.setClass(getContext(), UserHomePageActivity.class);
                 startActivity(intent);
             }
-
-                                        });
+        });
         List<User>userList=new ArrayList<User>();
         User u1=new User("cxcxcxcx");
         User u2=new User("aaaaaaaa");
