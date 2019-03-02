@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +21,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.util.SparseArray;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -50,7 +55,7 @@ public class CommunityActivity extends AppCompatActivity {
     private List<Post> postList=new ArrayList<Post>();
     private LinearLayoutManager manager=new LinearLayoutManager(this);
     private MyHandler myhandler = new MyHandler(this);
-
+    private SparseArray<Fragment> mFragmentSparseArray;
 
     private static class MyHandler extends Handler {
         private final WeakReference<CommunityActivity> mActivity;
@@ -139,9 +144,13 @@ public class CommunityActivity extends AppCompatActivity {
             }
         });
 
+        BottomNavigationView navigation = findViewById(R.id.bottom_navigation);//底部导航栏初始化
+        ViewPager mVp = (ViewPager) findViewById(R.id.fragment_vp);
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+        
         initData();
         initView();
-//        initTabLayout();
+
     }
 
     private void initView() {
@@ -245,5 +254,23 @@ public class CommunityActivity extends AppCompatActivity {
         Thread thread = new Thread(runnable);
         thread.start();
     }
+    //底部导航栏
+    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
+            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+
+        @Override
+        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+//                    mTextMessage.setText(R.string.title_home);
+                    return true;
+                case R.id.navigation_me:
+
+                    return true;
+            }
+            return false;
+        }
+    };
+
 
 }
