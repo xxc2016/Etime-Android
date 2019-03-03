@@ -68,7 +68,7 @@ public class WItemTouchHelperPlus extends RecyclerView.ItemDecoration
      */
     public static final int RIGHT = 1 << 3;
 
-    // If you change these relative direction values, update Callback#convertToAbsoluteDirection,
+    // If you ic_menu_change these relative direction values, update Callback#convertToAbsoluteDirection,
     // Callback#convertToRelativeDirection.
     /**
      * Horizontal start direction. Resolved to LEFT or RIGHT depending on RecyclerView's layout
@@ -350,7 +350,7 @@ public class WItemTouchHelperPlus extends RecyclerView.ItemDecoration
                 mActivePointerId = ACTIVE_POINTER_ID_NONE;
                 select(null, ACTION_STATE_IDLE);
             } else if (mActivePointerId != ACTIVE_POINTER_ID_NONE && !closePreItem) {
-                // in a non scroll orientation, if distance change is above threshold, we
+                // in a non scroll orientation, if distance ic_menu_change is above threshold, we
                 // can select the item
                 final int index = event.findPointerIndex(mActivePointerId);
                 if (DEBUG) {
@@ -1637,7 +1637,7 @@ public class WItemTouchHelperPlus extends RecyclerView.ItemDecoration
             }
             flags &= ~masked; //remove left / right.
             if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
-                // no change. just OR with 2 bits shifted mask and return
+                // no ic_menu_change. just OR with 2 bits shifted mask and return
                 flags |= masked << 2; // START is 2 bits after LEFT, END is 2 bits after RIGHT.
                 return flags;
             } else {
@@ -1730,7 +1730,7 @@ public class WItemTouchHelperPlus extends RecyclerView.ItemDecoration
             }
             flags &= ~masked; //remove start / end
             if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
-                // no change. just OR with 2 bits shifted mask and return
+                // no ic_menu_change. just OR with 2 bits shifted mask and return
                 flags |= masked >> 2; // START is 2 bits after LEFT, END is 2 bits after RIGHT.
                 return flags;
             } else {
@@ -1876,7 +1876,7 @@ public class WItemTouchHelperPlus extends RecyclerView.ItemDecoration
          * You can increase this value to make it harder to swipe or decrease it to make it easier.
          * Keep in mind that WItemTouchHelperPlus also checks the perpendicular velocity and makes sure
          * current direction velocity is larger then the perpendicular one. Otherwise, user's
-         * movement is ambiguous. You can change the threshold by overriding
+         * movement is ambiguous. You can ic_menu_change the threshold by overriding
          * {@link #getSwipeVelocityThreshold(float)}.
          * <p>
          * The velocity is calculated in pixels per second.

@@ -272,15 +272,6 @@ public class UserSettingActivity extends AppCompatActivity {//用于设置账号
             }
         });
 
-        Button button_user_setting_community=(Button)this.findViewById(R.id.button_user_setting_community);
-        button_user_setting_community.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent();
-                intent.setClass(getApplicationContext(),FollowListActivity.class);
-                startActivity(intent);
-            }
-        });
 
         Button button_user_setting_exit= (Button) this.findViewById(R.id.button_user_setting_exit);//用户退出
         button_user_setting_exit.setOnClickListener(new View.OnClickListener() {
