@@ -1,11 +1,16 @@
 package com.student.xxc.etime;
 
+import android.Manifest;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.CardView;
@@ -17,8 +22,28 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TimePicker;
+import android.widget.Toast;
+
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.RecognizerListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.SpeechSynthesizer;
+import com.iflytek.cloud.SpeechUtility;
+import com.iflytek.cloud.SynthesizerListener;
+import com.iflytek.cloud.ui.RecognizerDialog;
+import com.iflytek.cloud.ui.RecognizerDialogListener;
+import com.student.xxc.etime.util.JsonParser;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class SetTraceActivity extends AppCompatActivity {
 
@@ -27,6 +52,9 @@ public class SetTraceActivity extends AppCompatActivity {
     Button button_confirm;
     EditText time;
     EditText event;
+    // 用HashMap存储听写结果
+    private HashMap<String, String> mIatResults = new LinkedHashMap<String , String>();
+    private static final String TAG = MainActivity.class .getSimpleName();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,8 +93,41 @@ public class SetTraceActivity extends AppCompatActivity {
         }
 
         initial();
+        checkRecordPermission();
+        initView() ;
+        initSpeech() ;
+    }
+    private void checkRecordPermission() {
+        int result = ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
+        if (result == PackageManager.PERMISSION_DENIED){
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},0);
+        }
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 0){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+
+            }{
+                Toast.makeText(getApplicationContext(), "权限未同意,无法下载", Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+    private void initView() {
+        FloatingActionButton btn_startspeech = (FloatingActionButton) findViewById(R.id.btn_startspeech);
+        btn_startspeech.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startSpeechDialog();
+            }
+        }) ;
     }
 
+    private void initSpeech() {
+
+        SpeechUtility. createUtility( this, SpeechConstant. APPID + "=58a6bd74" );
+    }
 
     private void initial()
     {
@@ -130,4 +191,135 @@ public class SetTraceActivity extends AppCompatActivity {
         timePickerDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
+    /////////////////////////////////////////////////////////////
+    private void startSpeechDialog() {
+        //1. 创建RecognizerDialog对象
+        RecognizerDialog mDialog = new RecognizerDialog(this, new MyInitListener()) ;
+        //2. 设置accent、 language等参数
+        mDialog.setParameter(SpeechConstant. LANGUAGE, "zh_cn" );// 设置中文
+        mDialog.setParameter(SpeechConstant. ACCENT, "mandarin" );
+        // 若要将UI控件用于语义理解，必须添加以下参数设置，设置之后 onResult回调返回将是语义理解
+        // 结果
+        // mDialog.setParameter("asr_sch", "1");
+        // mDialog.setParameter("nlp_version", "2.0");
+        //3.设置回调接口
+        mDialog.setListener( new MyRecognizerDialogListener()) ;
+        //4. 显示dialog，接收语音输入
+        mDialog.show() ;
+    }
+
+    class MyRecognizerDialogListener implements RecognizerDialogListener {
+
+        /**
+         * @param results
+         * @param isLast  是否说完了
+         */
+        @Override
+        public void onResult(RecognizerResult results, boolean isLast) {
+            if(isLast)return ;
+            String result = results.getResultString(); //为解析的
+            showTip(result) ;
+            System. out.println(" 没有解析的 :" + result);
+
+            String text = JsonParser.parseIatResult(result) ;//解析过后的
+            System. out.println(" 解析后的 :" + text);
+
+            String sn = null;
+            // 读取json结果中的 sn字段
+            try {
+                JSONObject resultJson = new JSONObject(results.getResultString()) ;
+                sn = resultJson.optString("sn" );
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            mIatResults .put(sn, text) ;//没有得到一句，添加到
+
+            StringBuffer resultBuffer = new StringBuffer();
+            for (String key : mIatResults.keySet()) {
+                resultBuffer.append(mIatResults .get(key));
+            }
+
+//            event.setText(resultBuffer.toString());// 设置输入框的文本
+            Log.e("sta",resultBuffer.toString());
+            event.append(resultBuffer.toString());
+            event .setSelection(event.length()) ;//把光标定位末尾
+        }
+
+        //语音输入出错
+        @Override
+        public void onError(SpeechError speechError) {
+
+        }
+    }
+
+    class MyInitListener implements InitListener {
+
+        @Override
+        public void onInit(int code) {
+            if (code != ErrorCode.SUCCESS) {
+                showTip("初始化失败 ");
+            }
+
+        }
+    }
+
+    /**
+     * 语音识别
+     */
+    private void startSpeech() {
+        //1. 创建SpeechRecognizer对象，第二个参数： 本地识别时传 InitListener
+        SpeechRecognizer mIat = SpeechRecognizer.createRecognizer( this, null); //语音识别器
+        //2. 设置听写参数，详见《 MSC Reference Manual》 SpeechConstant类
+        mIat.setParameter(SpeechConstant. DOMAIN, "iat" );// 短信和日常用语： iat (默认)
+        mIat.setParameter(SpeechConstant. LANGUAGE, "zh_cn" );// 设置中文
+        mIat.setParameter(SpeechConstant. ACCENT, "mandarin" );// 设置普通话
+        //3. 开始听写
+        //mIat.startListening(mRecoListener);
+    }
+
+    //////////////////////////////////////////////////////////
+//    // 听写监听器
+//    private RecognizerListener mRecoListener = new RecognizerListener() {
+//        // 听写结果回调接口 (返回Json 格式结果，用户可参见附录 13.1)；
+////一般情况下会通过onResults接口多次返回结果，完整的识别内容是多次结果的累加；
+////关于解析Json的代码可参见 Demo中JsonParser 类；
+////isLast等于true 时会话结束。
+//        public void onResult(RecognizerResult results, boolean isLast) {
+//            Log.e (TAG, results.getResultString());
+//            System.out.println(results.getResultString()) ;
+//            showTip(results.getResultString()) ;
+//        }
+//
+//        // 会话发生错误回调接口
+//        public void onError(SpeechError error) {
+//            showTip(error.getPlainDescription(true)) ;
+//            // 获取错误码描述
+//            Log. e(TAG, "error.getPlainDescription(true)==" + error.getPlainDescription(true ));
+//        }
+//
+//        // 开始录音
+//        public void onBeginOfSpeech() {
+//            showTip(" 开始录音 ");
+//        }
+//
+//        //volume 音量值0~30， data音频数据
+//        public void onVolumeChanged(int volume, byte[] data) {
+//            showTip(" 声音改变了 ");
+//        }
+//
+//        // 结束录音
+//        public void onEndOfSpeech() {
+//            showTip(" 结束录音 ");
+//        }
+//
+//        // 扩展用接口
+//        public void onEvent(int eventType, int arg1 , int arg2, Bundle obj) {
+//        }
+//    };
+//
+    private void showTip (String data) {
+
+        // Toast.makeText( this, data, Toast.LENGTH_SHORT).show() ;
+    }
 }
