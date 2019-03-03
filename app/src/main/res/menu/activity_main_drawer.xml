@@ -10,7 +10,7 @@
             android:title="历史日程" />
         <item
             android:id="@+id/nav_lock"
-            android:icon="@drawable/ic_menu_lock"
+            android:icon="@drawable/ic_menu_change"
             android:title="今日安排" />
         <item
             android:id="@+id/nav_setting"
@@ -30,7 +30,7 @@
             android:title="关于我们" />
         <item
             android:id="@+id/nav_community"
-            android:icon="@drawable/ic_menu_lock"
+            android:icon="@drawable/community"
             android:title="社区"/>
     </group>
 
