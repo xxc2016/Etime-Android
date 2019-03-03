@@ -34,6 +34,8 @@ import com.student.xxc.etime.bean.PostBean;
 import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.entity.Post;
 import com.student.xxc.etime.helper.CommunityAdapter;
+import com.student.xxc.etime.helper.CommunityViewPageAdapter;
+import com.student.xxc.etime.helper.NoScrollViewPager;
 import com.student.xxc.etime.helper.TimeCalculateHelper;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
@@ -52,14 +54,17 @@ import okhttp3.Response;
 
 public class CommunityActivity extends AppCompatActivity {
 
-    private CommunityAdapter adapter;
-    private RecyclerView recyclerView;
-    private List<Post> postList=new ArrayList<Post>();
-    private LinearLayoutManager manager=new LinearLayoutManager(this);
     private MyHandler myhandler = new MyHandler(this);
-    private SparseArray<Fragment> mFragmentSparseArray;
+    private List<String> mDatas;
+    private List<Fragment> fragments;
+    private CommunityViewPageAdapter viewPageAdapter;
+    private NoScrollViewPager mViewPage;
 
-    private static class MyHandler extends Handler {
+    public MyHandler getMyhandler() {
+        return myhandler;
+    }
+
+    public static class MyHandler extends Handler {
         private final WeakReference<CommunityActivity> mActivity;
 
         public MyHandler(CommunityActivity activity) {
@@ -76,11 +81,10 @@ public class CommunityActivity extends AppCompatActivity {
             int response = bundle.getInt("response");
             mActivity.get().updateToast(response);
 
-            if(response == PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_SUCCESSED)
-            {
+            if (response == PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_SUCCESSED) {
                 String json = bundle.getString("json");
-                PostBean postBean =  JsonManager.JsonToPostBean(json);
-                mActivity.get().updatePost(postBean);
+                PostBean postBean = JsonManager.JsonToPostBean(json);
+                ((CommunityFragment)mActivity.get().getSupportFragmentManager().getFragments().get(0)).updatePost(postBean);
             }
         }
     }
@@ -115,7 +119,7 @@ public class CommunityActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_community);
-        recyclerView=this.findViewById(R.id.postsView);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
@@ -138,135 +142,58 @@ public class CommunityActivity extends AppCompatActivity {
             window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.setPost);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                actionAdd();
-            }
-        });
 
         BottomNavigationView navigation = findViewById(R.id.bottom_navigation);//底部导航栏初始化
-        ViewPager mVp = (ViewPager) findViewById(R.id.fragment_vp);
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-        
-        initData();
-        initView();
+
+
+        initFragment();
+
+        mViewPage = (NoScrollViewPager) findViewById(R.id.fragment_vp);
+        viewPageAdapter = new CommunityViewPageAdapter(getSupportFragmentManager(), mDatas, fragments);
+        mViewPage.setAdapter(viewPageAdapter);
+        mViewPage.setScroll(false);//禁止滑动
 
     }
 
-    private void initView() {
-        if(adapter==null) {
-            adapter = new CommunityAdapter(this, postList);
-        }
-        else{
-            adapter.notifyDataSetChanged();
-        }
-        recyclerView.setLayoutManager(manager);
-        recyclerView.setAdapter(adapter);
+    private void initFragment() {
+        mDatas = new ArrayList<>();
+        mDatas.add("community");
+        mDatas.add("userState");
 
-    }
-
-    public void initData(){
-
-        getPostBean_ALL(new PostBean());//发送请求下载所有帖子
-//        String url = "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2756575517,833879878&fm=200&gp=0.jpg";
-//        for(int i=0;i<5;i++){
-//            postList.add(i,new Post(null,"test",url,"3分钟前",3500,200));
-//        }
-
-
-    }
-    public void actionAdd(){
-        Intent intent=new Intent();
-        intent.setClass(this, SetPostActivity.class);
-        this.startActivity(intent);
-    }
-
-    public void updatePost(PostBean postBean)//刷新帖子
-    {
-        postList.clear();
-        List<PostBean.Post> list = postBean.getPosts();
-        if(list!=null){
-            for(PostBean.Post post:list)
-            {
-                String timeGap = TimeCalculateHelper.getTimeGap(post.date,post.time);
-                postList.add(new Post(UrlHelper.getUrl_base()+post.user.head,post.user.nickName, UrlHelper.getUrl_base()+post.pic,
-                        timeGap,post.watch,post.remark,post.title,post.PostId,post.detailId));
+        fragments = new ArrayList<>();
+        for (int i = 0; i < mDatas.size(); i++) {
+            if(mDatas.get(i).equals("community")) {
+                CommunityFragment fragment = CommunityFragment.newInstance(mDatas.get(i));
+                fragments.add(fragment);
+            }else {
+              if(mDatas.get(i).equals("userState"))
+              {
+                  UserStateFragment fragment =UserStateFragment.newInstance(mDatas.get(i));
+                  fragments.add(fragment);
+              }
             }
-            adapter.notifyDataSetChanged();
         }
     }
 
 
-    private  void   getPostBean_ALL(final PostBean postBean)//获得所有帖子
-    {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Callback callback=new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Log.i("POST",""+e);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        Log.d("POST",response.protocol()+" "+
-                                response.code()+" "+response.message());
-                        Headers headers = response.headers();
-
-                        String json = response.body().string();
-                        Log.d("tag","onResponse"+json);
-
-                        PostBean askPostBean = null;
-                        try {
-                            askPostBean = JsonManager.JsonToPostBean(json);
-                        }catch (Exception e)
-                        {
-                            Log.i("jsonError",e+"");
-                            Looper.prepare();
-                            Bundle  bundle = new Bundle();
-                            bundle.putInt("response",PostBean.UNKNOWN_ERROR);
-                            Message message = myhandler.obtainMessage();
-                            message.setData(bundle);
-                            message.sendToTarget();
-                            Looper.loop();
-                            return ;
-                        }
-
-                        if(askPostBean!=null) {
-                            Looper.prepare();
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("response", askPostBean.getResponseCode());
-                            bundle.putString("json",JsonManager.PostBeanToJson(askPostBean));
-                            Message message = myhandler.obtainMessage();
-                            message.setData(bundle);
-                            message.sendToTarget();
-                            Log.i("thread", "-----------------------------send message");
-                            Looper.loop();
-                        }
-                    }
-                };
-
-                HttpConnection.sendOkHttpRequest_downLoadPostALL(postBean,callback);
-            }
-        };
-
-        Thread thread = new Thread(runnable);
-        thread.start();
-    }
     //底部导航栏
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+            if(mViewPage==null) {
+                return false;
+            }
             switch (item.getItemId()) {
                 case R.id.navigation_home:
 //                    mTextMessage.setText(R.string.title_home);
+                    mViewPage.setCurrentItem(0);
                     return true;
                 case R.id.navigation_me:
+                    mViewPage.setCurrentItem(1);
                     return true;
             }
             return false;
