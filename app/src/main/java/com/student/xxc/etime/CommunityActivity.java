@@ -1,5 +1,7 @@
 package com.student.xxc.etime;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -265,7 +267,6 @@ public class CommunityActivity extends AppCompatActivity {
 //                    mTextMessage.setText(R.string.title_home);
                     return true;
                 case R.id.navigation_me:
-
                     return true;
             }
             return false;
