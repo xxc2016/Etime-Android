@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +38,20 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
     public View createFragment(LayoutInflater inflater, ViewGroup container)
     {
         View view = inflater.inflate(R.layout.fragment_userstate, container, false);
+
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        toolbar.setTitle("我的主页");
+        ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setHomeButtonEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().finish();
+            }
+        });
+
+
         initData();
         initFragments();
         mTablayout = (TabLayout)view.findViewById(R.id.tablayout);
@@ -51,6 +67,7 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
         Log.i(pageTitle, "onCreateView: _____________________");
         View view=null;
         view=createFragment(inflater,container);
+
         return view;
     }
 
