@@ -396,8 +396,10 @@ public class PostDetailActivity extends AppCompatActivity {
                 {
                     UserBean userBean = new UserBean();
                     userBean.setAccount(Account.getUserAccount());
-                    LinkedList<String> addList =  new LinkedList<String>();
-                    addList.add(postDetail.getUser().getName());
+                    LinkedList<UserBean.User> addList =  new LinkedList<UserBean.User>();//UserBean修改 3.4
+                    UserBean.User user = new UserBean.User();
+                    user.account = postDetail.getUser().getName();
+                    addList.add(user);
                     userBean.setFollowList(addList);
                     send_UserBean_FollowList(userBean);
                 }
@@ -724,63 +726,6 @@ public class PostDetailActivity extends AppCompatActivity {
         thread.start();
     }
 
-    private void downLoad_UserBean(final UserBean userBean)
-    {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                Callback callback=new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-                        Log.i("POST",""+e);
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        Log.d("POST",response.protocol()+" "+
-                                response.code()+" "+response.message());
-                        Headers headers = response.headers();
-
-                        String json = response.body().string();
-                        Log.d("tag","onResponse"+json);
-
-                        UserBean askUserBean = null;
-                        try {
-                            askUserBean = JsonManager.JsonToUserBean(json);
-                        }catch (Exception e)
-                        {
-                            Log.i("jsonError",e+"");
-                            Looper.prepare();
-                            Bundle  bundle = new Bundle();
-                            bundle.putInt("response",UserBean.UNKNOWN_ERROR);
-                            Message message = myhandler.obtainMessage();
-                            message.setData(bundle);
-                            message.sendToTarget();
-                            Looper.loop();
-                            return ;
-                        }
-
-                        if(askUserBean!=null) {
-                            Looper.prepare();
-                            Bundle bundle = new Bundle();
-                            bundle.putInt("response", askUserBean.getResponseCode());
-                            Message message = myhandler.obtainMessage();
-                            message.setData(bundle);
-                            message.sendToTarget();
-                            Log.i("thread", "-----------------------------send message");
-                            Looper.loop();
-                        }
-                    }
-                };
-
-                HttpConnection.sendOkHttpRequest_downLoadUserBean(userBean,callback);
-            }
-        };
-
-        Thread thread = new Thread(runnable);
-        thread.start();
-    }
-
 
     private void askUpdateFollowListButton()//通过请求用户列表来刷新关注按钮
     {
@@ -799,12 +744,12 @@ public class PostDetailActivity extends AppCompatActivity {
             return ;
         }
 
-        List<String>  followList = userBean.getFollowList();
+        List<UserBean.User>  followList = userBean.getFollowList();
         boolean isFollow = false;
         for(int i=0;i<followList.size();i++)
         {
             Log.i("update",""+followList.get(i)+"    :"+postDetail.getUser().getName());
-            if(followList.get(i).equals(postDetail.getUser().getName()))
+            if(followList.get(i).account.equals(postDetail.getUser().getName()))
             {
                 isFollow = true;
                 break;
@@ -823,8 +768,10 @@ public class PostDetailActivity extends AppCompatActivity {
                     {
                         UserBean userBean = new UserBean();
                         userBean.setAccount(Account.getUserAccount());
-                        LinkedList<String> addList =  new LinkedList<String>();
-                        addList.add(postDetail.getUser().getName());
+                        LinkedList<UserBean.User> addList =  new LinkedList<UserBean.User>();
+                        UserBean.User  user = new UserBean.User();
+                        user.account = postDetail.getUser().getName();
+                        addList.add(user);
                         userBean.setFollowList(addList);
                         delete_UserBean_FollowList(userBean);
                     }
@@ -840,8 +787,10 @@ public class PostDetailActivity extends AppCompatActivity {
                     {
                         UserBean userBean = new UserBean();
                         userBean.setAccount(Account.getUserAccount());
-                        LinkedList<String> addList =  new LinkedList<String>();
-                        addList.add(postDetail.getUser().getName());
+                        LinkedList<UserBean.User> addList =  new LinkedList<UserBean.User>();
+                        UserBean.User user = new UserBean.User();
+                        user.account = postDetail.getUser().getName();
+                        addList.add(user);
                         userBean.setFollowList(addList);
                         send_UserBean_FollowList(userBean);
                     }
@@ -857,7 +806,7 @@ public class PostDetailActivity extends AppCompatActivity {
             boolean followState  = false;
             for(int j=0;j<followList.size();j++)
             {
-                if(followList.get(j).equals(userId))
+                if(followList.get(j).account.equals(userId))
                 {
                     followState = true;
                     break;

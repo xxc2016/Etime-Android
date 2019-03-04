@@ -7,8 +7,10 @@ public class PostBean {
     private List<Post> posts;//帖子详细内容
     private List<Integer> requestPostList;//需求帖子序号列表
     private List<Integer> responsePostList;//回应帖子序号列表
+    private String source;
     private int requestCode;
     private int responseCode;
+
 
     public static class Post
     {
@@ -108,4 +110,11 @@ public class PostBean {
         this.responsePostList = responsePostList;
     }
 
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSource() {
+        return source;
+    }
 }

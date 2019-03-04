@@ -1,8 +1,11 @@
 package com.student.xxc.etime.helper;
 
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.view.View;
 
 import java.util.List;
 
@@ -33,4 +36,5 @@ public class FollowViewPageAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         return mDatas.get(position);
     }
+
 }

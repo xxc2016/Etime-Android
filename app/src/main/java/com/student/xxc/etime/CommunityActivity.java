@@ -28,25 +28,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.student.xxc.etime.bean.PostBean;
 import com.student.xxc.etime.bean.PostDetailBean;
+import com.student.xxc.etime.bean.UserBean;
+import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Post;
+import com.student.xxc.etime.entity.User;
 import com.student.xxc.etime.helper.CommunityAdapter;
 import com.student.xxc.etime.helper.CommunityViewPageAdapter;
 import com.student.xxc.etime.helper.NoScrollViewPager;
+import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.TimeCalculateHelper;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Headers;
@@ -84,7 +97,35 @@ public class CommunityActivity extends AppCompatActivity {
             if (response == PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_SUCCESSED) {
                 String json = bundle.getString("json");
                 PostBean postBean = JsonManager.JsonToPostBean(json);
-                ((CommunityFragment)mActivity.get().getSupportFragmentManager().getFragments().get(0)).updatePost(postBean);
+                if (postBean.getSource() != null && postBean.getSource().equals("community")) {
+                    ((CommunityFragment) mActivity.get().getSupportFragmentManager().getFragments().get(0)).updatePost(postBean);
+                }
+                //((CommunityFragment) mActivity.get().getSupportFragmentManager().getFragments().get(0)).updatePost(postBean);
+            }
+
+            if (response == PostBean.POST_DOWN_LOAD_LIST_RESPONSE_SUCCESSED) {
+                String json = bundle.getString("json");
+                PostBean postBean = JsonManager.JsonToPostBean(json);
+                if (postBean.getSource() != null && postBean.getSource().equals("historypost")) {
+                    Log.i("postHistory", "update0");
+                    ((UserStateFragment) (mActivity.get().getSupportFragmentManager().getFragments().get(1))).updatePost(postBean);
+                }
+            }
+
+            if (response == UserBean.USER_DOWN_LOAD_RESPONSE_SUCCESSED) {
+                String json = bundle.getString("json");
+                UserBean userBean = JsonManager.JsonToUserBean(json);
+                if (userBean.getSource() != null && userBean.getSource().equals("userState")) {
+                    ((UserStateFragment) mActivity.get().getSupportFragmentManager().getFragments().get(1)).updateUserBean(userBean);
+                }
+            }
+
+            if (response == User.IMAGE_DOWNLOAD_RESPONSE_SUCCESSED) {
+                String userName = bundle.getString("userName");
+                String imagePath = bundle.getString("imagePath");
+                Account.setUserName(userName);
+                Account.setUserImagePath(imagePath);
+                ((UserStateFragment)mActivity.get().getSupportFragmentManager().getFragments().get(1)).updateAccount();
             }
         }
     }
@@ -94,22 +135,28 @@ public class CommunityActivity extends AppCompatActivity {
     {
         switch (response) {
             case PostBean.POST_COMMUNITY_GET_LIST_RESPONSE_SUCCESSED:
-                Toast.makeText(this,"预览帖子获得序列号成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "预览帖子获得序列号成功", Toast.LENGTH_SHORT).show();
                 break;
             case PostBean.POST_COMMUNITY_GET_LIST_RESPONSE_FAILED:
-                Toast.makeText(this,"预览帖子获得序列号失败",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "预览帖子获得序列号失败", Toast.LENGTH_SHORT).show();
                 break;
             case PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_SUCCESSED:
-                Toast.makeText(this,"预览帖子全部下载成功",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "预览帖子全部下载成功", Toast.LENGTH_SHORT).show();
                 break;
             case PostBean.POST_DOWN_LOAD_COMMUNITY_ALL_RESPONSE_FAILED:
-                Toast.makeText(this,"预览帖子全部下载失败",Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "预览帖子全部下载失败", Toast.LENGTH_SHORT).show();
                 break;
-            case  PostBean.POST_DOWN_LOAD_LIST_RESPONSE_SUCCESSED:
-                Toast.makeText(this,"预览帖子按照给定序号下载成功",Toast.LENGTH_SHORT).show();
+            case PostBean.POST_DOWN_LOAD_LIST_RESPONSE_SUCCESSED:
+                Toast.makeText(this, "预览帖子按照给定序号下载成功", Toast.LENGTH_SHORT).show();
                 break;
-            case  PostBean.POST_DOWN_LOAD_LIST_RESPONSE_FAILED:
-                Toast.makeText(this,"预览帖子按照给定序号下载失败",Toast.LENGTH_SHORT).show();
+            case PostBean.POST_DOWN_LOAD_LIST_RESPONSE_FAILED:
+                Toast.makeText(this, "预览帖子按照给定序号下载失败", Toast.LENGTH_SHORT).show();
+                break;
+            case User.IMAGE_DOWNLOAD_RESPONSE_FAILED:
+                Toast.makeText(this, "下载失败", Toast.LENGTH_SHORT).show();
+                break;
+            case User.IMAGE_DOWNLOAD_RESPONSE_SUCCESSED:
+                Toast.makeText(this, "下载成功", Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -125,11 +172,8 @@ public class CommunityActivity extends AppCompatActivity {
 //        setSupportActionBar(toolbar);
 //        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-//        int currentNightMode=getIntent().getIntExtra("mode", Configuration.UI_MODE_NIGHT_NO);
-//        getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
-//                AppCompatDelegate.MODE_NIGHT_NO : AppCompatDelegate.MODE_NIGHT_YES);
-        SharedPreferences preferences=getSharedPreferences("default_night", MODE_PRIVATE);
-        int currentNightMode = preferences.getInt("default_night",getResources().getConfiguration().uiMode);
+        SharedPreferences preferences = getSharedPreferences("default_night", MODE_PRIVATE);
+        int currentNightMode = preferences.getInt("default_night", getResources().getConfiguration().uiMode);
         getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
                 AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
@@ -163,15 +207,14 @@ public class CommunityActivity extends AppCompatActivity {
 
         fragments = new ArrayList<>();
         for (int i = 0; i < mDatas.size(); i++) {
-            if(mDatas.get(i).equals("community")) {
+            if (mDatas.get(i).equals("community")) {
                 CommunityFragment fragment = CommunityFragment.newInstance(mDatas.get(i));
                 fragments.add(fragment);
-            }else {
-              if(mDatas.get(i).equals("userState"))
-              {
-                  UserStateFragment fragment =UserStateFragment.newInstance(mDatas.get(i));
-                  fragments.add(fragment);
-              }
+            } else {
+                if (mDatas.get(i).equals("userState")) {
+                    UserStateFragment fragment = UserStateFragment.newInstance(mDatas.get(i));
+                    fragments.add(fragment);
+                }
             }
         }
     }
@@ -183,7 +226,7 @@ public class CommunityActivity extends AppCompatActivity {
 
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            if(mViewPage==null) {
+            if (mViewPage == null) {
                 return false;
             }
             switch (item.getItemId()) {
@@ -198,6 +241,5 @@ public class CommunityActivity extends AppCompatActivity {
             return false;
         }
     };
-
 
 }

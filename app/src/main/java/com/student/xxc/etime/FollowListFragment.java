@@ -8,16 +8,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.student.xxc.etime.bean.UserBean;
+import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.User;
 import com.student.xxc.etime.helper.FollowerAdapter;
+import com.student.xxc.etime.helper.UrlHelper;
+import com.student.xxc.etime.impl.DealUserBean;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FollowListFragment extends Fragment {
+public class FollowListFragment extends Fragment implements DealUserBean {
+
+    List<User> userList = null;
+    FollowerAdapter userAdapter = null;
+
     public static FollowListFragment newInstance(String data) {
         Bundle args = new Bundle();
         args.putString("key", data);
@@ -25,7 +34,7 @@ public class FollowListFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    public View createAttentionFragment(LayoutInflater inflater, ViewGroup container)
+    public View createFragment(LayoutInflater inflater, ViewGroup container)
     {
         View view = inflater.inflate(R.layout.fragment_attention, container, false);
         ListView listView=(ListView)view.findViewById(R.id.Attention_listview);
@@ -40,45 +49,46 @@ public class FollowListFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        List<User>userList=new ArrayList<User>();
-        User u1=new User("cxcxcxcx");
-        User u2=new User("aaaaaaaa");
-        userList.add(u1);
-        userList.add(u2);
-        FollowerAdapter userAdapter=new FollowerAdapter(getContext(),userList);
+        userList=new ArrayList<User>();
+        userAdapter=new FollowerAdapter(getContext(),userList);
         listView.setAdapter(userAdapter);
-        return view;
-    }
-    public View createFansFragment(LayoutInflater inflater, ViewGroup container)
-    {
-        View view = inflater.inflate(R.layout.fragment_attention, container, false);
-        ListView listView=(ListView)view.findViewById(R.id.Attention_listview);
-        List<User>userList=new ArrayList<User>();
-        User u1=new User("111111");//用户初始化
-        User u2=new User("2222222");
-        userList.add(u1);//添加用户
-        userList.add(u2);
-        FollowerAdapter followerAdapter=new FollowerAdapter(getContext(),userList);
-        listView.setAdapter(followerAdapter);
+
+
+        initData();
         return view;
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         String pageTitle=getArguments().getString("key");
-        Log.i(pageTitle, "onCreateView: _____________________");
+        Log.i(pageTitle, "followList onCreateView: _____________________");
         View view=null;
-        if(pageTitle=="关注")
-        {
-            view=createAttentionFragment(inflater,container);
-        }
-        else if(pageTitle=="粉丝")
-        {
-            view=createFansFragment(inflater,container);
-        }
-        else {
-             view = inflater.inflate(R.layout.fragment_attention, container, false);
-        }
+
+        view=createFragment(inflater,container);
+
         return view;
+    }
+
+    public void updateUserBean(UserBean userBean)
+    {
+        if(userList!=null && userBean.getFollowList()!=null)
+        {
+            userList.clear();
+            for(int i=0;i<userBean.getFollowList().size();i++)
+            {
+                User  user = new User();
+                user.setName(userBean.getFollowList().get(i).account);
+                user.setNickName(userBean.getFollowList().get(i).nickName);
+                user.setImagePath(UrlHelper.getUrl_base()+userBean.getFollowList().get(i).head);
+                Log.i("followList",""+user.getImagePath());
+                userList.add(user);
+            }
+            userAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void initData()
+    {
+        ((UserStateFragment)(this.getParentFragment())).initData();
     }
 }

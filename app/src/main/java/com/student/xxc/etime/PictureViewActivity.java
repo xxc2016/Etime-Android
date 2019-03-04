@@ -23,11 +23,8 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.chrisbanes.photoview.PhotoView;
+
 import com.student.xxc.etime.bean.ImageBean;
-import com.student.xxc.etime.bean.PostDetailBean;
-import com.student.xxc.etime.bean.RemarkBean;
-import com.student.xxc.etime.bean.UserBean;
 import com.student.xxc.etime.helper.PictureViewAdapter;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
