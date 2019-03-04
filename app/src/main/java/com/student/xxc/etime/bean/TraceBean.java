@@ -6,6 +6,7 @@ public class TraceBean {
 
     private List<Trace> traces;
     private String userAccount;
+    private String source;
     private int requestCode;
     private int responseCode;
 
@@ -143,5 +144,13 @@ public class TraceBean {
 
     public int getRequestCode() {
         return requestCode;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

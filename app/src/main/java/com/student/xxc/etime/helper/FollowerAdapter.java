@@ -8,6 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.User;
 
@@ -48,8 +49,17 @@ public class FollowerAdapter extends BaseAdapter {
         User user=getItem(position);
         ImageView head = (ImageView) convertView.findViewById(R.id.User_head);
         TextView nickName = (TextView) convertView.findViewById(R.id.User_nickName);
-//        head.setImageResource(user.gethead());
-        nickName.setText(user.getNickName());
+        if(user.getNickName()!=null) {
+            nickName.setText(user.getNickName());
+        }else
+        {
+            nickName.setText("用户");
+        }
+        if(context!=null)
+        {
+            Glide.with(context).load(user.getImagePath()).transform(new GlideCirlceTransHelper(context)).placeholder(R.mipmap.personal)  //添加占位图2.18
+                    .into(head);
+        }
         return convertView;
     }
 }

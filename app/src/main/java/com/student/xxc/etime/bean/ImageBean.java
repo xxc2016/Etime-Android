@@ -7,8 +7,10 @@ public class ImageBean {
     private List<String> imagePath_src;
     private List<String>  imagePath;
     private List<Integer>  imagePosition;//图片位置码
+    private String source;
     private int requestCode;
     private int responseCode;
+
 
     public static final int  IMAGE_GET_SOURCE_REQUEST = 0x06001;//请求图片原图;
     public static final int  IMAGE_GET_SOURCE_RESPONSE_SUCCESSED = 0x06002;// 请求图片原图成功
@@ -55,5 +57,13 @@ public class ImageBean {
 
     public void setImagePosition(List<Integer> imagePosition) {
         this.imagePosition = imagePosition;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSource() {
+        return source;
     }
 }

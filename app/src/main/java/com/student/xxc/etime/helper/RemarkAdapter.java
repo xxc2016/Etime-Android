@@ -153,8 +153,10 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                 public void onClick(View v) {
                     UserBean userBean = new UserBean();
                     userBean.setAccount(Account.getUserAccount());
-                    LinkedList<String>  followList = new LinkedList<String>();
-                    followList.add(remarkList.get(i).getUser().getName());
+                    LinkedList<UserBean.User>  followList = new LinkedList<UserBean.User>();
+                    UserBean.User user = new UserBean.User();
+                    user.account =remarkList.get(i).getUser().getName();
+                    followList.add(user);
                     userBean.setFollowList(followList);
                     if(context.getClass()== PostDetailActivity.class)
                     {
@@ -170,8 +172,10 @@ public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder
                 public void onClick(View v) {
                     UserBean userBean = new UserBean();
                     userBean.setAccount(Account.getUserAccount());
-                    LinkedList<String>  followList = new LinkedList<String>();
-                    followList.add(remarkList.get(i).getUser().getName());
+                    LinkedList<UserBean.User>  followList = new LinkedList<UserBean.User>();
+                    UserBean.User user = new UserBean.User();
+                    user.account =remarkList.get(i).getUser().getName();
+                    followList.add(user);
                     userBean.setFollowList(followList);
                     if(context.getClass()== PostDetailActivity.class)
                     {

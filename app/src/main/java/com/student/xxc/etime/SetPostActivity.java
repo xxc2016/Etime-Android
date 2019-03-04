@@ -36,10 +36,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import com.student.xxc.etime.bean.PostBean;
+
 import com.student.xxc.etime.bean.PostDetailBean;
-import com.student.xxc.etime.bean.RemarkBean;
-import com.student.xxc.etime.bean.UserBean;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.helper.FilePathHelper;
 import com.student.xxc.etime.helper.PermissionHelper;

@@ -5,6 +5,7 @@ public class User {//用户登陆和注册和其他通讯
      private String password;
      private String nickName;
      private String ImagePath;
+     private String source;
      private int requestCode;
      private int responseCode;
 
@@ -80,6 +81,14 @@ public class User {//用户登陆和注册和其他通讯
 
      public void setImagePath(String imagePath) {
           ImagePath = imagePath;
+     }
+
+     public String getSource() {
+          return source;
+     }
+
+     public void setSource(String source) {
+          this.source = source;
      }
 }
 

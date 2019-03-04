@@ -10,6 +10,7 @@ public class RemarkBean {
     public String date;
     public String content;
     public List<String> bitmapPath;//评论图片
+    public String source;
     private int requestCode;
     private int responseCode;
 
@@ -93,5 +94,21 @@ public class RemarkBean {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public List<String> getBitmapPath() {
+        return bitmapPath;
+    }
+
+    public void setBitmapPath(List<String> bitmapPath) {
+        this.bitmapPath = bitmapPath;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSource() {
+        return source;
     }
 }

@@ -13,6 +13,7 @@ public class PostDetailBean {
     public List<String> bitmapPath;
     public String time;
     public String date;
+    public String source;
     private int requestCode;//请求编号
     private int responseCode;//回应编号
 
@@ -145,5 +146,13 @@ public class PostDetailBean {
 
     public void setBitmapPath(List<String> bitmapPath) {
         this.bitmapPath = bitmapPath;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

@@ -8,9 +8,30 @@ public class UserBean {
     private String nickName;
     private int requestCode;
     private int responseCode;
-    private List<String> followList;
-    private List<Integer> remarkList;
+    private List<User> followList;
+    private List<Remark> remarkList;
     private List<Integer>  postList;
+    private String source;
+
+
+    static public class User
+    {
+        public String account;
+        public String head;
+        public String nickName;
+    }
+
+    static public class Remark
+    {
+        public int remarkId;
+        public int detailId;
+        public String time;
+        public String date;
+        public String content;
+        public List<String> bitmapPath;//评论图片
+    }
+
+
 
     public final static int UNKNOWN_ERROR = 0x05001;//未知错误
 
@@ -49,7 +70,7 @@ public class UserBean {
         this.requestCode = requestCode;
     }
 
-    public void setRemarkList(List<Integer> remarkList) {
+    public void setRemarkList(List<Remark> remarkList) {
         this.remarkList = remarkList;
     }
 
@@ -57,11 +78,11 @@ public class UserBean {
         return postList;
     }
 
-    public List<Integer> getRemarkList() {
+    public List<Remark> getRemarkList() {
         return remarkList;
     }
 
-    public List<String> getFollowList() {
+    public List<User> getFollowList() {
         return followList;
     }
 
@@ -81,7 +102,7 @@ public class UserBean {
         this.account = account;
     }
 
-    public void setFollowList(List<String> followList) {
+    public void setFollowList(List<User> followList) {
         this.followList = followList;
     }
 
@@ -97,4 +118,11 @@ public class UserBean {
         this.postList = postList;
     }
 
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getSource() {
+        return source;
+    }
 }
