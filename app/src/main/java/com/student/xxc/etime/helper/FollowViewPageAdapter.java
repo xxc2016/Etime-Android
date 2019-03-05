@@ -5,11 +5,16 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.view.View;
+import android.view.ViewGroup;
+
+import com.student.xxc.etime.FollowListFragment;
+import com.student.xxc.etime.HistoryPostFragment;
 
 import java.util.List;
 
-public class FollowViewPageAdapter extends FragmentStatePagerAdapter {
+public class FollowViewPageAdapter extends FragmentPagerAdapter {
     private List<String> mDatas;
     private List<Fragment> mFragments;
 
@@ -21,6 +26,19 @@ public class FollowViewPageAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+//        Fragment fragment = null;
+//        if(mDatas.get(position).equals("我的关注"))
+//        {
+//            fragment  =FollowListFragment.newInstance(mDatas.get(position));
+//        }
+//        else
+//        {
+//            if(mDatas.get(position).equals("历史帖子"))
+//            {
+//                fragment  = HistoryPostFragment.newInstance(mDatas.get(position));
+//            }
+//        }
+//        mFragments.set(position,fragment);
         return mFragments.get(position);
     }
 
@@ -35,6 +53,23 @@ public class FollowViewPageAdapter extends FragmentStatePagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return mDatas.get(position);
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
+    }
+
+//    @NonNull
+//    @Override
+//    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+//        return super.instantiateItem(container, position);
+//    }
+
+
+    @Override
+    public long getItemId(int position) {
+        return mDatas.get(position).hashCode();
     }
 
 }

@@ -2,6 +2,7 @@ package com.student.xxc.etime;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -58,10 +59,26 @@ public class FollowListFragment extends Fragment implements DealUserBean {
         return view;
     }
 
+//    @Override
+//    public void onDestroy() {
+//        super.onDestroy();
+//        Log.e("????","123344");
+//    }
+
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+//        Log.e("!!!!","44444");
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        String pageTitle=getArguments().getString("key");
-        Log.i(pageTitle, "followList onCreateView: _____________________");
+        if(getArguments()!=null) {
+            String pageTitle = getArguments().getString("key");
+            Log.i(pageTitle, "followList onCreateView: _____________________");
+        }
         View view=null;
 
         view=createFragment(inflater,container);
@@ -71,6 +88,10 @@ public class FollowListFragment extends Fragment implements DealUserBean {
 
     public void updateUserBean(UserBean userBean)
     {
+        if(getRetainInstance()){
+            Log.e("zhenexin","2313213");
+        }
+        Log.e("caocaocao","caocaocao");
         if(userList!=null && userBean.getFollowList()!=null)
         {
             userList.clear();
