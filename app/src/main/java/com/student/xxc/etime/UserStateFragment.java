@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -52,7 +54,8 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
     private ViewPager mViewPager;
     private List<String> mDatas;
     private List<Fragment> fragments;
-    private FollowViewPageAdapter adapter;
+   // private FollowViewPageAdapter adapter;
+    private FragmentPagerAdapter adapter;
 
     public static UserStateFragment newInstance(String data) {
         Bundle args = new Bundle();
@@ -87,6 +90,16 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
         adapter = new FollowViewPageAdapter(getChildFragmentManager(),mDatas,fragments);
         mViewPager.setAdapter(adapter);
 
+        updateAccount();
+
+        FloatingActionButton fb = (FloatingActionButton)view.findViewById(R.id.setPost);
+        fb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                initData();
+            }
+        });
+
         return view;
     }
 
@@ -100,23 +113,31 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
     }
 
     public void initData() {
+        updateAccount();
         if(Account.getState()==Account.ACCOUNT_ONLINE) {
             UserBean userBean = new UserBean();
             userBean.setAccount(Account.getUserAccount());
             userBean.setSource("userState");
             downLoad_UserBean(userBean);
-            updateAccount();
+            Log.i("userState","click");
         }
     }
 
     private void initFragments() {
-
+    if (mDatas==null)
         mDatas = new ArrayList<>();
+    else
+        mDatas.clear();
         mDatas.add("我的关注");
         mDatas.add("历史帖子");
         //mDatas.add("历史评论");
 
-        fragments = new ArrayList<>();
+        if(fragments==null) {
+            fragments = new ArrayList<>();
+        }else
+        {
+            fragments.clear();
+        }
         for (int i = 0; i < mDatas.size(); i++) {
             if(mDatas.get(i).equals("我的关注")) {
                 FollowListFragment fragment = FollowListFragment.newInstance(mDatas.get(i));
@@ -226,9 +247,13 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
 
     private void updateUserImage()//刷新用户头像和背景
     {
-        ImageView user_setting_background = (ImageView) getActivity().findViewById(R.id.imageView_user_setting_background);
+        if(getView()==null)
+        {
+            return;
+        }
+        ImageView user_setting_background = (ImageView) getView().findViewById(R.id.imageView_user_setting_background);
         String imagePath = Account.getUserImagePath();
-        ImageView user_setting_image = (ImageView) getActivity().findViewById(R.id.imageView_user_setting_image);
+        ImageView user_setting_image = (ImageView) getView().findViewById(R.id.imageView_user_setting_image);
 
         RequestListener mRequestListener = new RequestListener() {//用于监听错误
             @Override

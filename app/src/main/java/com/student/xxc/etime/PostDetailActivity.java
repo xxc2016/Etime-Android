@@ -30,6 +30,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -62,6 +63,7 @@ import com.student.xxc.etime.helper.RemarkAdapter;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
+import com.student.xxc.etime.util.BitmapCacheUtil;
 import com.student.xxc.etime.util.ImageUtil;
 
 import java.io.File;
@@ -91,7 +93,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private List<Uri> remarkPicPathList  =new ArrayList<Uri>();//图片路径
     private static final int SELECT_REMARK_PIC = 555;//选择图片
     private AlertDialog  waitDialog = null;//等待对话框
-
+    private BitmapCacheUtil bitmapCacheUtil=new BitmapCacheUtil();
 
 
     private static class MyHandler extends Handler {
@@ -225,6 +227,8 @@ public class PostDetailActivity extends AppCompatActivity {
             //设置状态栏的颜色，和你的app主题或者标题栏颜色设置一致就ok了
             window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
         }
+
+        bitmapCacheUtil.initilize();
 
         Intent intent = getIntent();
         int postDetailId = intent.getIntExtra("postDetailId",-1);
@@ -557,10 +561,25 @@ public class PostDetailActivity extends AppCompatActivity {
             count++;
             final int finalI = sub;
             final int position = count;
-            Glide.with(this).load(bitmaps.get(i)).asBitmap().into(new SimpleTarget<Bitmap>(){
+            final String urlId=bitmaps.get(i);
+            Glide.with(this).load(urlId).asBitmap().into(new SimpleTarget<Bitmap>(){
                 @Override
                 public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                    resource= ImageUtil.resizeImage(resource,800f,480f);
+                    final String key=String.valueOf(urlId);
+                    Bitmap bitmap=bitmapCacheUtil.getBitmapFromCache(key);
+                    if(bitmap!=null){
+                        resource=bitmap;
+                    }else{
+                        resource= ImageUtil.resizeImage(resource,800f,480f);
+                        final Bitmap finalResource = resource;
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                bitmapCacheUtil.addBitmapToCache(key, finalResource);
+                            }
+                        }) .start();
+                    }
+
                     ImageSpan imageSpan = new ImageSpan(PostDetailActivity.this, resource);
                     //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
                     String tempUrl = "[pic:" + finalI + "]";

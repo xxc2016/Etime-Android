@@ -59,8 +59,10 @@ public class HistoryPostFragment extends Fragment implements DealUserBean {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        String pageTitle=getArguments().getString("key");
-        Log.i(pageTitle, "HistoryPost onCreateView: _____________________");
+        if(getArguments()!=null) {
+            String pageTitle = getArguments().getString("key");
+            Log.i(pageTitle, "HistoryPost onCreateView: _____________________");
+        }
         View view=null;
         view = createFragment(inflater,container);
 
