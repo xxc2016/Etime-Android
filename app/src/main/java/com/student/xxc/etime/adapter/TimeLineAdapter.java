@@ -1,4 +1,4 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.student.xxc.etime.MainActivity;
+import com.student.xxc.etime.view.MainActivity;
 import com.student.xxc.etime.R;
-import com.student.xxc.etime.SetTraceActivity;
+import com.student.xxc.etime.view.SetTraceActivity;
 import com.student.xxc.etime.entity.Trace;
 import com.student.xxc.etime.impl.ItemTouchHelperAdapter;
 import com.student.xxc.etime.impl.TraceManager;

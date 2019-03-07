@@ -7,7 +7,7 @@
     android:background="?colorBg"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context=".PostDetailActivity">
+    tools:context=".view.PostDetailActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"

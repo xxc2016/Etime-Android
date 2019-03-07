@@ -1,22 +1,17 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.PixelFormat;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.helper.FilePathHelper;
@@ -49,14 +45,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;

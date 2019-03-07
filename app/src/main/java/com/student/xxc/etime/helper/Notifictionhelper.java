@@ -8,7 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
-import com.student.xxc.etime.MainActivity;
+import com.student.xxc.etime.view.MainActivity;
 import com.student.xxc.etime.R;
 
 import static android.content.Context.NOTIFICATION_SERVICE;

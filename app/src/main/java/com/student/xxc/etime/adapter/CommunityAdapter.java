@@ -1,14 +1,10 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,10 +13,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.student.xxc.etime.PictureViewActivity;
-import com.student.xxc.etime.PostDetailActivity;
+import com.student.xxc.etime.view.PictureViewActivity;
+import com.student.xxc.etime.view.PostDetailActivity;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.Post;
+import com.student.xxc.etime.helper.GlideCirlceTransHelper;
 
 import java.util.ArrayList;
 import java.util.List;

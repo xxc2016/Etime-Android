@@ -1,4 +1,4 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.User;
+import com.student.xxc.etime.helper.GlideCirlceTransHelper;
 
 import java.util.List;
 

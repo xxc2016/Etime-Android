@@ -27,11 +27,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".SetTraceActivity"
-            android:parentActivityName=".MainActivity"
+            android:name=".view.SetTraceActivity"
+            android:parentActivityName=".view.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".impl.Splash"
@@ -43,19 +43,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AboutUsActivity"
+            android:name=".view.AboutUsActivity"
             android:label="关于我们"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".view.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".CommunityActivity"
+            android:name=".view.CommunityActivity"
             android:label="会员社区"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".view.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".UserSettingActivity"
+            android:name=".view.UserSettingActivity"
             android:label="账户设置"
-            android:parentActivityName=".MainActivity"
+            android:parentActivityName=".view.MainActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <service
@@ -63,22 +63,22 @@
             android:enabled="true" />
 
         <activity
-            android:name=".SetPostActivity"
+            android:name=".view.SetPostActivity"
             android:label="新建帖子"
-            android:parentActivityName=".CommunityActivity"
+            android:parentActivityName=".view.CommunityActivity"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <activity android:name=".PostDetailActivity"
+        <activity android:name=".view.PostDetailActivity"
             android:label="帖子详情"
-            android:parentActivityName=".CommunityActivity"
+            android:parentActivityName=".view.CommunityActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".PictureViewActivity"
+        <activity android:name=".view.PictureViewActivity"
             android:label="图片查看"
-            android:parentActivityName=".CommunityActivity"
+            android:parentActivityName=".view.CommunityActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
 
-        <activity android:name=".UserHomePageActivity"/>
+        <activity android:name=".view.UserHomePageActivity"/>
 
     </application>
 

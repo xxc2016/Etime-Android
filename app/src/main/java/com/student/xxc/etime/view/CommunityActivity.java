@@ -1,69 +1,33 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.PostBean;
-import com.student.xxc.etime.bean.PostDetailBean;
 import com.student.xxc.etime.bean.UserBean;
-import com.student.xxc.etime.entity.Account;
-import com.student.xxc.etime.entity.Post;
 import com.student.xxc.etime.entity.User;
-import com.student.xxc.etime.helper.CommunityAdapter;
-import com.student.xxc.etime.helper.CommunityViewPageAdapter;
+import com.student.xxc.etime.adapter.CommunityViewPageAdapter;
 import com.student.xxc.etime.helper.NoScrollViewPager;
-import com.student.xxc.etime.helper.PermissionHelper;
-import com.student.xxc.etime.helper.TimeCalculateHelper;
-import com.student.xxc.etime.helper.UrlHelper;
-import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-
-import jp.wasabeef.glide.transformations.BlurTransformation;
-import jp.wasabeef.glide.transformations.CropCircleTransformation;
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.Headers;
-import okhttp3.Response;
 
 public class CommunityActivity extends AppCompatActivity {
 

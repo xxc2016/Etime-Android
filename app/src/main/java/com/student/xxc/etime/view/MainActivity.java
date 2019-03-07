@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
@@ -30,12 +30,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Trace;
-import com.student.xxc.etime.helper.MyItemTouchHelperCallback;
+import com.student.xxc.etime.adapter.MyItemTouchHelperCallback;
 import com.student.xxc.etime.helper.PushService;
 import com.student.xxc.etime.helper.SelectIconHelper;
-import com.student.xxc.etime.helper.TimeLineAdapter;
+import com.student.xxc.etime.adapter.TimeLineAdapter;
 import com.student.xxc.etime.helper.TraceItemTouchHelper;
 import com.student.xxc.etime.impl.TraceManager;
 

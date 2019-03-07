@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.UserBean;
 import com.student.xxc.etime.impl.DealUserBean;
 

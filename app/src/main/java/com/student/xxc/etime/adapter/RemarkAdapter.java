@@ -1,4 +1,4 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,22 +20,20 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.SimpleTarget;
-import com.student.xxc.etime.PictureViewActivity;
-import com.student.xxc.etime.PostDetailActivity;
+import com.student.xxc.etime.view.PictureViewActivity;
+import com.student.xxc.etime.view.PostDetailActivity;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.UserBean;
 import com.student.xxc.etime.entity.Account;
-import com.student.xxc.etime.entity.PostDetail;
 import com.student.xxc.etime.entity.Remark;
+import com.student.xxc.etime.helper.GlideCirlceTransHelper;
 import com.student.xxc.etime.util.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 public class RemarkAdapter extends RecyclerView.Adapter<RemarkAdapter.ViewHolder>{
     Context context;

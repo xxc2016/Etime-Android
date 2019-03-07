@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,14 +9,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.UserBean;
-import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.User;
-import com.student.xxc.etime.helper.FollowerAdapter;
+import com.student.xxc.etime.adapter.FollowerAdapter;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.DealUserBean;
 

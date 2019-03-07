@@ -1,4 +1,4 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -8,11 +8,8 @@ import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
 import com.github.chrisbanes.photoview.PhotoView;
-import com.student.xxc.etime.PictureViewActivity;
 import com.student.xxc.etime.R;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class PictureViewAdapter extends PagerAdapter {

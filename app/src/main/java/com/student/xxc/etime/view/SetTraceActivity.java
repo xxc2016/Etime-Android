@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.Manifest;
 import android.app.TimePickerDialog;
@@ -26,16 +26,14 @@ import android.widget.Toast;
 
 import com.iflytek.cloud.ErrorCode;
 import com.iflytek.cloud.InitListener;
-import com.iflytek.cloud.RecognizerListener;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
-import com.iflytek.cloud.SpeechSynthesizer;
 import com.iflytek.cloud.SpeechUtility;
-import com.iflytek.cloud.SynthesizerListener;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.util.JsonParser;
 
 import org.json.JSONException;

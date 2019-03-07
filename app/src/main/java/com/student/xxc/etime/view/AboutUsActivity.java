@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -10,6 +10,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import com.student.xxc.etime.R;
 
 public class AboutUsActivity extends AppCompatActivity {
 

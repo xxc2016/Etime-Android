@@ -8,7 +8,7 @@
     android:background="?colorBg"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".CommunityActivity">
+    tools:context=".view.CommunityActivity">
 
     <!--<include-->
         <!--android:id="@+id/include3"-->

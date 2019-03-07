@@ -1,4 +1,4 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -17,15 +16,15 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.ImageBean;
-import com.student.xxc.etime.helper.PictureViewAdapter;
+import com.student.xxc.etime.adapter.PictureViewAdapter;
 import com.student.xxc.etime.helper.UrlHelper;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;

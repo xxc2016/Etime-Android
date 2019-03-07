@@ -1,16 +1,9 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.student.xxc.etime.FollowListFragment;
-import com.student.xxc.etime.HistoryPostFragment;
 
 import java.util.List;
 

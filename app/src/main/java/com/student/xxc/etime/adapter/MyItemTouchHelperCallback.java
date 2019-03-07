@@ -1,4 +1,4 @@
-package com.student.xxc.etime.helper;
+package com.student.xxc.etime.adapter;
 
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 
+import com.student.xxc.etime.helper.WItemTouchHelperPlus;
 import com.student.xxc.etime.impl.ItemTouchHelperAdapter;
 
 public class MyItemTouchHelperCallback extends WItemTouchHelperPlus.Callback {

@@ -1,6 +1,5 @@
-package com.student.xxc.etime;
+package com.student.xxc.etime.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Message;
@@ -15,22 +14,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.student.xxc.etime.R;
 import com.student.xxc.etime.bean.PostBean;
 import com.student.xxc.etime.bean.UserBean;
 import com.student.xxc.etime.entity.Account;
-import com.student.xxc.etime.entity.User;
-import com.student.xxc.etime.helper.FollowViewPageAdapter;
-import com.student.xxc.etime.helper.FollowerAdapter;
-import com.student.xxc.etime.helper.PermissionHelper;
+import com.student.xxc.etime.adapter.FollowViewPageAdapter;
 import com.student.xxc.etime.impl.DealUserBean;
 import com.student.xxc.etime.impl.HttpConnection;
 import com.student.xxc.etime.impl.JsonManager;

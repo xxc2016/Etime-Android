@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="?colorBg"
-    tools:context=".AboutUsActivity">
+    tools:context=".view.AboutUsActivity">
 
     <include layout="@layout/app_bar"/>
     <LinearLayout

@@ -1,5 +1,7 @@
 package com.student.xxc.etime.helper;
 
+import com.student.xxc.etime.adapter.MyItemTouchHelperCallback;
+
 public class TraceItemTouchHelper extends WItemTouchHelperPlus{
     private MyItemTouchHelperCallback callback;
 

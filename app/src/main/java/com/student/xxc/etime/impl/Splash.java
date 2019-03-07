@@ -7,7 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.student.xxc.etime.MainActivity;
+import com.student.xxc.etime.view.MainActivity;
 import com.student.xxc.etime.R;
 
 
