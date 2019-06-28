@@ -57,20 +57,6 @@ public class FollowListFragment extends Fragment implements DealUserBean {
         return view;
     }
 
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        Log.e("????","123344");
-//    }
-
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setRetainInstance(true);
-//        Log.e("!!!!","44444");
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(getArguments()!=null) {
@@ -86,10 +72,6 @@ public class FollowListFragment extends Fragment implements DealUserBean {
 
     public void updateUserBean(UserBean userBean)
     {
-        if(getRetainInstance()){
-            Log.e("zhenexin","2313213");
-        }
-        Log.e("caocaocao","caocaocao");
         if(userList!=null && userBean.getFollowList()!=null)
         {
             userList.clear();
@@ -104,6 +86,7 @@ public class FollowListFragment extends Fragment implements DealUserBean {
             }
             userAdapter.notifyDataSetChanged();
         }
+
     }
 
     public void initData()

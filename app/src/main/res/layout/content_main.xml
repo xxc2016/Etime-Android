@@ -16,5 +16,11 @@
         android:layerType="software" >
     </android.support.v7.widget.RecyclerView>
 
+    <com.student.xxc.etime.helper.shareView
+        android:id="@+id/share_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+    </com.student.xxc.etime.helper.shareView>
+
 
 </android.support.constraint.ConstraintLayout>

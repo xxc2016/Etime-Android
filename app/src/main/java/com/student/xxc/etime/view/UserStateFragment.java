@@ -84,6 +84,7 @@ public class UserStateFragment extends Fragment {//原FollowListActivity
         adapter = new FollowViewPageAdapter(getChildFragmentManager(),mDatas,fragments);
         mViewPager.setAdapter(adapter);
 
+
         updateAccount();
 
         FloatingActionButton fb = (FloatingActionButton)view.findViewById(R.id.setPost);

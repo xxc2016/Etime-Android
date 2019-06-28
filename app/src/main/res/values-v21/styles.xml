@@ -5,4 +5,9 @@
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="menu_labels_style">
+        <item name = "android:background">#000000</item>
+        <item name="android:textColor">#ffffff</item>
+    </style>
 </resources>

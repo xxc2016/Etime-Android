@@ -114,6 +114,23 @@
                     android:textSize="15sp"/>
 
                 <TextView
+                    android:id="@+id/textView_predict2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="地点"
+                    android:textColor="?colorTraceText"
+                    android:textSize="15sp" />
+
+                <EditText
+                    android:id="@+id/editText_predict2"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:inputType="text" />
+
+                <TextView
                     android:id="@+id/textView_predict"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -219,8 +236,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
         </LinearLayout>
-
-
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

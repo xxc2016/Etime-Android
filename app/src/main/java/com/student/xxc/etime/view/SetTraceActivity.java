@@ -14,12 +14,15 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.CardView;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -34,6 +37,7 @@ import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
 import com.student.xxc.etime.R;
+import com.student.xxc.etime.helper.GdMapHelper;
 import com.student.xxc.etime.util.JsonParser;
 
 import org.json.JSONException;
@@ -46,6 +50,7 @@ import java.util.LinkedHashMap;
 public class SetTraceActivity extends AppCompatActivity {
 
     static  final  int requestCode =0x000011;
+    private static final int PLACE_SELECT = 0x000022;
     int traceId;
     Button button_confirm;
     EditText time;
@@ -94,7 +99,27 @@ public class SetTraceActivity extends AppCompatActivity {
         checkRecordPermission();
         initView() ;
         initSpeech() ;
+
+        initialPlace();
     }
+
+    private void initialPlace() {
+        final EditText place=findViewById(R.id.editText_predict2);
+//        Intent intent = new Intent(this,GdMapListActivity.class);
+//        startActivityForResult(intent,PLACE_SELECT);
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode==PLACE_SELECT && resultCode==1){
+            EditText place =findViewById(R.id.editText_predict2);
+            place.setText(data.getStringExtra("place"));
+
+        }
+    }
+
     private void checkRecordPermission() {
         int result = ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
         if (result == PackageManager.PERMISSION_DENIED){
@@ -318,6 +343,6 @@ public class SetTraceActivity extends AppCompatActivity {
 //
     private void showTip (String data) {
 
-        // Toast.makeText( this, data, Toast.LENGTH_SHORT).show() ;
+
     }
 }

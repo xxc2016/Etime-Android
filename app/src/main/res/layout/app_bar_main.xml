@@ -10,12 +10,46 @@
 
     <include layout="@layout/content_main" />
 
-    <android.support.design.widget.FloatingActionButton
+    <!--<android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/action_add" />
+        app:srcCompat="@drawable/action_add" /> -->
+
+
+    <com.getbase.floatingactionbutton.FloatingActionsMenu
+        android:id="@+id/float_stable"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_gravity="bottom|right"
+        android:layout_alignParentRight="true"
+        app:fab_expandDirection="up"
+        app:fab_labelStyle="@style/menu_labels_style"
+        app:fab_labelsPosition="left">
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/colorText"
+            app:fab_colorPressed="@color/colorBg"
+            app:fab_icon="@drawable/action_add"
+            app:fab_size="normal"
+            app:fab_title="添加日程" />
+
+        <com.getbase.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:fab_colorNormal="@color/colorText"
+            app:fab_colorPressed="@color/colorBg"
+            app:fab_icon="@drawable/share"
+            app:fab_size="normal"
+            app:fab_title="分享日程" />
+    </com.getbase.floatingactionbutton.FloatingActionsMenu>
 
 </android.support.design.widget.CoordinatorLayout>
