@@ -31,9 +31,9 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
     private int downX;
     private int upX;
 
-    static class ViewHolder extends RecyclerView.ViewHolder{
-        private TextView time, event;//时间、事件
-        private TextView tvDot;//图标
+    public static class ViewHolder extends RecyclerView.ViewHolder{
+        public TextView time, event;//时间、事件
+        public TextView tvDot;//图标
         public LinearLayout del;//删除按钮
         public LinearLayout activity;//活动部分
         public LinearLayout finish;//完成按钮

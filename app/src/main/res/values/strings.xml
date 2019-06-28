@@ -9,5 +9,6 @@
     <string name="title_activity_edit">EditActivity</string>
     <string name="showdailog">日期选择</string>
     <string name="time">时间选择</string>
+    <string name="savePath">/ETime</string>
 
 </resources>

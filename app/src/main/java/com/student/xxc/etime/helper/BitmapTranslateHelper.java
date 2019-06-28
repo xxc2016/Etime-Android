@@ -1,32 +1,29 @@
 package com.student.xxc.etime.helper;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.util.Log;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
+public class BitmapTranslateHelper {//Bitmap变换工具类
 
-public class GlideCirlceTransHelper extends BitmapTransformation {
-
-    public GlideCirlceTransHelper(Context context)
+    static public Bitmap zoomImage(Bitmap original, double newWidth, double newHeight)//缩放bitmap
     {
-        super(context);
+        float width = original.getWidth();
+        float height = original.getHeight();
+        Matrix matrix =new Matrix();
+        float scaleWidth = ((float)newWidth)/width;
+        float scaleHeight = ((float)newHeight)/height;
+
+        matrix.postScale(scaleWidth,scaleHeight);
+        Bitmap bitmap = Bitmap.createBitmap(original,0,0,(int)width,(int)height,matrix,true);
+        return bitmap;
     }
 
-    protected Bitmap transform(BitmapPool pool,Bitmap toTransform,int outWidth,int outHeight)
-    {
-         return circleCrop(pool,toTransform);
-    }
-
-    private static Bitmap circleCrop(BitmapPool pool,Bitmap source)
+    static public Bitmap circleCrop(Bitmap source)//裁圆bitmap
     {
         if(source == null)  return null;
 
@@ -44,13 +41,8 @@ public class GlideCirlceTransHelper extends BitmapTransformation {
 //        matrix.preScale(ratio,ratio);
 //        Bitmap squared = Bitmap.createBitmap(squared_1,0,0,size,size,matrix,false);
 
+        Bitmap result = Bitmap.createBitmap(size,size,Bitmap.Config.ARGB_8888);
 
-
-        Bitmap result = pool.get(size,size,Bitmap.Config.ARGB_8888);
-        if(result == null)
-        {
-            result = Bitmap.createBitmap(size,size,Bitmap.Config.ARGB_8888);
-        }
 
         Canvas canvas = new Canvas(result);//画布
         Paint paint = new Paint();
@@ -65,11 +57,5 @@ public class GlideCirlceTransHelper extends BitmapTransformation {
         RectF rectF = new RectF(0f,0f,size,size);
         canvas.drawRoundRect(rectF,size/2,size/2,paint);
         return  result;
-
     }
-    @Override
-    public String getId() {
-        return getClass().getName();
-    }
-
 }

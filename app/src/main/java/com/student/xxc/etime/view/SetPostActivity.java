@@ -4,14 +4,19 @@ import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -45,12 +50,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -195,6 +202,13 @@ public class SetPostActivity extends AppCompatActivity {
             }
         });
 
+        //分享帖子判定
+        Intent intent = getIntent();
+        if("share".equals(intent.getStringExtra("request")))
+        {
+            toShareState(intent.getStringExtra("sharePhotoPath"));//到分享状态
+        }
+
     }
 
     private boolean isDelete(int i,String content) {
@@ -332,6 +346,21 @@ public class SetPostActivity extends AppCompatActivity {
         if(waitDialog!=null) {
             waitDialog.dismiss();
         }
+    }
+
+    private void toShareState(String  sharePicPath)//这个是uri
+    {
+        Bitmap bitmap = null;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), Uri.parse(sharePicPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        picPathList.add(Uri.parse(sharePicPath));
+        insertPic(bitmap);
+        Log.i("share","-------------------toState"+sharePicPath);
+        EditText set_post_title = (EditText) SetPostActivity.this.findViewById(R.id.set_post_title);
+        set_post_title.setText("我的日程分享");
     }
 
 

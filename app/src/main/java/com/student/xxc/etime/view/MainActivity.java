@@ -1,31 +1,45 @@
 package com.student.xxc.etime.view;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+//import android.support.design.widget.FloatingActionButton;
+import com.getbase.floatingactionbutton.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
@@ -33,24 +47,32 @@ import com.bumptech.glide.request.target.Target;
 import com.student.xxc.etime.R;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.helper.BitmapTranslateHelper;
+import com.student.xxc.etime.helper.GlideCirlceTransHelper;
 import com.student.xxc.etime.adapter.MyItemTouchHelperCallback;
 import com.student.xxc.etime.helper.PushService;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.adapter.TimeLineAdapter;
 import com.student.xxc.etime.helper.TraceItemTouchHelper;
+import com.student.xxc.etime.helper.shareView;
 import com.student.xxc.etime.impl.TraceManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
+import okhttp3.MediaType;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -66,6 +88,8 @@ public class MainActivity extends AppCompatActivity
     private ImageView imageView = null;
     private boolean titleType=false;//标题默认显示周几
     private PushService pushService=new PushService();
+    private shareView  shareUnit;
+    private Bitmap userHead = null;//头像缓存引用
 
     ////////////////////////////////////////////////
     @Override
@@ -97,6 +121,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 actionAdd();
+            }
+        });
+
+
+        FloatingActionButton fab_share = (FloatingActionButton)findViewById(R.id.fab_share);
+        fab_share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                shareTraces();
             }
         });
 
@@ -138,6 +171,8 @@ public class MainActivity extends AppCompatActivity
 //        });
 
         updateUserImage();//统一归纳到一个函数 2.1
+
+       initShareUnit();
     }
 
     private void selectPicture() {
@@ -145,6 +180,17 @@ public class MainActivity extends AppCompatActivity
         intent.setAction(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
+    }
+
+    private void initShareUnit()
+    {
+       // LayoutInflater inflater = LayoutInflater.from();
+       // inflater.inflate(R.layout.list_item, parent, false);
+      //  shareUnit = LayoutInflater.from(this).inflate(R.layout.time_line,null,true);
+        //shareUnit.setMinimumWidth(50);
+       // shareUnit.setMinimumHeight(50);
+        shareUnit = findViewById(R.id.share_unit);
+        shareUnit.setVisibility(View.INVISIBLE);
     }
 
 
@@ -604,4 +650,158 @@ public class MainActivity extends AppCompatActivity
         }
 
     }
+
+    public void shareTraces()//分享日程
+    {
+        final List<Bitmap>  bitmaps = new LinkedList<Bitmap>();
+        if(recyclerView.getChildCount()==0)
+        {
+            Toast.makeText(this,"您还没有日程可以分享！", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+
+        Log.i("size:","-------------------------------"+traceList.size());
+        int h  = 0;//总照片长度
+        for (int i = 0; i < traceList.size(); i++)//统计组件的身高
+            {
+                    shareUnit.time.setTextColor(getResources().getColor(R.color.colorTime));
+                    shareUnit.event.setTextColor(getResources().getColor(R.color.colorText));
+                    shareUnit.tvDot.setBackgroundResource(R.drawable.ic_menu_send);
+                    if (traceList.get(i).getFinish()) {
+                        CardView cardView = shareUnit.findViewById(R.id.card);
+                        cardView.setCardBackgroundColor(getResources().getColor(R.color.colorFinish));
+                    }
+                    else
+                    {
+                        CardView cardView = shareUnit.findViewById(R.id.card);
+                        cardView.setCardBackgroundColor(getResources().getColor(R.color.colorPrimary));
+                    }
+                    shareUnit.time.setText(traceList.get(i).getTime());
+                    shareUnit.event.setText(traceList.get(i).getEvent());
+                    h += shareUnit.getHeight();
+
+                    Bitmap bm = Bitmap.createBitmap(shareUnit.getWidth(), shareUnit.getHeight(), Bitmap.Config.ARGB_8888);
+                    Canvas canvas = new Canvas(bm);
+                    bm.eraseColor(Color.WHITE);//背景调整白色
+
+                    shareUnit.draw(canvas);
+                    bitmaps.add(bm);
+            }
+
+        //创建用户分享图片头
+
+        int upOffset = shareUnit.getHeight()/10;//上部填充偏差
+        h+=upOffset;
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        imageView = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.imageView_user);//选头像
+        Bitmap userHeadBitmap = Bitmap.createBitmap(imageView.getWidth(),imageView.getHeight(),Bitmap.Config.ARGB_8888);//画用户头像
+        userHeadBitmap.eraseColor(getResources().getColor(R.color.colorPrimary));
+        Canvas userHeadCanvas = new Canvas(userHeadBitmap);
+        imageView.draw(userHeadCanvas);//imageview获得用户头像
+
+        Bitmap userFitHeadBitmap = Bitmap.createBitmap(shareUnit.getHeight(),shareUnit.getHeight()+upOffset,Bitmap.Config.ARGB_8888);
+        userFitHeadBitmap.eraseColor(getResources().getColor(R.color.colorPrimary));
+        Bitmap  userZoomedBitmap = BitmapTranslateHelper.zoomImage(userHeadBitmap,shareUnit.getHeight(),shareUnit.getHeight());//用户压缩头像
+        Canvas userFitHeadCanvas = new Canvas(userFitHeadBitmap);
+        userFitHeadCanvas.drawBitmap(userZoomedBitmap,0,upOffset,null);
+        if(userHeadBitmap.isRecycled())
+        {
+            userHeadBitmap.recycle();
+        }
+        if(userZoomedBitmap.isRecycled())
+        {
+            userZoomedBitmap.recycle();
+        }
+
+       // Log.i("userhead","--------------------------h:"+userHeadBitmap.getHeight()+"w:"+userHeadBitmap.getWidth());
+
+        Bitmap headBitmap = Bitmap.createBitmap(shareUnit.getWidth()-shareUnit.getHeight(),shareUnit.getHeight()+upOffset,Bitmap.Config.ARGB_8888);
+        Canvas headCanvas = new Canvas(headBitmap);
+        headBitmap.eraseColor(getResources().getColor(R.color.colorPrimary));
+        Paint paint = new Paint();
+        paint.setTextSize(65);
+        paint.setColor(getResources().getColor(R.color.colorBg));
+        paint.setFlags(1);
+        paint.setStyle(Paint.Style.FILL);
+        headCanvas.drawText(Account.getUserName()+"的日程分享",100,headBitmap.getHeight()/2-10,paint);
+        h+=headBitmap.getHeight();
+
+
+        //拼接成一张总图片
+
+        if(h<shareUnit.getHeight()*6)//提高图片高度
+        {
+            h = shareUnit.getHeight()*6;
+        }
+        Bitmap bm = Bitmap.createBitmap(shareUnit.getWidth(),h, Bitmap.Config.ARGB_8888);
+        bm.eraseColor(Color.WHITE);
+        Canvas canvas = new Canvas(bm);
+        int tempHeight = 0;
+
+
+       canvas.drawBitmap(userFitHeadBitmap,0,tempHeight,null);
+       canvas.drawBitmap(headBitmap,shareUnit.getHeight(),tempHeight,null);
+       tempHeight+= headBitmap.getHeight();
+
+       if(headBitmap.isRecycled()) {
+           headBitmap.recycle();
+       }
+       if(userFitHeadBitmap.isRecycled()){
+           userFitHeadBitmap.recycle();
+       }
+
+        for(int i=0;i<bitmaps.size();i++) {
+            Bitmap bitmap = bitmaps.get(i);
+            canvas.drawBitmap(bitmap,0,tempHeight,null);
+            tempHeight+=bitmap.getHeight();
+            if (bitmap.isRecycled()) {
+                bitmap.recycle();
+            }
+        }
+
+        String filePath = MediaStore.Images.Media.insertImage(getContentResolver(),bm, null, null);
+        if (TextUtils.isEmpty(filePath)) {
+            Toast.makeText(MainActivity.this, "生成图片失败！", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            Log.i("share", "--------------------------" + getRealPathFromURI(Uri.parse(filePath)));
+        }
+
+       // Toast.makeText(MainActivity.this, "分享成功!", Toast.LENGTH_LONG).show();
+
+        if(bm.isRecycled())
+        {
+            bm.recycle();
+        }
+
+
+        //跳转到写帖子的界面
+        Intent intent = getIntent();
+        intent.putExtra("sharePhotoPath",filePath);
+        intent.putExtra("request","share");
+        intent.setClass(this,SetPostActivity.class);
+        startActivity(intent);
+    }
+
+
+    private  String getRealPathFromURI(Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = {MediaStore.Images.Media.DATA};
+            cursor = getContentResolver().query(contentUri, proj, null, null, null);
+            if (cursor == null) {
+                return "";
+            }
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
 }
