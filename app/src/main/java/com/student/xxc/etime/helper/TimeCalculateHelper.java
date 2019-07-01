@@ -8,7 +8,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 
-public class TimeCalculateHelper {//计算时间差帮助类
+public class TimeCalculateHelper {//计算时间帮助类
+
+
+    static public String getTimeByHourAndMinute()
+    {
+        Date tempDate = Calendar.getInstance().getTime();
+        SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
+        String time = df_hour.format(tempDate);
+        return time;
+    }
 
     static  public  String getTimeGap(String date,String time)
     {
@@ -18,14 +27,14 @@ public class TimeCalculateHelper {//计算时间差帮助类
         SimpleDateFormat df_time = new SimpleDateFormat("HH:mm");
         String time_now = df_time.format(tempDate);
 
-        Log.i("timeGap",date_now+","+time_now+","+date+","+time);
+        //Log.i("timeGap",date_now+","+time_now+","+date+","+time);
 
         String [] nowDate = date_now.split("-");
         String [] nowTime = time_now.split(":");
         String [] getDate = date.split("-");
         String [] getTime = time.split(":");
 
-        Log.i("timeGap","length:"+nowDate.length+""+nowDate[0]+"   "+nowDate[1]+"   "+nowDate[2]);
+        //Log.i("timeGap","length:"+nowDate.length+""+nowDate[0]+"   "+nowDate[1]+"   "+nowDate[2]);
 
         int nowYear = Integer.parseInt(nowDate[0]);
         int nowMonth = Integer.parseInt(nowDate[1]);

@@ -31,12 +31,12 @@ public class TraceManager {//用于管理trace的工具类
 
 
     public static final String CREATE_DATABASE = "CREATE TABLE "+
-            "userAction(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
-            "time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER," +
-            "important INTEGER,urgent INTEGER,fix INTEGER,predict INTEGER)";
+            "userTrace(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
+            "ESTime TEXT,LETime TEXT,time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER," +
+            "hasESTime INTEGER,hasLETime INTEGER,siteId TEXT,siteText Text,predict INTEGER)";
     public  static final String DROP_TABLE = "DROP TABLE "+
-            "userAction";
-    public  static final String DELETE_TABLE = "DELETE FROM "+ "userAction";
+            "userTrace";
+    public  static final String DELETE_TABLE = "DELETE FROM "+ "userTrace";
 
     private static final int TYPE_TOP = 0x0000;
     private static final int TYPE_NORMAL= 0x0001;
@@ -44,7 +44,7 @@ public class TraceManager {//用于管理trace的工具类
     static public void getDatabase()
     {
         if(helper==null){
-            helper = new TraceSQLiteOpenHelper(context,"userAction",null,1);
+            helper = new TraceSQLiteOpenHelper(context,"userTrace",null,1);
         }
        helper.getWritableDatabase();
     }
@@ -57,7 +57,7 @@ public class TraceManager {//用于管理trace的工具类
     static public int  getTraceId()
     {
         traceId ++;
-        TraceManager.traceList = traceList;
+//        TraceManager.traceList = traceList;
         SharedPreferences sp = context.getSharedPreferences("userInfo",Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sp.edit();
         editor.putInt("traceId",traceId);
@@ -91,14 +91,14 @@ public class TraceManager {//用于管理trace的工具类
 //        sel[0] = df.format(tempDate);
           sel[0] = nowDate;
 
-        Cursor cursor  =db.query("userAction",null,"date = ?",
+        Cursor cursor  =db.query("userTrace",null,"date = ?",
                 sel,null,null,"time asc");
         int count = -1;
         if(cursor.moveToFirst())
         {
             do{
                 count++;
-                String time  =cursor.getString(cursor.getColumnIndex("time"));
+                /*String time  =cursor.getString(cursor.getColumnIndex("time"));
                 String event = cursor.getString(cursor.getColumnIndex("event"));
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 int traceId = cursor.getInt(cursor.getColumnIndex("traceId"));
@@ -106,11 +106,22 @@ public class TraceManager {//用于管理trace的工具类
                 int importantTemp = cursor.getInt(cursor.getColumnIndex("important"));
                 int urgentTemp = cursor.getInt(cursor.getColumnIndex("urgent"));
                 int fixTemp = cursor.getInt(cursor.getColumnIndex("fix"));
+                int predict = cursor.getInt(cursor.getColumnIndex("predict"));*/
+                String ESTime  =cursor.getString(cursor.getColumnIndex("ESTime"));
+                String LETime  =cursor.getString(cursor.getColumnIndex("LETime"));
+                String time  =cursor.getString(cursor.getColumnIndex("time"));
+                String event = cursor.getString(cursor.getColumnIndex("event"));
+                String date = cursor.getString(cursor.getColumnIndex("date"));
+                String siteId  =cursor.getString(cursor.getColumnIndex("siteId"));
+                String siteText  =cursor.getString(cursor.getColumnIndex("siteText"));
+                int traceId = cursor.getInt(cursor.getColumnIndex("traceId"));
+                int finishTemp= cursor.getInt(cursor.getColumnIndex("finish"));
+                int hasEstTemp= cursor.getInt(cursor.getColumnIndex("hasESTime"));
+                int hasLetTemp = cursor.getInt(cursor.getColumnIndex("hasLETime"));
                 int predict = cursor.getInt(cursor.getColumnIndex("predict"));
                 boolean finish;
-                boolean important;
-                boolean urgent;
-                boolean fix;
+                boolean hasESTime;
+                boolean hasLETime;
                 if(finishTemp==1)
                 {
                     finish=true ;
@@ -118,51 +129,44 @@ public class TraceManager {//用于管理trace的工具类
                 else{
                     finish =false;
                 }
-                if(importantTemp ==1)
+                if(hasEstTemp ==1)
                 {
-                    important = true;
+                    hasESTime = true;
                 }
                 else
                 {
-                    important = false;
+                    hasESTime = false;
                 }
-                if(urgentTemp==1)
+                if(hasLetTemp==1)
                 {
-                    urgent = true;
-                }
-                else
-                {
-                    urgent = false;
-                }
-
-                if(fixTemp==1)
-                {
-                    fix = true;
+                    hasLETime = true;
                 }
                 else
                 {
-                    fix = false;
+                    hasLETime = false;
                 }
 
                 if(!finish  ||  showFinished)
                 {
-                    traceList.add(new Trace(time, date, event, traceId, finish,important,urgent,fix,predict));
+                    traceList.add(new Trace(traceId,time,event ,date,hasESTime,hasLETime,
+                            ESTime,LETime,finish,siteId,siteText,predict));
                 }
-                Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish+" "+important+" "+urgent
-                +" "+fix+" "+predict);
+                Log.i("database","------------"+date+"   "+time+"   "+ESTime+"  "+LETime+"  "+event+"  "+traceId+" "+finish+" "+hasESTime+
+                        " "+hasLETime +" "+siteId+" "+siteText+"  "+predict);
             }while (cursor.moveToNext());
             cursor.close();
         }
         if(useIntellectSort)//如果开启智能排序
         {
             Log.i("useIntellectSort","-----------------------------------"+"智能排序");
-            return intellectSort(traceList);
+           // return intellectSort(traceList);
+            return traceList;//取消原来智能排序算法 6.29
         }
         Log.i("useIntellectSort","-----------------------------------"+"普通排序");
         return traceList;
     }
 
-    static  private  boolean  judgeByLabel(Trace e1,Trace e2)//相当于大于
+    /*static  private  boolean  judgeByLabel(Trace e1,Trace e2)//相当于大于
     {
         if(e1.getUrgent()== true)
         {
@@ -438,7 +442,7 @@ public class TraceManager {//用于管理trace的工具类
         }
 
         return tempList_1;
-    }
+    }*/
 
     static  public void dropTable()
     {
@@ -453,9 +457,9 @@ public class TraceManager {//用于管理trace的工具类
     static  public TraceBean  getTraces()   //单纯读一遍  //2.1  改成返回数据库TraceBean
     {
         SQLiteDatabase db = helper.getWritableDatabase();
-//        db.execSQL(DROP_TABLE);
-//        db.execSQL(CREATE_DATABASE);
-        Cursor cursor  =db.query("userAction",null,null,
+        //db.execSQL(DROP_TABLE);
+        //db.execSQL(CREATE_DATABASE);
+        Cursor cursor  =db.query("userTrace",null,null,
         null,null,null,null);
         ArrayList<TraceBean.Trace>  traces = new ArrayList<TraceBean.Trace>();
         TraceBean list = new TraceBean();
@@ -464,7 +468,7 @@ public class TraceManager {//用于管理trace的工具类
         {
             do{
                 //String index = cursor.getString(cursor.getColumnIndex("index"));
-                String time  =cursor.getString(cursor.getColumnIndex("time"));
+                /*String time  =cursor.getString(cursor.getColumnIndex("time"));
                 String event = cursor.getString(cursor.getColumnIndex("event"));
                 String date = cursor.getString(cursor.getColumnIndex("date"));
                 int traceId = cursor.getInt(cursor.getColumnIndex("traceId"));
@@ -472,15 +476,27 @@ public class TraceManager {//用于管理trace的工具类
                 int important= cursor.getInt(cursor.getColumnIndex("important"));
                 int urgent = cursor.getInt(cursor.getColumnIndex("urgent"));
                 int fix = cursor.getInt(cursor.getColumnIndex("fix"));
+                int predict = cursor.getInt(cursor.getColumnIndex("predict"));*/
+                String ESTime  =cursor.getString(cursor.getColumnIndex("ESTime"));
+                String LETime  =cursor.getString(cursor.getColumnIndex("LETime"));
+                String time  =cursor.getString(cursor.getColumnIndex("time"));
+                String event = cursor.getString(cursor.getColumnIndex("event"));
+                String date = cursor.getString(cursor.getColumnIndex("date"));
+                String siteId  =cursor.getString(cursor.getColumnIndex("siteId"));
+                String siteText  =cursor.getString(cursor.getColumnIndex("siteText"));
+                traceId = cursor.getInt(cursor.getColumnIndex("traceId"));
+                int finish= cursor.getInt(cursor.getColumnIndex("finish"));
+                int hasESTime= cursor.getInt(cursor.getColumnIndex("hasESTime"));
+                int hasLETime= cursor.getInt(cursor.getColumnIndex("hasLETime"));
                 int predict = cursor.getInt(cursor.getColumnIndex("predict"));
-                Trace trace =new Trace(time,date ,event,traceId,Trace.judgeFinish_boolean(finish),
-                        Trace.judgeImportant_boolean(important),
-                        Trace.judgeUrgent_boolean(urgent),
-                        Trace.judgeFix_boolean(fix),predict);
-                TraceBean.Trace bean = new TraceBean.Trace(Account.getUserAccount(),time,event,date,finish,traceId,important,urgent,fix,predict);
+
+                Trace trace =new Trace(traceId,time,event ,date,hasESTime,hasLETime,
+                        ESTime,LETime,finish,siteId,siteText,predict);
+                TraceBean.Trace bean = new TraceBean.Trace(Account.getUserAccount(),ESTime,LETime,time,event,date,finish,traceId,
+                        hasESTime,hasLETime,siteId,siteText,predict);
                 traces.add(bean);
-                Log.i("database","------------"+date+"   "+time+"  "+event+"  "+traceId+" "+finish+" "+important+" "+urgent
-                +" "+fix+" "+predict+"  account"+Account.getUserAccount());
+                Log.i("database","------------"+"------------"+date+"   "+time+"   "+ESTime+"  "+LETime+"  "+event+"  "+traceId+" "+finish+" "+hasESTime+
+                        " "+hasLETime +" "+siteId+" "+siteText+"  "+predict+"  account"+Account.getUserAccount());
             }while (cursor.moveToNext());
             cursor.close();
         }
@@ -504,8 +520,8 @@ public class TraceManager {//用于管理trace的工具类
         while(it.hasNext())
         {
             TraceBean.Trace  trace = it.next();
-            Trace  trace1= new Trace(trace.time,trace.date ,trace.event,trace.traceId,
-                    trace.finish,trace.important,trace.urgent,trace.fix,trace.predict,trace.imageType);
+            Trace  trace1= new Trace(trace.traceId,trace.time,trace.event ,trace.date,trace.hasESTime,trace.hasLETime,
+                    trace.ESTime,trace.LETime,trace.finish,trace.siteId,trace.siteText,trace.predict);
             addTrace(trace1);
         }
     }
@@ -519,42 +535,58 @@ public class TraceManager {//用于管理trace的工具类
         ContentValues cv = new ContentValues();
         for(int i=0;i<traceList.size();i++)
         {
+            cv.put("ESTime",traceList.get(i).getESTime());
+            cv.put("LETime",traceList.get(i).getLETime());
             cv.put("time",traceList.get(i).getTime());
             cv.put("event",traceList.get(i).getEvent());
             cv.put("date",traceList.get(i).getDate());
+            cv.put("siteId",traceList.get(i).getSiteId());
+            cv.put("siteText",traceList.get(i).getSiteText());
             cv.put("traceId",traceList.get(i).getTraceId());
             cv.put("finish",traceList.get(i).getFinish_int());
-            cv.put("important",traceList.get(i).getImportant_int());
-            cv.put("urgent",traceList.get(i).getUrgent_int());
-            cv.put("fix",traceList.get(i).getFix_int());
+            cv.put("hasESTime",traceList.get(i).get_hasEst_int());
+            cv.put("hasLETime",traceList.get(i).get_hasLet_int());
             cv.put("predict",traceList.get(i).getPredict());
 
-
-            db.insert("userAction",null,cv);
-            Log.i("input","------------"+traceList.get(i).getDate()+"   "+traceList.get(i).getTime()
-                    +"  "+traceList.get(i).getEvent()+" "+traceList.get(i).getTraceId()+" "+traceList.get(i).getFinish_int()+
-            " "+traceList.get(i).getImportant()+" "+traceList.get(i).getUrgent()+" "+traceList.get(i).getFix()
-            +" "+traceList.get(i).getPredict());
+            db.insert("userTrace",null,cv);
+            Log.i("input","------------"+traceList.get(i).getESTime()+"  "+traceList.get(i).getLETime()+"  "+traceList.get(i).getTime()
+                    +traceList.get(i).getDate()+"   "+traceList.get(i).getEvent()+"  "+traceList.get(i).getTraceId()+"  "+traceList.get(i).getSiteText()
+                    +"  "+traceList.get(i).getFinish_int()+" "+traceList.get(i).get_hasEst_int()+" "+traceList.get(i).get_hasLet_int()
+                    +" "+traceList.get(i).getPredict());
         }
     }
 
     static  public void updateTrace(Trace e)
     {
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.execSQL("update userAction set time = '"+e.getTime()+"',event = '"+e.getEvent()+
-                "',date = '"+e.getDate()+"'"+",finish = "+e.getFinish_int()+",important ="+e.getImportant_int()
-                +",urgent = "+e.getUrgent_int()+",fix= "+e.getFix_int()+",predict="+e.getPredict()+"  where traceId = "+e.getTraceId());
-        Log.i("SqlUpdate","--------------------------"+"update userAction set time = '"+e.getTime()+"',event = '"+e.getEvent()+
-                "',date = '"+e.getDate()+"'"+",finish = "+e.getFinish_int()+",important ="+e.getImportant_int()
-                +",urgent = "+e.getUrgent_int()+",fix= "+e.getFinish_int()+",predict="+e.getPredict()+"  where traceId = "+e.getTraceId());
+
+        ContentValues cv =  new ContentValues();
+        cv.put("ESTime",e.getESTime());
+        cv.put("LETime",e.getLETime());
+        cv.put("time",e.getTime());
+        cv.put("event",e.getEvent());
+        cv.put("date",e.getDate());
+        cv.put("siteText",e.getSiteText());
+        cv.put("traceId",e.getTraceId());
+        cv.put("finish",e.getFinish_int());
+        cv.put("hasESTime",e.get_hasEst_int());
+        cv.put("hasLETime",e.get_hasLet_int());
+        cv.put("predict",e.getPredict());
+
+        db.update("userTrace",cv,"traceId= ?",new String[]{String.valueOf(e.getTraceId())});
+
+        Log.i("SqlUpdate","--------------------------"+"update userTrace set ESTime = '"+e.getESTime()+"',LETime = '"+e.getLETime()+"',event = '"+e.getEvent()+
+                "',time='"+e.getTime()+"',date = '"+e.getDate()+"',siteText='"+e.getSiteText()+
+                "',siteId='"+e.getSiteId()+"',finish = "+e.getFinish_int()+",hasESTime ="+e.get_hasEst_int()
+                +",hasLETime = "+e.get_hasLet_int()+",predict="+e.getPredict()+"  where traceId = "+e.getTraceId());
 
     }
 
-    static  public  void addTrace(Trace e)
+    static  public  void addTrace(Trace e)//数据库中添加日程
     {
         SQLiteDatabase db = helper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("time",e.getTime());
+        /*cv.put("time",e.getTime());
         cv.put("event",e.getEvent());
         cv.put("date",e.getDate());
         cv.put("traceId",e.getTraceId());
@@ -562,15 +594,29 @@ public class TraceManager {//用于管理trace的工具类
         cv.put("important",e.getImportant_int());
         cv.put("urgent",e.getUrgent_int());
         cv.put("fix",e.getFix_int());
+        cv.put("predict",e.getPredict());*/
+
+        cv.put("ESTime",e.getESTime());
+        cv.put("LETime",e.getLETime());
+        cv.put("time",e.getTime());
+        cv.put("event",e.getEvent());
+        cv.put("date",e.getDate());
+        cv.put("traceId",e.getTraceId());
+        cv.put("hasESTime",e.get_hasEst_int());
+        cv.put("hasLETime",e.get_hasLet_int());
+        cv.put("finish",e.getFinish_int());
+        cv.put("siteId",e.getSiteId());
+        cv.put("siteText",e.getSiteText());
         cv.put("predict",e.getPredict());
+
         Log.i("SqlAdd","id:"+e.getTraceId());
-        db.insert("userAction",null,cv);
+        db.insert("userTrace",null,cv);
     }
 
     static  public void deleteTrace(Trace e)
     {
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.execSQL("delete from userAction where traceId="+e.getTraceId());
+        db.execSQL("delete from userTrace where traceId="+e.getTraceId());
     }
 
     static public void finishTrace(Trace e){

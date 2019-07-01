@@ -20,7 +20,7 @@ public class TraceBean {
 
     public static class Trace {  //用于上传和下载用户日程
         public String userAccount;
-        public String time;
+        /*public String time;
         public String event;
         public String date;
         public boolean finish;
@@ -29,25 +29,58 @@ public class TraceBean {
         public boolean important;
         public boolean urgent;
         public boolean fix;
-        public int predict;
+        public int predict;*/
+        public String ESTime;//最早开始时间
+        public String LETime;//最晚结束时间
+        public String time;//插入时间
+        public String event;//事件
+        public String date;//日期
+        public boolean finish;//结束标识
+        public int traceId;//每个的唯一索引 在traceManager中保存计数
+        public boolean hasESTime;//有最早开始时间
+        public boolean hasLETime;//有最晚开始时间
+        public String siteId;//地址标识号
+        public String siteText;//地址文字
+        public int predict;//持续时间
 
 
-        public  Trace(String userAccount,String time,String event,String date,boolean finish,int traceId
-                ,boolean important,boolean urgent,boolean fix,int predict) {
+        public  Trace(String userAccount,String ESTime,String LETime,String time,String event,String date,boolean finish,int traceId
+                ,boolean hasESTime,boolean hasLETime,String siteId,String siteText,int predict) {
             this.userAccount = userAccount;
             this.time = time;
+            this.ESTime =ESTime;
+            this.LETime = LETime;
             this.event =event;
             this.date = date;
             this.finish = finish;
+            this.hasESTime = hasESTime;
+            this.hasLETime = hasLETime;
+            this.siteId = siteId;
+            this.siteText  =siteText;
             this.traceId = traceId;
-            this.important = important;
-            this.urgent = urgent;
-            this.fix = fix;
+            this.predict = predict;
+        }
+
+        public  Trace(String userAccount,String ESTime,String LETime,String time,String event,String date,int finish,int traceId
+                ,int hasESTime,int hasLETime,String siteId,String siteText,int predict) {
+            this.userAccount = userAccount;
+            this.time = time;
+            this.ESTime =ESTime;
+            this.LETime = LETime;
+            this.event =event;
+            this.date = date;
+            this.finish = judgeFinish_boolean(finish);
+            this.hasESTime = judge_hasEst_boolean(hasESTime);
+            this.hasLETime = judge_hasLet_boolean(hasLETime);
+            this.siteId = siteId;
+            this.siteText  =siteText;
+            this.traceId = traceId;
             this.predict = predict;
         }
 
 
-        public  Trace(String userAccount,String time,String event,String date,int finish,int traceId
+
+       /* public  Trace(String userAccount,String time,String event,String date,int finish,int traceId
                 ,int important,int urgent,int fix,int predict)
         {
             this.userAccount = userAccount;
@@ -60,10 +93,10 @@ public class TraceBean {
             this.urgent = judgeUrgent_boolean(urgent);
             this.fix = judgeFix_boolean(fix);
             this.predict = predict;
-        }
+        }*/
 
 
-        public static boolean judgeImportant_boolean(int important)
+        /*public static boolean judgeImportant_boolean(int important)
         {
             if(important==1)
             {
@@ -86,7 +119,7 @@ public class TraceBean {
             {
                 return false;
             }
-        }
+        }*/
 
         public static boolean judgeFinish_boolean(int finish)
         {
@@ -100,9 +133,33 @@ public class TraceBean {
             }
         }
 
-        public static boolean judgeFix_boolean(int fix)
+        /*public static boolean judgeFix_boolean(int fix)
         {
             if(fix==1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }*/
+
+        public static boolean judge_hasEst_boolean(int hasESTime)
+        {
+            if(hasESTime==1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static boolean judge_hasLet_boolean(int hasLETime)
+        {
+            if(hasLETime==1)
             {
                 return true;
             }

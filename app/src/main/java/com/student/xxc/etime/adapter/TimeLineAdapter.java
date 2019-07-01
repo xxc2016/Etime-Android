@@ -92,14 +92,23 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
             public void onClick(View view) {
 //                Toast.makeText(context,viewHolder.getAdapterPosition()+"",Toast.LENGTH_SHORT).show();//切入Activity
                 Intent intent =new Intent();
-                intent.putExtra("traceId",traces.get(viewHolder.getAdapterPosition()).getTraceId());
-                intent.putExtra("time",traces.get(viewHolder.getAdapterPosition()).getTime());
-                intent.putExtra("event",traces.get(viewHolder.getAdapterPosition()).getEvent());
-                intent.putExtra("isimportant",traces.get(viewHolder.getAdapterPosition()).getImportant());
-                intent.putExtra("isurgent",traces.get(viewHolder.getAdapterPosition()).getUrgent());
-                intent.putExtra("isfinish",traces.get(viewHolder.getAdapterPosition()).getFinish());
-                intent.putExtra("isfix",traces.get(viewHolder.getAdapterPosition()).getFix());
+                int position = viewHolder.getAdapterPosition();//位置
+                intent.putExtra("traceId",traces.get(position).getTraceId());
+                intent.putExtra("time",traces.get(position).getTime());
+                intent.putExtra("event",traces.get(position).getEvent());
+                intent.putExtra("date",traces.get(position).getDate());
+                intent.putExtra("hasESTime",traces.get(position).isHasESTime());
+                intent.putExtra("hasLETime",traces.get(position).isHasLETime());
+                intent.putExtra("isfinish",traces.get(position).getFinish());
+                intent.putExtra("ESTime",traces.get(position).getESTime());
+                intent.putExtra("LETime",traces.get(position).getLETime());
+                intent.putExtra("siteId",traces.get(position).getSiteId());
+                intent.putExtra("siteText",traces.get(position).getSiteText());
                 intent.putExtra("predict",traces.get(viewHolder.getAdapterPosition()).getPredict());
+
+//                intent.putExtra("trace",traces.get(position));//序列化尝试  预留接口
+               // intent.putExtra("siteId",traces.get(viewHolder.getAdapterPosition()).getFix());
+
                 intent.setClass(context, SetTraceActivity.class);
                 startActivityForResult((MainActivity)context,intent,2,null);
             }

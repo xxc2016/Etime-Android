@@ -53,6 +53,7 @@ import com.student.xxc.etime.adapter.MyItemTouchHelperCallback;
 import com.student.xxc.etime.helper.PushService;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.adapter.TimeLineAdapter;
+import com.student.xxc.etime.helper.TimeCalculateHelper;
 import com.student.xxc.etime.helper.TraceItemTouchHelper;
 import com.student.xxc.etime.helper.shareView;
 import com.student.xxc.etime.impl.TraceManager;
@@ -206,13 +207,18 @@ public class MainActivity extends AppCompatActivity
             boolean finish = bundle.getBoolean("finish");
             int traceId = bundle.getInt("traceId");
             boolean isdelete = bundle.getBoolean("isdel");
-            boolean isimportant = bundle.getBoolean("isimportant");
-            boolean isurgent = bundle.getBoolean("isurgent");//新增关键字
-            boolean isfix = bundle.getBoolean("isfix");
+            boolean hasESTime = bundle.getBoolean("hasESTime");
+            boolean hasLETime = bundle.getBoolean("hasLETime");//新增关键字
+            String ESTime = bundle.getString("ESTime");
+            String LETime =bundle.getString("LETime");
+            String date = bundle.getString("date");
+            String siteId = bundle.getString("siteId");
+            String siteText =bundle.getString("siteText");
+
             int predict = bundle.getInt("predict");
             Log.i("set", "-----------------" + time + "  " + event + "  " + finish + "  " + traceId
-                    +" "+isdelete+" "+isimportant+" "+isurgent+" "+isfix+" "+predict);
-            Trace one =new  Trace(time,nowDate,event,traceId,finish,isimportant,isurgent,isfix,predict);
+                    +" "+isdelete+" "+hasESTime+" "+ESTime+"   "+hasLETime+"  "+LETime+" "+siteId+"  "+siteText+" "+predict);
+            Trace one =new  Trace(traceId,time,event,date,hasESTime,hasLETime,ESTime,LETime,finish,siteId,siteText,predict);
             if(isdelete)
             {
                 TraceManager.deleteTrace(one);
@@ -333,14 +339,16 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
     public void actionAdd(){
-        Date tempDate = Calendar.getInstance().getTime();
-        SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
-        String time = df_hour.format(tempDate);
-        Log.i("hour",time);
+//        Date tempDate = Calendar.getInstance().getTime();
+//        SimpleDateFormat df_hour = new SimpleDateFormat("HH:mm");
+//        String time = df_hour.format(tempDate);
+//        Log.i("hour",time);
+        String time = TimeCalculateHelper.getTimeByHourAndMinute(); //冗余函数归并6.30
         int traceId = TraceManager.getTraceId();
         Intent intent =new Intent();
         intent.putExtra("traceId",traceId);
         intent.putExtra("time",time);
+        intent.putExtra("date",nowDate);
         intent.setClass(this, SetTraceActivity.class);
         this.startActivityForResult(intent,1);
     }
@@ -349,22 +357,40 @@ public class MainActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if(requestCode == 1 && resultCode == 1){
             if(data!=null){
-                String event=(String)data.getSerializableExtra("event");
-                String time=(String) data.getSerializableExtra("time");
-                int traceId=data.getIntExtra("traceId",-1);
-                Boolean important = data.getBooleanExtra("isimportant",false);
-                Boolean urgent = data.getBooleanExtra("isurgent",false);
-                Boolean fix = data.getBooleanExtra("isfix",false);
-                int predict = data.getIntExtra("predict",30);
-                Boolean finish=data.getBooleanExtra("finish",false);
-                Log.i("onActivity","-----------------------------"+fix+"  "+predict);
+//                String event=(String)data.getSerializableExtra("event");
+//                String time=(String) data.getSerializableExtra("time");
+//                int traceId=data.getIntExtra("traceId",-1);
+//                Boolean important = data.getBooleanExtra("isimportant",false);
+//                Boolean urgent = data.getBooleanExtra("isurgent",false);
+//                Boolean fix = data.getBooleanExtra("isfix",false);
+//                int predict = data.getIntExtra("predict",30);
+//                Boolean finish=data.getBooleanExtra("finish",false);
+//                Log.i("onActivity","-----------------------------"+fix+"  "+predict);
+//
+//                SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
+//                Date tempDate = Calendar.getInstance().getTime();
+//
+//                Log.i("Date",this.nowDate+"--------------------------------"); //修改新增日期错误问题 1.11 zyf
+//                String date = df_date.format(tempDate);  //新加时间
+//                Trace trace=new Trace(time,this.nowDate,event,traceId,finish,important,urgent,fix,predict);
+                Bundle bundle = data.getExtras();
+                String time = bundle.getString("time");
+                String event = bundle.getString("event");
+                boolean finish = bundle.getBoolean("finish");
+                int traceId = bundle.getInt("traceId");
+                boolean hasESTime = bundle.getBoolean("hasESTime");
+                boolean hasLETime = bundle.getBoolean("hasLETime");//新增关键字
+                String ESTime = bundle.getString("ESTime");
+                String LETime =bundle.getString("LETime");
+                String date = bundle.getString("date");
+                String siteId = bundle.getString("siteId");
+                String siteText =bundle.getString("siteText");
 
-                SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");
-                Date tempDate = Calendar.getInstance().getTime();
+                int predict = bundle.getInt("predict");
 
-                Log.i("Date",this.nowDate+"--------------------------------"); //修改新增日期错误问题 1.11 zyf
-                String date = df_date.format(tempDate);  //新加时间
-                Trace trace=new Trace(time,this.nowDate,event,traceId,finish,important,urgent,fix,predict);
+                Trace trace = new Trace(traceId, time, event, date, hasESTime, hasLETime,
+                        ESTime, LETime, finish, siteId, siteText, predict);
+
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
 
@@ -715,13 +741,13 @@ public class MainActivity extends AppCompatActivity
             userZoomedBitmap.recycle();
         }
 
-       // Log.i("userhead","--------------------------h:"+userHeadBitmap.getHeight()+"w:"+userHeadBitmap.getWidth());
+        Log.i("userhead","--------------------------h:"+userHeadBitmap.getHeight()+"w:"+userHeadBitmap.getWidth());
 
         Bitmap headBitmap = Bitmap.createBitmap(shareUnit.getWidth()-shareUnit.getHeight(),shareUnit.getHeight()+upOffset,Bitmap.Config.ARGB_8888);
         Canvas headCanvas = new Canvas(headBitmap);
         headBitmap.eraseColor(getResources().getColor(R.color.colorPrimary));
         Paint paint = new Paint();
-        paint.setTextSize(65);
+        paint.setTextSize(shareUnit.getHeight()/4);
         paint.setColor(getResources().getColor(R.color.colorBg));
         paint.setFlags(1);
         paint.setStyle(Paint.Style.FILL);
