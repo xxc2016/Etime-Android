@@ -8,10 +8,12 @@ import android.widget.Toast;
 public class TraceSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public static final String CREATE_DATABASE = "CREATE TABLE "+
-            "userAction(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
-            "time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER,important INTEGER,urgent INTEGER,fix INTEGER,predict INTEGER)";
+            "userTrace(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
+            "ESTime TEXT,LETime TEXT,time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER," +
+            "hasESTime INTEGER,hasLETime INTEGER,siteId TEXT,siteText Text,predict INTEGER)";
+
     public  static final String DROP_TABLE = "DROP TABLE "+
-            "userAction";
+            "userTrace";
     private Context  context;
 
     public TraceSQLiteOpenHelper(Context context, String name,SQLiteDatabase.CursorFactory factory,int version)
@@ -28,7 +30,7 @@ public class TraceSQLiteOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_DATABASE);
-      //  Toast.makeText(context,"数据库创建成功",Toast.LENGTH_LONG).show();  取消显示
+       // Toast.makeText(context,"数据库创建成功",Toast.LENGTH_LONG).show();
     }
 
     public void onUpgrade(SQLiteDatabase db,int oldVersion,int newVersion)

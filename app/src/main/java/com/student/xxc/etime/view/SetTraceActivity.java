@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import com.student.xxc.etime.entity.Trace;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,9 +22,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -51,10 +55,9 @@ public class SetTraceActivity extends AppCompatActivity {
 
     static  final  int requestCode =0x000011;
     private static final int PLACE_SELECT = 0x000022;
-    int traceId;
+    //int traceId;
+    Trace trace;//建立Trace对象用于接受细节信息
     Button button_confirm;
-    EditText time;
-    EditText event;
     // 用HashMap存储听写结果
     private HashMap<String, String> mIatResults = new LinkedHashMap<String , String>();
     private static final String TAG = MainActivity.class .getSimpleName();
@@ -62,41 +65,15 @@ public class SetTraceActivity extends AppCompatActivity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences preferences=getSharedPreferences("default_night", MODE_PRIVATE);
-        int currentNightMode = preferences.getInt("default_night",getResources().getConfiguration().uiMode);
-        getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
-                AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
         setContentView(R.layout.activity_set_trace);
+        initStyle();
+
         Intent intent = getIntent();
-        traceId = intent.getIntExtra("traceId",0);
-        button_confirm = this.findViewById(R.id.button_confirm);
-        time=(EditText)this.findViewById(R.id.editText_time);
-        time.setInputType(InputType.TYPE_NULL);
-        event=(EditText)this.findViewById(R.id.editText_activity);
-        boolean important = intent.getBooleanExtra("isimportant",false);//初始化三个选项开关
-        boolean  urgent = intent.getBooleanExtra("isurgent",false);
-        boolean  finish = intent.getBooleanExtra("isfinish",false);
-        boolean  fixed  = intent.getBooleanExtra("isfix",false);
-        int predictTime = intent.getIntExtra("predict",30);
-        Switch switch_import = (Switch) this.findViewById(R.id.switch_isimportant);
-        switch_import.setChecked(important);
-        Switch switch_urgent = (Switch) this.findViewById(R.id.switch_isurgent);
-        switch_urgent.setChecked(urgent);
-        Switch switch_finish = (Switch) this.findViewById(R.id.switch_isfinish);
-        switch_finish.setChecked(finish);
-        Switch switch_fix = (Switch) this.findViewById(R.id.switch_isfix);
-        switch_fix.setChecked(fixed);
-        EditText editText_predict =  (EditText)this.findViewById(R.id.editText_predict);
-        editText_predict.setText(""+predictTime);
+        initialTraceByIntent(intent);//通过Intent信息初始化Trace 6.30
+        initial();//Trace初始化界面
 
-        if(finish){
-            CardView cardView=(CardView)findViewById(R.id.cardTrace);
-            cardView.setCardBackgroundColor(getResources().getColor(R.color.colorFinish));
-        }
-
-        initial();
-        checkRecordPermission();
+        checkRecordPermission();//语音模块初始化
         initView() ;
         initSpeech() ;
 
@@ -105,18 +82,37 @@ public class SetTraceActivity extends AppCompatActivity {
 
     private void initialPlace() {
         final EditText place=findViewById(R.id.editText_predict2);
-//        Intent intent = new Intent(this,GdMapListActivity.class);
-//        startActivityForResult(intent,PLACE_SELECT);
+        place.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(),MapListActivity.class);
+                startActivityForResult(intent, MapListActivity.REQUEST_SUC);
+            }
+        });
+    }
+
+
+    private  void initStyle()
+    {
+        SharedPreferences preferences=getSharedPreferences("default_night", MODE_PRIVATE);
+        int currentNightMode = preferences.getInt("default_night",getResources().getConfiguration().uiMode);
+        getDelegate().setLocalNightMode(currentNightMode == Configuration.UI_MODE_NIGHT_NO ?
+                AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==PLACE_SELECT && resultCode==1){
+        if(requestCode==MapListActivity.REQUEST_SUC && resultCode==MapListActivity.RESULT_CODE_INPUTTIPS){
             EditText place =findViewById(R.id.editText_predict2);
-            place.setText(data.getStringExtra("place"));
-
+            String poiName=data.getStringExtra("poiName") ;
+            String poiId=data.getStringExtra("poiId");
+            Log.i("poiId",poiId);
+            place.setText(poiName);
+            trace.setSiteId(poiId);
+            trace.setSiteText(poiName);
+//            Toast.makeText(getApplicationContext(),poiId,Toast.LENGTH_SHORT);
         }
     }
 
@@ -152,34 +148,170 @@ public class SetTraceActivity extends AppCompatActivity {
         SpeechUtility. createUtility( this, SpeechConstant. APPID + "=58a6bd74" );
     }
 
-    private void initial()
-    {
+    private void initialTraceByIntent(Intent intent) {
+        int traceId = intent.getIntExtra("traceId", 0);
+        String time = intent.getStringExtra("time");
+        String event = intent.getStringExtra("event");
+        String date = intent.getStringExtra("date");
+        boolean hasESTime = intent.getBooleanExtra("hasESTime", false);
+        boolean hasLETime = intent.getBooleanExtra("hasLETime", false);
+        String ESTime = intent.getStringExtra("ESTime");
+        String LETime = intent.getStringExtra("LETime");
+        boolean isfinish = intent.getBooleanExtra("isfinish", false);
+        String siteId = intent.getStringExtra("siteId");
+        String siteText = intent.getStringExtra("siteText");
+        int predict = intent.getIntExtra("predict", 30);
 
-        time.setText(getIntent().getStringExtra("time"));
+
+        this.trace = new Trace(traceId, time, event, date, hasESTime, hasLETime,
+                ESTime, LETime, isfinish, siteId, siteText, predict);
+
+    }
+
+    private  void initial()
+    {
+        button_confirm = this.findViewById(R.id.button_confirm);
+        final EditText time=(EditText)this.findViewById(R.id.editText_time);
+        time.setInputType(InputType.TYPE_NULL);
+        EditText event=(EditText)this.findViewById(R.id.editText_activity);
+
+        Switch switch_finish = (Switch) this.findViewById(R.id.switch_isfinish);
+        switch_finish.setChecked(trace.getFinish());
+        final EditText editText_predict =  (EditText)this.findViewById(R.id.editText_predict);
+        editText_predict.setText(""+trace.getPredict());
+
+        CheckBox checkBox_hasESTime = this.findViewById(R.id.checkBox_hasESTime);//最早时间  最晚时间初始化
+        final EditText editText_ESTime = this.findViewById(R.id.editText_ESTime);
+        checkBox_hasESTime.setChecked(trace.isHasESTime());
+        editText_ESTime.setInputType(InputType.TYPE_NULL);
+        editText_ESTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTime(editText_ESTime);
+            }
+        });
+        if(trace.isHasESTime())
+        {
+            editText_ESTime.setText(trace.getESTime());
+            editText_ESTime.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            editText_ESTime.setVisibility(View.INVISIBLE);
+        }
+
+        checkBox_hasESTime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {//添加checkBox监听事件
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                trace.setHasESTime(isChecked);
+                if(isChecked)
+                {
+                    editText_ESTime.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    editText_ESTime.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        CheckBox checkBox_hasLETime = this.findViewById(R.id.checkBox_hasLETime);
+        checkBox_hasLETime.setChecked(trace.isHasLETime());
+        final EditText editText_LETime = this.findViewById(R.id.editText_LETime);
+        editText_LETime.setInputType(InputType.TYPE_NULL);
+        editText_LETime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTime(editText_LETime);
+            }
+        });
+        if(trace.isHasLETime())
+        {
+            editText_LETime.setText(trace.getLETime());
+            editText_LETime.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            editText_LETime.setVisibility(View.INVISIBLE);
+        }
+        checkBox_hasLETime.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                trace.setHasLETime(isChecked);
+                if(isChecked)
+                {
+                    editText_LETime.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    editText_LETime.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+
+
+        if(trace.getFinish()){
+            CardView cardView=(CardView)findViewById(R.id.cardTrace);
+            cardView.setCardBackgroundColor(getResources().getColor(R.color.colorFinish));
+        }
+
+        EditText editText_site = this.findViewById(R.id.editText_predict2);//地点初始化
+        if(trace.hasSite())
+        {
+            editText_site.setText(trace.getSiteText());
+        }
+        else
+        {
+            editText_site.setText("未选定");
+        }
+
+        Switch switch_delete = (Switch)this.findViewById(R.id.switch_isdelete);
+        switch_delete.setChecked(false);//日程设定不删除
+
+
+        time.setText(trace.getTime());
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showTime();
+                showTime(time);
             }
         });
-        event.setText(getIntent().getStringExtra("event"));
+        event.setText(trace.getEvent());
 
 
-        button_confirm.setOnClickListener(new View.OnClickListener() {
+        button_confirm.setOnClickListener(new View.OnClickListener() { //提交
             @Override
             public void onClick(View v) {
                 Bundle bundle = new Bundle();
                 bundle.putString("time",((EditText)SetTraceActivity.this.findViewById(R.id.editText_time)).getText().toString());
                 bundle.putString("event",((EditText)SetTraceActivity.this.findViewById(R.id.editText_activity)).getText().toString());
                 bundle.putBoolean("finish",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isfinish)).isChecked());
-                bundle.putBoolean("isdel",((Switch)SetTraceActivity.this.findViewById(R.id.switch_delete)).isChecked());
-                bundle.putBoolean("isimportant",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isimportant)).isChecked());
-                bundle.putBoolean("isurgent",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isurgent)).isChecked());
-                bundle.putBoolean("isfix",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isfix)).isChecked());
+                bundle.putBoolean("isdel",((Switch)SetTraceActivity.this.findViewById(R.id.switch_isdelete)).isChecked());
+
+                boolean hasESTime = ((CheckBox)SetTraceActivity.this.findViewById(R.id.checkBox_hasESTime)).isChecked();
+                bundle.putBoolean("hasESTime",hasESTime);
+                if(hasESTime)
+                {
+                    bundle.putString("ESTime",((EditText)SetTraceActivity.this.findViewById(R.id.editText_ESTime)).getText().toString());
+                }
+
+                boolean hasLETime = ((CheckBox)SetTraceActivity.this.findViewById(R.id.checkBox_hasLETime)).isChecked();
+                bundle.putBoolean("hasLETime",hasLETime);
+                if(hasLETime)
+                {
+                    bundle.putString("LETime",((EditText)SetTraceActivity.this.findViewById(R.id.editText_LETime)).getText().toString());
+                }
+
                 bundle.putInt("predict",Integer.parseInt(((EditText)SetTraceActivity.this.findViewById(R.id.editText_predict)).getText().toString()));
-                Log.i("SetTraceActivity","-----------------------"
-                        +((Switch)SetTraceActivity.this.findViewById(R.id.switch_isfix)).isChecked());
-                bundle.putInt("traceId",traceId);
+                bundle.putString("date",trace.getDate());
+
+                if(trace.hasSite()) {//如果有地点参数
+                    bundle.putString("siteId", trace.getSiteId());
+                    bundle.putString("siteText", trace.getSiteText());
+                }
+
+                bundle.putInt("traceId",trace.getTraceId());
                 Intent intent = new Intent();
                 intent.putExtras(bundle);
                 intent.setClass(SetTraceActivity.this, MainActivity.class);
@@ -189,7 +321,7 @@ public class SetTraceActivity extends AppCompatActivity {
         });
     }
 
-    private void showTime() {
+    private void showTime(final EditText editText) {//修改变得通用
         Calendar calendar;
         calendar=Calendar.getInstance();
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
@@ -207,7 +339,7 @@ public class SetTraceActivity extends AppCompatActivity {
                 else
                     min1= Integer.toString(minute);
                 String time1 = hour1 + ":" + min1;
-                time.setText(time1);
+                editText.setText(time1);
             }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true);
         timePickerDialog.show();
@@ -265,6 +397,7 @@ public class SetTraceActivity extends AppCompatActivity {
 
 //            event.setText(resultBuffer.toString());// 设置输入框的文本
             Log.e("sta",resultBuffer.toString());
+            EditText event = SetTraceActivity.this.findViewById(R.id.editText_activity);
             event.append(resultBuffer.toString());
             event .setSelection(event.length()) ;//把光标定位末尾
         }
