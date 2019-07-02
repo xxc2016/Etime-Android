@@ -41,7 +41,7 @@ import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
 import com.student.xxc.etime.R;
-import com.student.xxc.etime.helper.GdMapHelper;
+import com.student.xxc.etime.helper.MapTimeHelper;
 import com.student.xxc.etime.util.JsonParser;
 
 import org.json.JSONException;
