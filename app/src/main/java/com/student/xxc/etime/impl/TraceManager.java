@@ -6,12 +6,17 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.amap.api.services.core.LatLonPoint;
 import com.google.gson.Gson;
 import com.student.xxc.etime.bean.TraceBean;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.helper.MapTimeHelper;
+import com.student.xxc.etime.helper.TimeCalculateHelper;
 import com.student.xxc.etime.helper.TraceSQLiteOpenHelper;
+import com.student.xxc.etime.view.MainActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,18 +30,33 @@ public class TraceManager {//用于管理trace的工具类
     static TraceSQLiteOpenHelper helper;
     static Context context;
     static int traceId;
-    static boolean showFinished=false;
+    static boolean showFinished = false;
     static boolean useIntellectSort = false;
 
 
-
-    public static final String CREATE_DATABASE = "CREATE TABLE "+
-            "userTrace(id INTEGER PRIMARY KEY AUTOINCREMENT,"+
+    public static final String CREATE_DATABASE = "CREATE TABLE " +
+            "userTrace(id INTEGER PRIMARY KEY AUTOINCREMENT," +
             "ESTime TEXT,LETime TEXT,time TEXT,event TEXT,date TEXT,traceId INTEGER,finish INTEGER," +
-            "hasESTime INTEGER,hasLETime INTEGER,siteId TEXT,siteText Text,predict INTEGER)";
-    public  static final String DROP_TABLE = "DROP TABLE "+
+            "hasESTime INTEGER,hasLETime INTEGER,siteId TEXT,siteText Text,predict INTEGER,priority INTEGER)";
+    public static final String DROP_TABLE = "DROP TABLE " +
             "userTrace";
-    public  static final String DELETE_TABLE = "DELETE FROM "+ "userTrace";
+    public static final String DELETE_TABLE = "DELETE FROM " + "userTrace";
+
+    public static final String CREATE_TABLE_LATLON_POINT = "CREATE TABLE " +
+            "latlonPoint(siteId TEXT PRIMARY KEY,latitude REAL,longitude REAL)";
+
+    public static final String CREATE_TABLE_DISTANCE = "CREATE TABLE " +
+            "distance(siteId_a TEXT,siteId_b TEXT,dis REAL)";
+
+    public static final String DELETE_TABLE_LATLON_POINT = "DELETE FROM " +"latlonPoint";
+
+    public static final String DELETE_TABLE_DISTANCE = "DELETE FROM "+" distance";
+
+    public static final String DROP_TABLE_POINT = "DROP TABLE " +
+            "latlonPoint";
+
+    public static final String DROP_TABLE_DISTANCE = "DROP TABLE " +
+            "distance";
 
     private static final int TYPE_TOP = 0x0000;
     private static final int TYPE_NORMAL= 0x0001;
@@ -44,10 +64,17 @@ public class TraceManager {//用于管理trace的工具类
     static public void getDatabase()
     {
         if(helper==null){
-            helper = new TraceSQLiteOpenHelper(context,"userTrace",null,1);
+            helper = new TraceSQLiteOpenHelper(context,null,1);
         }
        helper.getWritableDatabase();
     }
+
+
+    static public  TraceSQLiteOpenHelper getHelper()
+    {
+        return helper;
+    }
+
 
     static public void setTraceList(List<Trace> traceList)
     {
@@ -119,6 +146,7 @@ public class TraceManager {//用于管理trace的工具类
                 int hasEstTemp= cursor.getInt(cursor.getColumnIndex("hasESTime"));
                 int hasLetTemp = cursor.getInt(cursor.getColumnIndex("hasLETime"));
                 int predict = cursor.getInt(cursor.getColumnIndex("predict"));
+                int priority = cursor.getInt(cursor.getColumnIndex("priority"));
                 boolean finish;
                 boolean hasESTime;
                 boolean hasLETime;
@@ -149,24 +177,48 @@ public class TraceManager {//用于管理trace的工具类
                 if(!finish  ||  showFinished)
                 {
                     traceList.add(new Trace(traceId,time,event ,date,hasESTime,hasLETime,
-                            ESTime,LETime,finish,siteId,siteText,predict));
+                            ESTime,LETime,finish,siteId,siteText,predict,priority));
                 }
                 Log.i("database","------------"+date+"   "+time+"   "+ESTime+"  "+LETime+"  "+event+"  "+traceId+" "+finish+" "+hasESTime+
-                        " "+hasLETime +" "+siteId+" "+siteText+"  "+predict);
+                        " "+hasLETime +" "+siteId+" "+siteText+"  "+predict+"  "+priority);
             }while (cursor.moveToNext());
             cursor.close();
         }
+
         if(useIntellectSort)//如果开启智能排序
         {
             Log.i("useIntellectSort","-----------------------------------"+"智能排序");
-           // return intellectSort(traceList);
-            return traceList;//取消原来智能排序算法 6.29
+            return intellectSort(traceList);
+           // return traceList;//取消原来智能排序算法 6.29
         }
         Log.i("useIntellectSort","-----------------------------------"+"普通排序");
         return traceList;
     }
 
-    /*static  private  boolean  judgeByLabel(Trace e1,Trace e2)//相当于大于
+
+    static private List<Trace> intellectSort(List<Trace> list)
+    {
+        TraceReceiver traceReceiver =new TraceReceiver();
+        for(int i=0;i<list.size();i++)
+        {
+            Trace temp = list.get(i);
+            TraceReceiver.Trace trace = new TraceReceiver.Trace();
+            trace.earliest_start_time = TimeCalculateHelper.getMinuteGap(temp.getESTime());
+            trace.latest_end_time = TimeCalculateHelper.getMinuteGap(temp.getLETime());
+            trace.label = temp.getTraceId();
+            trace.last_time = temp.getPredict();
+            trace.priority = 1;
+            if (trace.latest_end_time<=0)
+            {
+                Toast.makeText(context,"排序时间有和现实冲突！",Toast.LENGTH_SHORT).show();
+            }
+        }
+        return list;
+    }
+
+
+
+      /*static  private  boolean  judgeByLabel(Trace e1,Trace e2)//相当于大于
     {
         if(e1.getUrgent()== true)
         {
@@ -447,6 +499,8 @@ public class TraceManager {//用于管理trace的工具类
     static  public void dropTable()
     {
         helper.getWritableDatabase().execSQL(DROP_TABLE);
+        helper.getWritableDatabase().execSQL(DROP_TABLE_DISTANCE);
+        helper.getWritableDatabase().execSQL(DROP_TABLE_POINT);
     }
 
     static  public void deleteTable()
@@ -489,14 +543,15 @@ public class TraceManager {//用于管理trace的工具类
                 int hasESTime= cursor.getInt(cursor.getColumnIndex("hasESTime"));
                 int hasLETime= cursor.getInt(cursor.getColumnIndex("hasLETime"));
                 int predict = cursor.getInt(cursor.getColumnIndex("predict"));
+                int priority = cursor.getInt(cursor.getColumnIndex("priority"));
 
                 Trace trace =new Trace(traceId,time,event ,date,hasESTime,hasLETime,
-                        ESTime,LETime,finish,siteId,siteText,predict);
+                        ESTime,LETime,finish,siteId,siteText,predict,priority);
                 TraceBean.Trace bean = new TraceBean.Trace(Account.getUserAccount(),ESTime,LETime,time,event,date,finish,traceId,
-                        hasESTime,hasLETime,siteId,siteText,predict);
+                        hasESTime,hasLETime,siteId,siteText,predict,priority);
                 traces.add(bean);
                 Log.i("database","------------"+"------------"+date+"   "+time+"   "+ESTime+"  "+LETime+"  "+event+"  "+traceId+" "+finish+" "+hasESTime+
-                        " "+hasLETime +" "+siteId+" "+siteText+"  "+predict+"  account"+Account.getUserAccount());
+                        " "+hasLETime +" "+siteId+" "+siteText+"  "+predict+"  account"+Account.getUserAccount()+"  "+priority);
             }while (cursor.moveToNext());
             cursor.close();
         }
@@ -521,7 +576,7 @@ public class TraceManager {//用于管理trace的工具类
         {
             TraceBean.Trace  trace = it.next();
             Trace  trace1= new Trace(trace.traceId,trace.time,trace.event ,trace.date,trace.hasESTime,trace.hasLETime,
-                    trace.ESTime,trace.LETime,trace.finish,trace.siteId,trace.siteText,trace.predict);
+                    trace.ESTime,trace.LETime,trace.finish,trace.siteId,trace.siteText,trace.predict,trace.priority);
             addTrace(trace1);
         }
     }
@@ -547,12 +602,13 @@ public class TraceManager {//用于管理trace的工具类
             cv.put("hasESTime",traceList.get(i).get_hasEst_int());
             cv.put("hasLETime",traceList.get(i).get_hasLet_int());
             cv.put("predict",traceList.get(i).getPredict());
+            cv.put("priority",traceList.get(i).getPriority());
 
             db.insert("userTrace",null,cv);
             Log.i("input","------------"+traceList.get(i).getESTime()+"  "+traceList.get(i).getLETime()+"  "+traceList.get(i).getTime()
                     +traceList.get(i).getDate()+"   "+traceList.get(i).getEvent()+"  "+traceList.get(i).getTraceId()+"  "+traceList.get(i).getSiteText()
                     +"  "+traceList.get(i).getFinish_int()+" "+traceList.get(i).get_hasEst_int()+" "+traceList.get(i).get_hasLet_int()
-                    +" "+traceList.get(i).getPredict());
+                    +" "+traceList.get(i).getPredict()+"  "+traceList.get(i).getPriority());
         }
     }
 
@@ -568,10 +624,12 @@ public class TraceManager {//用于管理trace的工具类
         cv.put("date",e.getDate());
         cv.put("siteText",e.getSiteText());
         cv.put("traceId",e.getTraceId());
+        cv.put("siteId",e.getSiteId());
         cv.put("finish",e.getFinish_int());
         cv.put("hasESTime",e.get_hasEst_int());
         cv.put("hasLETime",e.get_hasLet_int());
         cv.put("predict",e.getPredict());
+        cv.put("priority",e.getPriority());
 
         db.update("userTrace",cv,"traceId= ?",new String[]{String.valueOf(e.getTraceId())});
 
@@ -608,6 +666,7 @@ public class TraceManager {//用于管理trace的工具类
         cv.put("siteId",e.getSiteId());
         cv.put("siteText",e.getSiteText());
         cv.put("predict",e.getPredict());
+        cv.put("priority",e.getPriority());
 
         Log.i("SqlAdd","id:"+e.getTraceId());
         db.insert("userTrace",null,cv);

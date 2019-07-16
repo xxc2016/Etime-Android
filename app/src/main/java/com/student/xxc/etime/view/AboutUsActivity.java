@@ -40,12 +40,12 @@ public class AboutUsActivity extends AppCompatActivity {
 
         TextView textView1=findViewById(R.id.textView2);
         TextView textView2=findViewById(R.id.textView3);
-        String group="团队介绍：鸡公煲加鸭血团队,由来自同一个寝室的四名成员组成，在生活中寻找灵感，让软件散发光彩。";
+        String group="团队介绍：咸鱼突刺团队,四名成员组成，在生活中寻找灵感，让软件散发光彩。";
         String contact="联系我们：\n                18212462429(电话)\n                821222974zkk@gmail.com";
         String join="加入我们";
         String about=group+"\n\n"+contact+"\n\n"+join;
         textView1.setText("v1.0.1");
-        textView2.setText(about);
+        //textView2.setText(about);
 
     }
 }

@@ -105,6 +105,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.ViewHo
                 intent.putExtra("siteId",traces.get(position).getSiteId());
                 intent.putExtra("siteText",traces.get(position).getSiteText());
                 intent.putExtra("predict",traces.get(viewHolder.getAdapterPosition()).getPredict());
+                intent.putExtra("priority",traces.get(position).getPriority());
+
 
 //                intent.putExtra("trace",traces.get(position));//序列化尝试  预留接口
                // intent.putExtra("siteId",traces.get(viewHolder.getAdapterPosition()).getFix());

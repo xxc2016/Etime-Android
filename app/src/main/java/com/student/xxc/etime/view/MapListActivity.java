@@ -72,6 +72,8 @@ public class MapListActivity extends AppCompatActivity implements SearchView.OnQ
             Intent intent = new Intent();
             intent.putExtra("poiId", tip.getPoiID());
             intent.putExtra("poiName",tip.getName());
+            intent.putExtra("Latitude",tip.getPoint().getLatitude());
+            intent.putExtra("Longitude",tip.getPoint().getLongitude());
             setResult(RESULT_CODE_INPUTTIPS, intent);
             this.finish();
         }

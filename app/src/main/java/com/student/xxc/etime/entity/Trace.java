@@ -15,9 +15,10 @@ public class Trace implements Serializable{//6.28  日程类重写  尝试添加
     private String siteId;//地址标识号
     private String siteText;//地址文字
     private int predict;//持续时间
+    private int priority;//事件优先级
 
     public Trace(int traceId,String time,String event ,String date,boolean hasESTime,boolean hasLETime
-            ,String ESTime,String LETime,boolean finish,String siteId,String siteText) {//构造函数除了预计持续时间
+            ,String ESTime,String LETime,boolean finish,String siteId,String siteText) {//构造函数除了预计持续时间 和优先级
         this.traceId = traceId;
         this.time = time;
         this.date = date;
@@ -32,10 +33,12 @@ public class Trace implements Serializable{//6.28  日程类重写  尝试添加
         this.siteId = siteId;
         this.siteText  =siteText;
         this.predict = 30;
+
+        this.priority = 1;
     }
 
     public Trace(int traceId,String time,String event ,String date,boolean hasESTime,boolean hasLETime
-            ,String ESTime,String LETime,boolean finish,String siteId,String siteText,int predict) {//构造函数完整
+            ,String ESTime,String LETime,boolean finish,String siteId,String siteText,int predict,int priority) {//构造函数完整
         this.traceId = traceId;
         this.date = date;
         this.event = event;
@@ -50,10 +53,12 @@ public class Trace implements Serializable{//6.28  日程类重写  尝试添加
         this.siteId = siteId;
         this.siteText  =siteText;
         this.predict = predict;
+
+        this.priority = priority;
     }
 
     public Trace(int traceId,String time,String event ,String date,int hasESTime,int hasLETime
-            ,String ESTime,String LETime,int finish,String siteId,String siteText,int predict) {//构造函数 布尔类型自动转换
+            ,String ESTime,String LETime,int finish,String siteId,String siteText,int predict,int priority) {//构造函数 布尔类型自动转换
         this.ESTime = ESTime;
         this.LETime=  LETime;
         this.hasESTime = judge_hasEst_boolean(hasESTime);
@@ -66,6 +71,7 @@ public class Trace implements Serializable{//6.28  日程类重写  尝试添加
         this.siteText  =siteText;
         this.time = time;
         this.predict = predict;
+        this.priority = priority;
     }
 
 //    public Trace(String time,String date, String event,int traceId,boolean finish) {
@@ -407,5 +413,13 @@ public class Trace implements Serializable{//6.28  日程类重写  尝试添加
         {
             return true;
         }
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

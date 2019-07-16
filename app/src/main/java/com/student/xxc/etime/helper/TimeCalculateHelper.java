@@ -19,6 +19,21 @@ public class TimeCalculateHelper {//计算时间帮助类
         return time;
     }
 
+    static public int getMinuteGap(String time)
+    {
+        String now = getTimeByHourAndMinute();
+        String [] now_t = now.split(":");
+        int nowHour = Integer.parseInt(now_t[0]);
+        int nowMinute = Integer.parseInt(now_t[1]);
+
+        String [] time_t = time.split(":");
+        int Hour = Integer.parseInt(time_t[0]);
+        int Minute = Integer.parseInt(time_t[1]);
+        int ans = (Hour - nowHour)*60 + (Minute - nowMinute);
+        Log.i("timeGap","------------------------------------"+ans);
+        return ans;
+    }
+
     static  public  String getTimeGap(String date,String time)
     {
         SimpleDateFormat df_date = new SimpleDateFormat("yyyy-MM-dd");

@@ -12,7 +12,7 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
     static private String url_user = "http://"+url_ip+"//E_TimeServer/servlet/E_TimeServlet";
     static private String url_user_image = "http://"+url_ip+"//E_TimeServer/StoreImageServlet";
     static private String url_base = "http://"+url_ip+"//E_TimeServer";
-    static private String url_user_trace="http://"+url_ip+"//E_TimeServer/TracesServlet";
+    static private String url_user_trace="http://"+url_ip+"//E_TimeServer/CloudTraceServlet";//url更改  7.2
     static private String url_post="http://"+url_ip+"//E_TimeServer/PostServlet";
     static private String url_post_detail="http://"+url_ip+"//E_TimeServer/PostDetailServlet";
     static private String url_remark="http://"+url_ip+"//E_TimeServer/RemarkServlet";
@@ -23,14 +23,14 @@ public class UrlHelper {//管理和后台连接ip和url  便于测试
 
 
 
-    static private String url_ip_test = "192.168.43.179:8080";
+    static private String url_ip_test = "172.19.176.3:8080";
     //    static private String url_user_test = "http://192.168.1.105:8080//E_TimeServer/servlet/E_TimeServlet";
 //    static private String url_user_image_test = "http://192.168.1.105:8080//E_TimeServer/StoreImageServlet";
 //    static private String url_base_test ="http://192.168.1.105:8080//E_TimeServer";
     static private String url_user_test = "http://"+url_ip_test+"//E_TimeServer/servlet/E_TimeServlet";
     static private String url_user_image_test = "http://"+url_ip_test+"//E_TimeServer/StoreImageServlet";
     static private String url_base_test ="http://"+url_ip_test+"//E_TimeServer";
-    static private String url_user_trace_test="http://"+url_ip_test+"//E_TimeServer/TracesServlet";
+    static private String url_user_trace_test="http://"+url_ip_test+"//E_TimeServer/CloudTraceServlet";
     static private String url_post_test="http://"+url_ip_test+"//E_TimeServer/PostServlet";
     static private String url_post_detail_test="http://"+url_ip_test+"//E_TimeServer/PostDetailServlet";
     static private String url_remark_test="http://"+url_ip_test+"//E_TimeServer/RemarkServlet";

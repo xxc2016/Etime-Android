@@ -42,10 +42,11 @@ public class TraceBean {
         public String siteId;//地址标识号
         public String siteText;//地址文字
         public int predict;//持续时间
+        public int priority;//时间优先级
 
 
         public  Trace(String userAccount,String ESTime,String LETime,String time,String event,String date,boolean finish,int traceId
-                ,boolean hasESTime,boolean hasLETime,String siteId,String siteText,int predict) {
+                ,boolean hasESTime,boolean hasLETime,String siteId,String siteText,int predict,int priority) {
             this.userAccount = userAccount;
             this.time = time;
             this.ESTime =ESTime;
@@ -59,10 +60,11 @@ public class TraceBean {
             this.siteText  =siteText;
             this.traceId = traceId;
             this.predict = predict;
+            this.priority = priority;
         }
 
         public  Trace(String userAccount,String ESTime,String LETime,String time,String event,String date,int finish,int traceId
-                ,int hasESTime,int hasLETime,String siteId,String siteText,int predict) {
+                ,int hasESTime,int hasLETime,String siteId,String siteText,int predict,int priority) {
             this.userAccount = userAccount;
             this.time = time;
             this.ESTime =ESTime;
@@ -76,6 +78,7 @@ public class TraceBean {
             this.siteText  =siteText;
             this.traceId = traceId;
             this.predict = predict;
+            this.priority = priority;
         }
 
 
@@ -210,4 +213,6 @@ public class TraceBean {
     public void setSource(String source) {
         this.source = source;
     }
+
+
 }

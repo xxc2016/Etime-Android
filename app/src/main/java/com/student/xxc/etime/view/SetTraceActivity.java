@@ -41,7 +41,7 @@ import com.iflytek.cloud.SpeechUtility;
 import com.iflytek.cloud.ui.RecognizerDialog;
 import com.iflytek.cloud.ui.RecognizerDialogListener;
 import com.student.xxc.etime.R;
-import com.student.xxc.etime.helper.MapTimeHelper;
+import com.student.xxc.etime.helper.GdMapHelper;
 import com.student.xxc.etime.util.JsonParser;
 
 import org.json.JSONException;
@@ -161,10 +161,11 @@ public class SetTraceActivity extends AppCompatActivity {
         String siteId = intent.getStringExtra("siteId");
         String siteText = intent.getStringExtra("siteText");
         int predict = intent.getIntExtra("predict", 30);
+        int priority = intent.getIntExtra("priority",1);
 
 
         this.trace = new Trace(traceId, time, event, date, hasESTime, hasLETime,
-                ESTime, LETime, isfinish, siteId, siteText, predict);
+                ESTime, LETime, isfinish, siteId, siteText, predict,priority);
 
     }
 
@@ -179,6 +180,9 @@ public class SetTraceActivity extends AppCompatActivity {
         switch_finish.setChecked(trace.getFinish());
         final EditText editText_predict =  (EditText)this.findViewById(R.id.editText_predict);
         editText_predict.setText(""+trace.getPredict());
+
+        final EditText editText_priority =  (EditText)this.findViewById(R.id.editText_priority);
+        editText_priority.setText(""+trace.getPriority());
 
         CheckBox checkBox_hasESTime = this.findViewById(R.id.checkBox_hasESTime);//最早时间  最晚时间初始化
         final EditText editText_ESTime = this.findViewById(R.id.editText_ESTime);
@@ -206,6 +210,8 @@ public class SetTraceActivity extends AppCompatActivity {
                 trace.setHasESTime(isChecked);
                 if(isChecked)
                 {
+                    trace.setESTime("00:00");
+                    editText_ESTime.setText(trace.getESTime());
                     editText_ESTime.setVisibility(View.VISIBLE);
                 }
                 else
@@ -240,6 +246,8 @@ public class SetTraceActivity extends AppCompatActivity {
                 trace.setHasLETime(isChecked);
                 if(isChecked)
                 {
+                    trace.setLETime("00:00");
+                    editText_LETime.setText(trace.getLETime());
                     editText_LETime.setVisibility(View.VISIBLE);
                 }
                 else
@@ -280,9 +288,19 @@ public class SetTraceActivity extends AppCompatActivity {
         event.setText(trace.getEvent());
 
 
+
+
+
+
         button_confirm.setOnClickListener(new View.OnClickListener() { //提交
             @Override
             public void onClick(View v) {
+
+                if(!judgeContentValid())//判断日程内容合法
+                {
+                         return;
+                }
+
                 Bundle bundle = new Bundle();
                 bundle.putString("time",((EditText)SetTraceActivity.this.findViewById(R.id.editText_time)).getText().toString());
                 bundle.putString("event",((EditText)SetTraceActivity.this.findViewById(R.id.editText_activity)).getText().toString());
@@ -311,6 +329,10 @@ public class SetTraceActivity extends AppCompatActivity {
                     bundle.putString("siteText", trace.getSiteText());
                 }
 
+                final EditText editText_priority =  (EditText)SetTraceActivity.this.findViewById(R.id.editText_priority);
+                int priority = Integer.parseInt(editText_priority.getText().toString());
+                bundle.putInt("priority",priority);
+
                 bundle.putInt("traceId",trace.getTraceId());
                 Intent intent = new Intent();
                 intent.putExtras(bundle);
@@ -319,6 +341,46 @@ public class SetTraceActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+
+    private boolean judgeContentValid()//判断时间、内容是否合法
+    {
+        if(trace.isHasESTime() && trace.isHasLETime())
+        {
+            String ESTime = ((EditText)this.findViewById(R.id.editText_ESTime)).getText().toString();
+            String LETime = ((EditText)this.findViewById(R.id.editText_LETime)).getText().toString();
+            if(ESTime.compareTo(LETime)>=0)
+            {
+                Toast.makeText(this,"最晚结束不能早于最早开始！",Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        EditText editText = this.findViewById(R.id.editText_activity);
+        String content = editText.getText().toString();
+        if(content==null ||"".equals(content))
+        {
+            Toast.makeText(this,"日程内容不能为空！",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        EditText editText_priority = this.findViewById(R.id.editText_priority);
+        String content_p = editText_priority.getText().toString();
+        if(content_p==null || "".equals(content_p))
+        {
+            Toast.makeText(this,"优先级不能为空！",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        int priority  = Integer.parseInt(content_p);
+        if(priority<=0 || priority>3)
+        {
+            Toast.makeText(this,"优先级为1-3！",Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
     }
 
     private void showTime(final EditText editText) {//修改变得通用

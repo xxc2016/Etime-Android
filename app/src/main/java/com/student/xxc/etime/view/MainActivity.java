@@ -15,6 +15,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 //import android.support.design.widget.FloatingActionButton;
@@ -44,24 +46,37 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.student.xxc.etime.R;
+import com.student.xxc.etime.bean.SiteBean;
+import com.student.xxc.etime.bean.TraceBean;
 import com.student.xxc.etime.entity.Account;
 import com.student.xxc.etime.entity.Trace;
+import com.student.xxc.etime.entity.User;
 import com.student.xxc.etime.helper.BitmapTranslateHelper;
 import com.student.xxc.etime.helper.GlideCirlceTransHelper;
 import com.student.xxc.etime.adapter.MyItemTouchHelperCallback;
+import com.student.xxc.etime.helper.MapTimeHelper;
+import com.student.xxc.etime.helper.PermissionHelper;
 import com.student.xxc.etime.helper.PushService;
 import com.student.xxc.etime.helper.SelectIconHelper;
 import com.student.xxc.etime.adapter.TimeLineAdapter;
+import com.student.xxc.etime.helper.SiteHelper;
 import com.student.xxc.etime.helper.TimeCalculateHelper;
 import com.student.xxc.etime.helper.TraceItemTouchHelper;
+import com.student.xxc.etime.helper.TraceSQLiteOpenHelper;
 import com.student.xxc.etime.helper.shareView;
+import com.student.xxc.etime.impl.GetRxJavaTrace_Interface;
 import com.student.xxc.etime.impl.TraceManager;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,10 +85,19 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import io.reactivex.Observer;
+import io.reactivex.Scheduler;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import jp.wasabeef.recyclerview.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.SlideInLeftAnimator;
 import okhttp3.MediaType;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
+import io.reactivex.Observable;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -91,7 +115,9 @@ public class MainActivity extends AppCompatActivity
     private PushService pushService=new PushService();
     private shareView  shareUnit;
     private Bitmap userHead = null;//头像缓存引用
-
+    private   MyHandler myhandler = new MyHandler(this);
+    private MapTimeHelper mapTimeHelper = new MapTimeHelper(this,myhandler);
+    private static final int REQUEST_CODE_INIT_DATA = 666;
     ////////////////////////////////////////////////
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +140,8 @@ public class MainActivity extends AppCompatActivity
 
         initAccount();//初始化账户  完善更新顺序2.1
         initData(null);
+
+        askSiteImage(false);//询问获得经纬度
 
         setSupportActionBar(toolbar);
 
@@ -176,11 +204,48 @@ public class MainActivity extends AppCompatActivity
        initShareUnit();
     }
 
+    public static class MyHandler extends Handler
+    {
+        private final WeakReference<MainActivity> mActivity;
+
+        public MyHandler(MainActivity activity)
+        {
+            mActivity = new WeakReference<MainActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {//处理消息
+            super.handleMessage(msg);
+            if(mActivity.get()==null)
+            {
+                return ;
+            }
+            Bundle bundle  =msg.getData();
+            int  response = bundle.getInt("response");
+            if(response==REQUEST_CODE_INIT_DATA)
+            {
+                mActivity.get().initData(null);
+            }
+        }
+    }
+
+
+
     private void selectPicture() {
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_CODE_SELECT_PIC);
+    }
+
+    private void askSiteImage(final boolean flag)//请求现在日程的经纬度和距离
+    {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mapTimeHelper.askForTracePoint(getSiteTrace(),flag);//请求日程的地点经纬度
+            }
+        }).start();
     }
 
     private void initShareUnit()
@@ -198,8 +263,6 @@ public class MainActivity extends AppCompatActivity
 /////////////////////////////////////////////////////////////////
     private void getSetTrace(Intent intent)
     {
-//        Intent intent = this.getIntent();
-        //setResult(0x000011,intent);
         Bundle bundle = intent.getExtras();
         if(bundle!=null) {
             String time = bundle.getString("time");
@@ -214,11 +277,13 @@ public class MainActivity extends AppCompatActivity
             String date = bundle.getString("date");
             String siteId = bundle.getString("siteId");
             String siteText =bundle.getString("siteText");
+            int priority = bundle.getInt("priority");
+
 
             int predict = bundle.getInt("predict");
             Log.i("set", "-----------------" + time + "  " + event + "  " + finish + "  " + traceId
-                    +" "+isdelete+" "+hasESTime+" "+ESTime+"   "+hasLETime+"  "+LETime+" "+siteId+"  "+siteText+" "+predict);
-            Trace one =new  Trace(traceId,time,event,date,hasESTime,hasLETime,ESTime,LETime,finish,siteId,siteText,predict);
+                    +" "+isdelete+" "+hasESTime+" "+ESTime+"   "+hasLETime+"  "+LETime+" "+siteId+"  "+siteText+" "+predict+" "+priority);
+            Trace one =new  Trace(traceId,time,event,date,hasESTime,hasLETime,ESTime,LETime,finish,siteId,siteText,predict,priority);
             if(isdelete)
             {
                 TraceManager.deleteTrace(one);
@@ -238,14 +303,45 @@ public class MainActivity extends AppCompatActivity
       //  TraceManager.saveTraces();
           TraceManager.getTraces();   //其实是删库哒  //然而并不删库 1.31
 
+        SiteHelper.setContext(this);
+        SiteHelper.getDatabase(TraceManager.getHelper());//添加地点数据库
+
+
         if(data!=null)
             getSetTrace(data); //获得从设定来的数据
         traceList.clear();
         traceList.addAll(TraceManager.initialTraces(this.nowDate));
+
 //        refreshInform();
 //        traceList =TraceManager.initialTraces(this.nowDate);//11.14  初始化增加设置日期
 //        adapter.notifyDataSetChanged();
+
+      //  mapTimeHelper.askForPointDistance();
+
+        //TraceManager.dropTable();
     }
+
+
+    private List<String>  getSiteTrace()//获取日程中没有存储地点的siteId
+    {
+        List<String> list =new LinkedList<String>();
+        for(int i=0;i<traceList.size();i++)
+        {
+            String siteId = traceList.get(i).getSiteId();
+            if(siteId!=null) {
+                String result = SiteHelper.getLanLonPoint(siteId);
+                Log.i("siteHelper", "---------------------------" + siteId+"   "+result);
+                if(list.indexOf(siteId)==-1) {
+                        Log.i("siteHelper", "---------------------------add:" + siteId);
+                        list.add(siteId);
+                }
+
+            }
+        }
+
+        return list;
+    }
+
 
     private void initDate()
     {
@@ -273,7 +369,7 @@ public class MainActivity extends AppCompatActivity
         touchHelper.attachToRecyclerView(recyclerView);
     }
 
-    private void initData(Intent data) {
+    public void initData(Intent data) {
 
         TraceManager.setShowFinished(this.showFinished);//设定设置
 
@@ -387,9 +483,10 @@ public class MainActivity extends AppCompatActivity
                 String siteText =bundle.getString("siteText");
 
                 int predict = bundle.getInt("predict");
+                int priority =bundle.getInt("prioirty",1);
 
                 Trace trace = new Trace(traceId, time, event, date, hasESTime, hasLETime,
-                        ESTime, LETime, finish, siteId, siteText, predict);
+                        ESTime, LETime, finish, siteId, siteText, predict,priority);
 
                 adapter.addData(trace,0);//1->0
                 adapter.MoveToPosition(manager,0);
@@ -471,10 +568,24 @@ public class MainActivity extends AppCompatActivity
 
 
         }else if (id==R.id.nav_sort) {  //添加侧栏
-            this.useIntellectSort = !this.useIntellectSort;
-            TraceManager.setUseIntellectSort( this.useIntellectSort);
-            this.initData(null);
-            refreshInform();
+            if(this.useIntellectSort==false && traceList.size()==0)
+            {
+                Toast.makeText(this,"没有事件，无法使用排序！",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                if (!judgePrepared() && this.useIntellectSort == false) {
+                    Toast.makeText(this, "有事件没设置地址或时间，无法使用！", Toast.LENGTH_SHORT).show();
+                } else {
+                    this.useIntellectSort = !this.useIntellectSort;
+                    TraceManager.setUseIntellectSort(this.useIntellectSort);
+                    if (!this.useIntellectSort) {//不用智能排序
+                        this.initData(null);
+                        refreshInform();
+                    } else {//使用用回调
+                        askSiteImage(true);
+                    }
+                }
+            }
         }else if(id==R.id.nav_user) {//用户登陆功能1.21
             Intent intent = new Intent();
             intent.putExtra("mode",getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK);
@@ -490,6 +601,23 @@ public class MainActivity extends AppCompatActivity
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+
+    private boolean judgePrepared()//判断日程合法
+    {
+        for(int i=0;i<traceList.size();i++)
+        {
+            if(traceList.get(i).hasSite()==false)
+            {
+                return false;
+            }
+            if(!traceList.get(i).isHasLETime() || !traceList.get(i).isHasESTime())
+            {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -787,6 +915,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
+        PermissionHelper.checkPermission(this);//请求存储权限
         String filePath = MediaStore.Images.Media.insertImage(getContentResolver(),bm, null, null);
         if (TextUtils.isEmpty(filePath)) {
             Toast.makeText(MainActivity.this, "生成图片失败！", Toast.LENGTH_SHORT).show();
